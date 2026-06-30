@@ -4,6 +4,8 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+<!-- REMINDER: Update this file at the end of every session with completed work and current status. -->
+
 <!-- Nutyum Project Tracking -->
 
 # Project: Nutyum — Premium Makhana Snacks
@@ -20,7 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Session: 2026-06-30
 
-### Completed (Supabase Auth Integration)
+### Completed (Supabase Auth + Cart)
 - [x] **Supabase Auth connected** — credentials provider validates against Supabase Auth (falls back to demo store if disconnected)
 - [x] **Sign-up route** — creates users in Supabase Auth via admin API with `email_confirm: true`
 - [x] **Forgot password** — `/forgot-password` page with Supabase `resetPasswordForEmail()`, `/auth/callback` route, `/reset-password` page with `updateUser()`
@@ -36,8 +38,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Git push** — committed and pushed to GitHub
 - [x] **Cart persistence fix** — sign-out no longer overwrites API cart, CartSync uses session status for reliable load/sync
 - [x] **localStorage cart cache** — cart renders instantly from localStorage, API syncs in background
+- [x] **Drizzle cart_items table** — schema + migration generated, API route rewritten to use DB table instead of Auth metadata
 
 ### Still Pending
-- [ ] Supabase/Drizzle integration, Supabase auth, Razorpay payments
+- [ ] **Run migration in Supabase** — paste `db/migrations/0001_funny_doctor_octopus.sql` in Supabase Dashboard → SQL Editor
 - [ ] Support pages (contact, FAQ, shipping, returns, privacy) — links exist in footer but routes don't
 - [ ] `/reviews` route
+- [ ] Supabase auth, Razorpay payments

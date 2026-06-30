@@ -1,37 +1,54 @@
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { db } from "@/db";
+import { cartItems } from "@/db/schema";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+  if (!userId) {
     return NextResponse.json({ items: [] });
   }
 
-  const { data, error } = await supabaseAdmin.auth.admin.getUserById(session.user.id);
-  if (error || !data?.user) {
-    return NextResponse.json({ items: [] });
-  }
+  const rows = await db
+    .select()
+    .from(cartItems)
+    .where(eq(cartItems.userId, userId));
 
-  const cart = (data.user.user_metadata as any)?.cart || [];
-  return NextResponse.json({ items: cart });
+  const items = rows.map((r) => ({
+    productId: (r.productData as Record<string, unknown>).id as string,
+    quantity: r.quantity,
+    product: r.productData as Record<string, unknown>,
+  }));
+
+  return NextResponse.json({ items });
 }
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { items } = await req.json();
+  const { items } = await req.json() as { items: { productId: string; quantity: number; product: Record<string, unknown> }[] };
 
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(session.user.id, {
-    user_metadata: { cart: items },
+  // Replace all cart items for this user in a single transaction
+  await db.transaction(async (tx) => {
+    await tx.delete(cartItems).where(eq(cartItems.userId, userId));
+
+    if (items.length > 0) {
+      await tx.insert(cartItems).values(
+        items.map((item) => ({
+          userId: userId,
+          productId: item.productId,
+          productData: item.product,
+          quantity: item.quantity,
+        }))
+      );
+    }
   });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
 
   return NextResponse.json({ ok: true });
 }

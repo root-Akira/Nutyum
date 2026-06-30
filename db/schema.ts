@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean, real, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer, boolean, real, timestamp, jsonb, unique } from "drizzle-orm/pg-core";
 
 export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -39,6 +39,18 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   price: integer("price").notNull(),
 });
+
+export const cartItems = pgTable("cart_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  productId: text("product_id").notNull(),
+  productData: jsonb("product_data").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userProductUnq: unique().on(table.userId, table.productId),
+}));
 
 export const addresses = pgTable("addresses", {
   id: uuid("id").defaultRandom().primaryKey(),
