@@ -127,7 +127,7 @@ export function OurOrigins() {
           className="mt-10 will-change-transform"
         >
           <Link
-            href="/our-story"
+            href="/learn/process"
             className="inline-flex items-center rounded-full border-2 border-white bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-[#173D22]"
             style={{ fontFamily: "var(--font-body)" }}
           >

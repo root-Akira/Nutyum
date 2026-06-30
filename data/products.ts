@@ -47,7 +47,6 @@ export const PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 84,
     weight: "100g",
-    badgeLabel: "TEA SACHETS",
   },
   {
     id: "peri-peri",

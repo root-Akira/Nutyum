@@ -37,7 +37,7 @@ export function BrandPanel() {
           </p>
           <div>
             <Link
-              href="/our-story"
+              href="/learn"
               className="inline-flex items-center rounded-full border-2 border-white/50 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/20"
               style={{ fontFamily: "var(--font-body)" }}
             >

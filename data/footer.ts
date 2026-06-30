@@ -15,19 +15,19 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     heading: "Collections",
     links: [
       { label: "All Products", href: "/shop" },
-      { label: "Best Sellers", href: "/shop/best-sellers" },
-      { label: "New Arrivals", href: "/shop/new" },
-      { label: "Gift Sets", href: "/shop/gifts" },
+      { label: "Best Sellers", href: "/shop" },
+      { label: "New Arrivals", href: "/shop" },
+      { label: "Gift Sets", href: "/shop" },
       { label: "Bulk Orders", href: "/wholesale" },
     ],
   },
   {
     heading: "Gift Sets",
     links: [
-      { label: "Starter Pack", href: "/shop/starter" },
-      { label: "Variety Pack", href: "/shop/variety" },
-      { label: "Festival Box", href: "/shop/festival" },
-      { label: "Corporate Gifting", href: "/corporate" },
+      { label: "Starter Pack", href: "/shop" },
+      { label: "Variety Pack", href: "/shop/variety-pack" },
+      { label: "Festival Box", href: "/shop" },
+      { label: "Corporate Gifting", href: "/wholesale" },
     ],
   },
   {
@@ -35,17 +35,17 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "What is Makhana?", href: "/learn/what-is-makhana" },
       { label: "Health Benefits", href: "/learn/benefits" },
-      { label: "Sustainability", href: "/learn/sustainability" },
-      { label: "Our Farm Partners", href: "/learn/farms" },
+      { label: "Sustainability", href: "/learn" },
+      { label: "Our Farm Partners", href: "/learn" },
     ],
   },
   {
     heading: "Snack Journal",
     links: [
-      { label: "Recipes", href: "/journal/recipes" },
-      { label: "Snack Culture", href: "/journal/culture" },
-      { label: "Ingredients", href: "/journal/ingredients" },
-      { label: "Reviews", href: "/reviews" },
+      { label: "Recipes", href: "/journal" },
+      { label: "Snack Culture", href: "/journal" },
+      { label: "Ingredients", href: "/journal" },
+      { label: "Reviews", href: "/shop" },
     ],
   },
   {

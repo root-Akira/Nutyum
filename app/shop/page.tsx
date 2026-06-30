@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { PRODUCTS } from "@/data/products";
 import { VIBE_TAGS } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -11,11 +12,19 @@ import { cn } from "@/lib/utils";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-export default function ShopPage() {
+function ShopContent() {
   const prefersReduced = useReducedMotion();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const addItem = useCartStore((s) => s.addItem);
+
+  useEffect(() => {
+    const vibe = searchParams.get("vibe");
+    if (vibe && VIBE_TAGS.includes(vibe as never)) {
+      setActiveVibe(vibe);
+    }
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
@@ -30,7 +39,7 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen bg-[#FAF7EE]">
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-24 sm:pt-32">
+      <div className="mx-auto max-w-7xl px-6 pb-8 pt-8 sm:pt-12">
         <motion.h1
           initial={prefersReduced ? {} : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -151,5 +160,13 @@ export default function ShopPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense>
+      <ShopContent />
+    </Suspense>
   );
 }

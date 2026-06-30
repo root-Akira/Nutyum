@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 // ─── Vibe tags (Two Leaves "mood" pill style) ─────────────────────────────────
@@ -109,13 +110,13 @@ export function Discover() {
           transition={{ duration: 0.6, ease: EASE, delay: 0.34 }}
           className="will-change-transform"
         >
-          <a
+          <Link
             href={selected ? `/shop?vibe=${encodeURIComponent(selected)}` : "/shop"}
             className="inline-flex items-center rounded-full border-2 border-[#173D22] px-8 py-3.5 text-sm font-semibold text-[#173D22] transition-all hover:bg-[#173D22] hover:text-white"
             style={{ fontFamily: "var(--font-body)" }}
           >
             {selected ? `Shop "${selected}"` : "Find My Snack"}
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

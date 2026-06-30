@@ -8,10 +8,12 @@ import { ChevronDown, Star, ShoppingBag, Menu, X, User } from "lucide-react";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { useUIStore } from "@/hooks/use-ui-store";
 import { useSession } from "next-auth/react";
+import { PRODUCTS } from "@/data/products";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 const SCROLL_EASE = "cubic-bezier(0.5, 0, 0, 1)";
 const FE: [number, number, number, number] = [0.5, 0, 0, 1];
+const TOP_PRODUCTS = PRODUCTS.slice(0, 3);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface MegaNavItem {
@@ -56,10 +58,10 @@ const LEFT_NAV: LeftNavItem[] = [
       {
         heading: "By Need",
         items: [
-          { label: "High Protein", href: "/shop/high-protein" },
-          { label: "Low Calorie", href: "/shop/low-calorie" },
-          { label: "Guilt-Free Snacks", href: "/shop/guilt-free" },
-          { label: "Gift Packs", href: "/shop/gifts" },
+          { label: "High Protein", href: "/shop" },
+          { label: "Low Calorie", href: "/shop" },
+          { label: "Guilt-Free Snacks", href: "/shop" },
+          { label: "Gift Packs", href: "/shop" },
         ],
       },
     ],
@@ -119,7 +121,7 @@ function MegaMenuPanel({ item }: { item: MegaNavItem }) {
               </p>
               <ul className="space-y-3">
                 {col.items.map((link) => (
-                  <li key={link.href}>
+                  <li key={`${link.href}-${link.label}`}>
                     <Link
                       href={link.href}
                       className="text-[15px] text-[#173D22] transition-opacity hover:opacity-50"
@@ -153,28 +155,28 @@ function MegaMenuPanel({ item }: { item: MegaNavItem }) {
             Shop Best Sellers
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {item.featured.map((prod) => (
+            {TOP_PRODUCTS.map((prod) => (
               <Link
-                key={prod.href}
-                href={prod.href}
+                key={prod.id}
+                href={`/shop/${prod.slug}`}
                 className="group flex flex-col overflow-hidden rounded-2xl"
-                style={{ backgroundColor: prod.bg }}
+                style={{ backgroundColor: prod.bgColor }}
               >
-                <div className="flex aspect-[4/3] items-center justify-center">
-                  <span
-                    className="px-4 text-center text-lg font-medium leading-snug text-[#173D22] opacity-30"
-                    style={{ fontFamily: "var(--font-heading)" }}
-                    aria-hidden
-                  >
-                    Nutyum
-                  </span>
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={prod.images[0] || "/placeholder.png"}
+                    alt={prod.name}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 200px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-                <div className="px-4 pb-4">
+                <div className="px-4 pb-4 pt-2">
                   <span
                     className="text-[13px] font-medium text-[#173D22] group-hover:underline"
                     style={{ fontFamily: "var(--font-body)" }}
                   >
-                    {prod.label}
+                    {prod.name}
                   </span>
                 </div>
               </Link>
@@ -392,7 +394,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
     <>
       <AnnouncementBar />
 
-      <header
+      <motion.header
         className="sticky top-0 z-40 border-b border-[rgba(23,61,34,0.08)] bg-[#FFFEFB]"
         style={{
           boxShadow: scrolled ? "rgba(0,0,0,0.14) 0px 1px 4px 0px" : "none",
@@ -400,12 +402,10 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
         }}
         onMouseLeave={scheduleClose}
       >
-        <div
+        <motion.div
           className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8"
-          style={{
-            height: scrolled ? "68px" : "97px",
-            transition: `height 0.8s ${SCROLL_EASE}`,
-          }}
+          animate={{ height: scrolled ? 86 : 97 }}
+          transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
           <nav className="hidden items-center gap-9 lg:flex" aria-label="Primary navigation">
             {LEFT_NAV.map((item) => (
@@ -432,19 +432,61 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
               unoptimized
               className="object-contain"
               style={{
-                height: scrolled ? "36px" : "52px",
+                height: "70px",
                 width: "auto",
                 transition: `height 0.8s ${SCROLL_EASE}`,
               }}
             />
           </Link>
 
-          <div className="ml-auto hidden items-center gap-5 lg:flex" aria-label="Secondary navigation">
+          <div className="ml-auto hidden items-center gap-6 lg:flex" aria-label="Secondary navigation">
+            <Link
+              href="/"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-[#173D22] transition-opacity hover:opacity-50"
+              style={{
+                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                fontSize: "19px",
+                fontWeight: 500,
+                lineHeight: 1,
+              }}
+            >
+              Home
+            </Link>
+            <Link
+              href="/wholesale"
+              className="text-[#173D22] transition-opacity hover:opacity-50"
+              style={{
+                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                fontSize: "19px",
+                fontWeight: 500,
+                lineHeight: 1,
+              }}
+            >
+              Wholesale
+            </Link>
+            <Link
+              href="/journal"
+              className="text-[#173D22] transition-opacity hover:opacity-50"
+              style={{
+                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                fontSize: "19px",
+                fontWeight: 500,
+                lineHeight: 1,
+              }}
+            >
+              Journal
+            </Link>
             {session?.user ? (
               <Link
                 href="/account"
-                className="flex items-center gap-1.5 text-[11px] font-medium tracking-[0.12em] uppercase text-[#173D22] transition-opacity hover:opacity-50"
-                style={{ fontFamily: "var(--font-body)" }}
+                className="flex items-center gap-1.5 text-[#173D22] transition-opacity hover:opacity-50"
+                style={{
+                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                  fontSize: "19px",
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
               >
                 <User size={14} strokeWidth={1.8} aria-hidden="true" />
                 {session.user.name?.split(" ")[0] || "Account"}
@@ -452,26 +494,17 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             ) : (
               <Link
                 href="/signin"
-                className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#173D22] transition-opacity hover:opacity-50"
-                style={{ fontFamily: "var(--font-body)" }}
+                className="text-[#173D22] transition-opacity hover:opacity-50"
+                style={{
+                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                  fontSize: "19px",
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
               >
                 Sign In
               </Link>
             )}
-            <Link
-              href="/wholesale"
-              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#173D22] transition-opacity hover:opacity-50"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Wholesale Partners
-            </Link>
-            <Link
-              href="/journal"
-              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#173D22] transition-opacity hover:opacity-50"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Snack Journal
-            </Link>
 
             <span className="h-4 w-px bg-[rgba(23,61,34,0.2)]" aria-hidden="true" />
 
@@ -515,13 +548,13 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
               <Menu size={22} strokeWidth={1.7} aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Mega menu panel (full-width, anchored to header) ── */}
         <AnimatePresence>
           {activeMega && <MegaMenuPanel item={activeMega} />}
         </AnimatePresence>
-      </header>
+      </motion.header>
 
       <MobileDrawer isOpen={mobileOpen} onClose={closeMobile} session={session} />
     </>

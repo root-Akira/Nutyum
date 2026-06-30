@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
 
 // ─── Slide data ───────────────────────────────────────────────────────────────
@@ -36,7 +36,6 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 // ─── Hero Carousel ────────────────────────────────────────────────────────────
 export function HeroCarousel() {
-  const prefersReduced = useReducedMotion();
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(1);
 
@@ -52,10 +51,9 @@ export function HeroCarousel() {
 
   // Auto-advance
   useEffect(() => {
-    if (prefersReduced) return;
     const id = setInterval(next, 6000);
     return () => clearInterval(id);
-  }, [next, prefersReduced]);
+  }, [next]);
 
   const slide = SLIDES[active];
 
@@ -68,7 +66,7 @@ export function HeroCarousel() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: "calc(100svh - 92px)" }} // subtract header height
+      style={{ height: "calc(100svh - 92px)" }}
       aria-label="Hero product showcase"
       aria-roledescription="carousel"
     >
@@ -76,7 +74,7 @@ export function HeroCarousel() {
         <motion.div
           key={slide.id}
           custom={direction}
-          variants={prefersReduced ? {} : variants}
+          variants={variants}
           initial="enter"
           animate="center"
           exit="exit"
@@ -96,13 +94,12 @@ export function HeroCarousel() {
             className="object-cover"
           />
 
-          {/* Overlay: bottom-left text block (Two Leaves style) */}
+          {/* Overlay: bottom-left text block */}
           <div className="absolute inset-0 flex flex-col justify-end px-8 pb-14 sm:px-12 sm:pb-16 md:px-16 lg:px-20">
             <div className="max-w-md">
-              {/* Heading */}
               <motion.h1
                 key={`heading-${slide.id}`}
-                initial={prefersReduced ? {} : { opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
                 className="mb-4 whitespace-pre-line text-[clamp(2.6rem,5.5vw,5rem)] font-medium leading-[1.0] tracking-[-0.03em] text-[#173D22]"
@@ -111,10 +108,9 @@ export function HeroCarousel() {
                 {slide.heading}
               </motion.h1>
 
-              {/* Body */}
               <motion.p
                 key={`body-${slide.id}`}
-                initial={prefersReduced ? {} : { opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
                 className="mb-6 whitespace-pre-line text-sm leading-relaxed text-[#2d4433]"
@@ -123,10 +119,9 @@ export function HeroCarousel() {
                 {slide.body}
               </motion.p>
 
-              {/* CTA */}
               <motion.div
                 key={`cta-${slide.id}`}
-                initial={prefersReduced ? {} : { opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
               >
@@ -141,10 +136,10 @@ export function HeroCarousel() {
             </div>
           </div>
 
-          {/* Floating pill — product label (Two Leaves style pill over image) */}
+          {/* Floating pill */}
           <motion.div
             key={`pill-${slide.id}`}
-            initial={prefersReduced ? {} : { opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: EASE, delay: 0.5 }}
             className="absolute bottom-14 right-8 sm:right-12 md:right-16 lg:right-20 hidden sm:flex items-center gap-3 rounded-full bg-white/90 px-4 py-2.5 backdrop-blur-md"
@@ -166,7 +161,6 @@ export function HeroCarousel() {
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Next arrow (Two Leaves right-side arrow) ── */}
       <button
         type="button"
         onClick={next}
@@ -176,7 +170,6 @@ export function HeroCarousel() {
         <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
       </button>
 
-      {/* ── Dots ── */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2" role="tablist" aria-label="Slide indicators">
         {SLIDES.map((s, i) => (
           <button

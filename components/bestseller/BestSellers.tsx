@@ -7,8 +7,8 @@ import { Star, Plus } from "lucide-react";
 import { PRODUCTS } from "@/data/products";
 import type { Product } from "@/types";
 
-// ─── Filter: only show best sellers ────────────────────────────────────────────
-const BEST_SELLERS = PRODUCTS.filter((p) => p.isBestSeller);
+// ─── Top 3 products ─────────────────────────────────────────────────────────────
+const TOP_PRODUCTS = PRODUCTS.slice(0, 3);
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -16,9 +16,10 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 function ProductCard({ product, index }: { product: Product; index: number }) {
   return (
     <motion.div
-      initial={false}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE, delay: index * 0.08 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.6, ease: EASE, delay: index * 0.12 }}
       className="group flex-none w-[240px] sm:w-[260px] cursor-pointer will-change-transform"
     >
       {/* Image card */}
@@ -110,24 +111,17 @@ export function BestSellers() {
         </div>
       </div>
 
-      {/* ── Horizontal product scroll with snap ── */}
+      {/* ── Centered product grid ── */}
       <div
-        className="flex gap-5 overflow-x-auto px-6 pb-4 sm:px-12 md:px-16 lg:px-20 snap-x snap-mandatory scrollbar-hide"
+        className="flex justify-center gap-5 px-6 pb-4 flex-wrap"
         role="list"
         aria-label="Best selling products"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
       >
-        {BEST_SELLERS.map((p, i) => (
-          <div key={p.id} role="listitem" className="snap-start">
+        {TOP_PRODUCTS.map((p, i) => (
+          <div key={p.id} role="listitem">
             <ProductCard product={p} index={i} />
           </div>
         ))}
-      </div>
-
-      {/* ── Dots navigation ── */}
-      <div className="mt-6 flex justify-center gap-2" aria-hidden="true">
-        <div className="h-1.5 w-8 rounded-full bg-[#173D22]" />
-        <div className="h-1.5 w-3 rounded-full bg-[rgba(23,61,34,0.2)]" />
       </div>
 
       {/* ── CTA button ── */}
