@@ -54,8 +54,14 @@ export function CartSync() {
       fetch("/api/cart")
         .then((r) => r.json())
         .then((data) => {
-          if (data.items?.length) loadItems(data.items);
-          else loadItems([]);
+          if (data.items?.length) {
+            loadItems(data.items);
+          } else if (!items.length) {
+            loadItems([]);
+          } else {
+            // API empty but we have cached items — keep cache
+            useCartStore.setState({ loaded: true });
+          }
         })
         .catch(() => {
           // API failed — keep localStorage cache, don't wipe
@@ -68,7 +74,7 @@ export function CartSync() {
       localStorage.removeItem(STORAGE_KEY);
       useCartStore.setState({ loaded: false });
     }
-  }, [session?.user?.id, status, loadItems]);
+  }, [session?.user?.id, status, loadItems, items]);
 
   // 4. Sync cart to API when items change (only when signed in)
   useEffect(() => {

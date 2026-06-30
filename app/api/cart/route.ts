@@ -84,7 +84,7 @@ export async function POST(req: Request) {
   const activeIds = items.map((i) => i.productId);
   let delPath: string;
   if (activeIds.length > 0) {
-    delPath = `cart_items?user_id=eq.${userId}&product_id=not.in.(${activeIds.map((id) => `"${id}"`).join(",")})`;
+    delPath = `cart_items?user_id=eq.${userId}&product_id=not.in.(${activeIds.join(",")})`;
   } else {
     delPath = `cart_items?user_id=eq.${userId}`;
   }
