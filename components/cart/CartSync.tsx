@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useCartStore } from "@/hooks/use-cart-store";
 
 const STORAGE_KEY = "nutyum-cart";
-
-let syncing = false;
 
 export function CartSync() {
   const { data: session, status } = useSession();
   const items = useCartStore((s) => s.items);
   const loadItems = useCartStore((s) => s.loadItems);
   const loaded = useCartStore((s) => s.loaded);
-  const lastUserId = useRef<string | null>(null);
+  const hasFetchedApi = useRef(false);
+  const syncing = useRef(false);
+  const lastSaved = useRef("");
 
   // 1. Load cart from localStorage immediately on mount
   useEffect(() => {
@@ -22,19 +22,23 @@ export function CartSync() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length) {
-          loadItems(parsed);
+          useCartStore.setState({ items: parsed, loaded: true });
         }
       }
     } catch {
       // ignore
     }
-  }, [loadItems]);
+  }, []);
 
   // 2. Save cart to localStorage whenever items change
   useEffect(() => {
+    const json = JSON.stringify(items);
+    if (json === lastSaved.current) return;
+    lastSaved.current = json;
+
     const timeout = setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        localStorage.setItem(STORAGE_KEY, json);
       } catch {
         // quota exceeded
       }
@@ -42,21 +46,25 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [items]);
 
-  // 3. Load cart from API when user signs in (overwrites localStorage cache)
+  // 3. Load cart from API when user signs in
   useEffect(() => {
     const uid = session?.user?.id ?? null;
-    if (uid && uid !== lastUserId.current) {
-      lastUserId.current = uid;
+    if (uid && !hasFetchedApi.current) {
+      hasFetchedApi.current = true;
       fetch("/api/cart")
         .then((r) => r.json())
         .then((data) => {
           if (data.items?.length) loadItems(data.items);
           else loadItems([]);
         })
-        .catch(() => loadItems([]));
+        .catch(() => {
+          // API failed — keep localStorage cache, don't wipe
+          useCartStore.setState({ loaded: true });
+        });
     }
     if (!uid && status === "unauthenticated") {
-      lastUserId.current = null;
+      hasFetchedApi.current = false;
+      lastSaved.current = "";
       localStorage.removeItem(STORAGE_KEY);
       useCartStore.setState({ loaded: false });
     }
@@ -64,10 +72,10 @@ export function CartSync() {
 
   // 4. Sync cart to API when items change (only when signed in)
   useEffect(() => {
-    if (!session?.user?.id) return;
-    if (!loaded || syncing) return;
+    if (status !== "authenticated" || !session?.user?.id) return;
+    if (!loaded || syncing.current) return;
 
-    syncing = true;
+    syncing.current = true;
     const timeout = setTimeout(() => {
       fetch("/api/cart", {
         method: "POST",
@@ -75,11 +83,11 @@ export function CartSync() {
         body: JSON.stringify({ items }),
       })
         .catch((err) => console.error("Cart sync failed:", err))
-        .finally(() => { syncing = false; });
+        .finally(() => { syncing.current = false; });
     }, 500);
 
-    return () => { clearTimeout(timeout); syncing = false; };
-  }, [items, session?.user?.id, loaded]);
+    return () => { clearTimeout(timeout); syncing.current = false; };
+  }, [items, session?.user?.id, loaded, status]);
 
   return null;
 }

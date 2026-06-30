@@ -56,39 +56,42 @@ export async function POST(req: Request) {
     items: { productId: string; quantity: number; product: Record<string, unknown> }[];
   };
 
-  // Delete existing items
-  const { error: delError } = await supabaseFetch(
-    `cart_items?user_id=eq.${userId}`,
-    { method: "DELETE" }
-  );
-
-  if (delError) {
-    console.error("Cart DELETE error:", delError);
-    return NextResponse.json({ error: delError.message || delError }, { status: 500 });
-  }
-
-  // Insert new items
+  // Upsert current items (insert or update on conflict)
   if (items.length > 0) {
-    const { error: insError } = await supabaseFetch("cart_items", {
-      method: "POST",
-      body: JSON.stringify(
-        items.map((item) => ({
-          user_id: userId,
-          product_id: item.productId,
-          product_data: item.product,
-          quantity: item.quantity,
-        }))
-      ),
-      headers: {
-        "Prefer": "return=minimal",
-      },
-    });
+    const { error: upsertError } = await supabaseFetch(
+      "cart_items?on_conflict=user_id,product_id",
+      {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates" },
+        body: JSON.stringify(
+          items.map((item) => ({
+            user_id: userId,
+            product_id: item.productId,
+            product_data: item.product,
+            quantity: item.quantity,
+          }))
+        ),
+      }
+    );
 
-    if (insError) {
-      console.error("Cart INSERT error:", insError);
-      return NextResponse.json({ error: insError.message || insError }, { status: 500 });
+    if (upsertError) {
+      console.error("Cart UPSERT error:", upsertError);
+      return NextResponse.json({ error: upsertError.message || upsertError }, { status: 500 });
     }
   }
+
+  // Remove items no longer in the cart
+  const activeIds = items.map((i) => i.productId);
+  let delPath: string;
+  if (activeIds.length > 0) {
+    delPath = `cart_items?user_id=eq.${userId}&product_id=not.in.(${activeIds.map((id) => `"${id}"`).join(",")})`;
+  } else {
+    delPath = `cart_items?user_id=eq.${userId}`;
+  }
+  await supabaseFetch(delPath, {
+    method: "DELETE",
+    headers: { "Prefer": "return=minimal" },
+  });
 
   return NextResponse.json({ ok: true });
 }
