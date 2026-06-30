@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { createUser } from "@/lib/demo-user-store";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+
+const hasSupabase = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 export async function POST(req: Request) {
   try {
@@ -13,13 +15,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Password too short" }, { status: 400 });
     }
 
-    const user = createUser(name, email, password);
+    if (hasSupabase) {
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name },
+      });
 
-    return NextResponse.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
+      if (error) {
+        if (error.message.includes("already exists") || error.message.includes("already registered")) {
+          return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+        }
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        id: data.user.id,
+        name: data.user.user_metadata?.name || name,
+        email: data.user.email,
+      });
+    }
+
+    // Fallback: demo store
+    const { createUser } = await import("@/lib/demo-user-store");
+    const user = createUser(name, email, password);
+    return NextResponse.json({ id: user.id, name: user.name, email: user.email });
   } catch (e: any) {
     if (e.message === "User already exists") {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });

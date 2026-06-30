@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export function SignInForm() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const resetSuccess = searchParams.get("reset") === "success";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +33,7 @@ export function SignInForm() {
       return;
     }
 
-    router.push("/");
+    router.push(callbackUrl);
     router.refresh();
   }
 
@@ -48,6 +51,12 @@ export function SignInForm() {
       >
         Sign in to your Nutyum account
       </p>
+
+      {resetSuccess && (
+        <div className="mb-6 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700" style={{ fontFamily: "var(--font-body)" }}>
+          Password reset successful. Sign in with your new password.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -84,6 +93,16 @@ export function SignInForm() {
           </p>
         )}
 
+        <div className="flex items-center justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-[#4C5A48] underline hover:text-[#173D22]"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Forgot password?
+          </Link>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -105,7 +124,7 @@ export function SignInForm() {
 
       <button
         type="button"
-        onClick={() => signIn("google", { callbackUrl: "/" })}
+        onClick={() => signIn("google", { callbackUrl })}
         className="w-full rounded-full border border-[rgba(23,61,34,0.2)] bg-white px-6 py-3 text-sm font-semibold text-[#173D22] transition-all hover:bg-[rgba(23,61,34,0.04)]"
         style={{ fontFamily: "var(--font-body)" }}
       >
@@ -119,5 +138,13 @@ export function SignInForm() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export function SignInForm() {
+  return (
+    <Suspense>
+      <SignInContent />
+    </Suspense>
   );
 }
