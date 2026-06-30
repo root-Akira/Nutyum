@@ -43,9 +43,8 @@ export function CartSync() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items }),
-      })
-        .catch(() => {})
-        .finally(() => { syncing = false; });
+      }).catch((err) => console.error("Cart sync failed:", err))
+      .finally(() => { syncing = false; });
     }, 500);
 
     return () => { clearTimeout(timeout); syncing = false; };
