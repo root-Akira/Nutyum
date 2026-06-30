@@ -38,10 +38,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Git push** — committed and pushed to GitHub
 - [x] **Cart persistence fix** — sign-out no longer overwrites API cart, CartSync uses session status for reliable load/sync
 - [x] **localStorage cart cache** — cart renders instantly from localStorage, API syncs in background
-- [x] **Drizzle cart_items table** — schema + migration generated, API route rewritten to use DB table instead of Auth metadata
+- [x] **Drizzle cart_items table** — schema + migration generated, API route rewritten to use Supabase REST API with `cart_items` table
+- [x] **Intermittent cart fix** — never wipe localStorage cache on empty API response, upsert instead of delete+insert
 
 ### Still Pending
-- [ ] **Run migration in Supabase** — paste `db/migrations/0001_funny_doctor_octopus.sql` in Supabase Dashboard → SQL Editor
 - [ ] Support pages (contact, FAQ, shipping, returns, privacy) — links exist in footer but routes don't
 - [ ] `/reviews` route
 - [ ] Supabase auth, Razorpay payments

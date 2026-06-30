@@ -1,114 +1,147 @@
-import { db } from "./index";
-import { products } from "./schema";
+import { readFileSync } from "fs";
 
-const DEMO_PRODUCTS = [
+// Load .env.local manually (tsx doesn't auto-load env files)
+const env = readFileSync(".env.local", "utf8");
+for (const line of env.split("\n")) {
+  const m = line.match(/^([^=]+)=(.*)$/);
+  if (m) process.env[m[1]] = m[2];
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+const PRODUCTS = [
   {
     slug: "himalayan-sea-salt",
     name: "Himalayan Sea Salt Makhana",
     price: 299,
+    original_price: null,
     description: "Lightly salted with pure Himalayan pink salt for a satisfying crunch.",
     images: ["/hero-slide1.png"],
-    bgColor: "#d6e8c0",
+    bg_color: "#d6e8c0",
     category: "classic",
     vibes: ["Lightly Salted", "Crunchy & Light"],
-    isNew: false,
-    isBestSeller: true,
+    is_new: false,
+    is_best_seller: true,
     rating: 4.9,
-    reviewCount: 84,
+    review_count: 84,
     weight: "100g",
-    badgeLabel: "TEA SACHETS",
+    badge_label: null,
   },
   {
     slug: "peri-peri",
     name: "Peri Peri Makhana",
     price: 299,
+    original_price: null,
     description: "Fiery African bird's eye chilli meets the wholesome goodness of lotus seeds.",
     images: ["/hero-product.png"],
-    bgColor: "#fad9c8",
+    bg_color: "#fad9c8",
     category: "spicy",
     vibes: ["Bold Heat", "Savory Twist"],
-    isNew: false,
-    isBestSeller: true,
+    is_new: false,
+    is_best_seller: true,
     rating: 4.7,
-    reviewCount: 61,
+    review_count: 61,
     weight: "70g",
-    badgeLabel: "BESTSELLER",
+    badge_label: "BESTSELLER",
   },
   {
     slug: "dark-chocolate",
     name: "Dark Chocolate Makhana",
     price: 349,
+    original_price: null,
     description: "Rich 70% dark chocolate coating on our signature roasted makhana puffs.",
     images: ["/hero-slide1.png"],
-    bgColor: "#e8dff0",
+    bg_color: "#e8dff0",
     category: "sweet",
     vibes: ["A Sweet Treat", "Zero Guilt"],
-    isNew: true,
-    isBestSeller: false,
+    is_new: true,
+    is_best_seller: false,
     rating: 5,
-    reviewCount: 12,
+    review_count: 12,
     weight: "70g",
-    badgeLabel: "NEW ARRIVAL",
+    badge_label: "NEW ARRIVAL",
   },
   {
     slug: "classic-pudina",
     name: "Classic Pudina Makhana",
     price: 279,
+    original_price: null,
     description: "Fresh mint leaves sourced from the foothills of the Himalayas.",
     images: ["/hero-product.png"],
-    bgColor: "#c8e4f0",
+    bg_color: "#c8e4f0",
     category: "classic",
     vibes: ["Classic Flavors", "Evening Munch"],
-    isNew: false,
-    isBestSeller: false,
+    is_new: false,
+    is_best_seller: false,
     rating: 4.8,
-    reviewCount: 42,
+    review_count: 42,
     weight: "70g",
-    badgeLabel: "CLASSIC",
+    badge_label: "CLASSIC",
   },
   {
     slug: "variety-pack",
     name: "Nutyum Variety Pack",
     price: 899,
+    original_price: null,
     description: "All five of our signature flavours in one premium gift-ready set.",
     images: ["/hero-slide1.png"],
-    bgColor: "#f5e6c8",
+    bg_color: "#f5e6c8",
     category: "gift",
     vibes: ["Perfect Gift", "Guilt-Free"],
-    isNew: false,
-    isBestSeller: false,
+    is_new: false,
+    is_best_seller: false,
     rating: 5,
-    reviewCount: 8,
+    review_count: 8,
     weight: "350g",
-    badgeLabel: "GIFTS & SAMPLERS",
+    badge_label: "GIFTS & SAMPLERS",
   },
   {
     slug: "turmeric-pepper",
     name: "Turmeric & Pepper Makhana",
     price: 299,
+    original_price: null,
     description: "Warm turmeric and cracked black pepper combine for an earthy, immune-boosting snack.",
     images: ["/hero-product.png"],
-    bgColor: "#f0e6c8",
+    bg_color: "#f0e6c8",
     category: "spicy",
     vibes: ["Savory Twist", "Whole Grain"],
-    isNew: true,
-    isBestSeller: false,
+    is_new: true,
+    is_best_seller: false,
     rating: 4.6,
-    reviewCount: 18,
+    review_count: 18,
     weight: "70g",
-    badgeLabel: "NEW ARRIVAL",
+    badge_label: "NEW ARRIVAL",
   },
 ];
 
 async function seed() {
-  console.log("Seeding database...");
+  console.log("Seeding products...\n");
 
-  for (const product of DEMO_PRODUCTS) {
-    await db.insert(products).values(product).onConflictDoNothing();
-    console.log(`  ✓ ${product.name}`);
+  for (const product of PRODUCTS) {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/products`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+          Prefer: "resolution=merge-duplicates",
+        },
+        body: JSON.stringify(product),
+      }
+    );
+
+    if (res.ok) {
+      console.log(`  ✓ ${product.name}`);
+    } else {
+      const err = await res.text();
+      console.log(`  ✗ ${product.name}: ${err}`);
+    }
   }
 
-  console.log("Done!");
+  console.log("\nDone!");
   process.exit(0);
 }
 
