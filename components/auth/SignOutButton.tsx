@@ -8,13 +8,8 @@ export function SignOutButton() {
   const clearCart = useCartStore((s) => s.clearCart);
 
   async function handleSignOut() {
-    await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: [] }),
-    });
-    clearCart();
     await signOut({ redirect: false });
+    clearCart();
     await update();
     window.location.href = "/";
   }
