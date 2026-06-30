@@ -40,6 +40,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **localStorage cart cache** — cart renders instantly from localStorage, API syncs in background
 - [x] **Drizzle cart_items table** — schema + migration generated, API route rewritten to use Supabase REST API with `cart_items` table
 - [x] **Intermittent cart fix** — never wipe localStorage cache on empty API response, upsert instead of delete+insert
+- [x] **Products table created + seeded** — 6 demo products in Supabase `products` table, seed script uses REST API
 
 ### Still Pending
 - [ ] Support pages (contact, FAQ, shipping, returns, privacy) — links exist in footer but routes don't
