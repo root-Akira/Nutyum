@@ -35,6 +35,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Build** — 0 errors, 17 routes
 - [x] **Git push** — committed and pushed to GitHub
 - [x] **Cart persistence fix** — sign-out no longer overwrites API cart, CartSync uses session status for reliable load/sync
+- [x] **localStorage cart cache** — cart renders instantly from localStorage, API syncs in background
 
 ### Still Pending
 - [ ] Supabase/Drizzle integration, Supabase auth, Razorpay payments
