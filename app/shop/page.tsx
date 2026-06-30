@@ -8,6 +8,7 @@ import { PRODUCTS } from "@/data/products";
 import { VIBE_TAGS } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import { cn } from "@/lib/utils";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -18,6 +19,7 @@ function ShopContent() {
   const [search, setSearch] = useState("");
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const addItem = useCartStore((s) => s.addItem);
+  const requireAuth = useRequireAuth();
 
   useEffect(() => {
     const vibe = searchParams.get("vibe");
@@ -144,7 +146,7 @@ function ShopContent() {
                 key={product.id}
                 product={product}
                 index={index}
-                onAddToCart={addItem}
+                onAddToCart={(p) => requireAuth(() => addItem(p))}
               />
             ))}
           </div>

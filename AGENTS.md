@@ -20,25 +20,20 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Session: 2026-06-30
 
-### Completed (Audit & Polish)
-- [x] **Proxy (middleware)** restored — `proxy.ts` correctly protects `/account` + `/checkout`
-- [x] **HeroCarousel** — removed `useReducedMotion` dependency (was blocking auto-slide & animations)
-- [x] **Discover** — replaced `<a>` with `<Link>` for client-side routing
-- [x] **Products data** — removed stale `"TEA SACHETS"` badgeLabel artifact from sea-salt product
-- [x] **Footer dead links** — 13 broken paths fixed (`/shop/best-sellers` → `/shop`, `/corporate` → `/wholesale`, etc.)
-- [x] **Navbar mega menu** — 4 dead "By Need" links redirected to `/shop`
-- [x] **Navbar right side** — unified font to match left side (19px Cormorant Garamond), added Home, reordered to Home→Wholesale→Journal→Sign In
-- [x] **Logo** — increased to 70px, scrolled navbar height adjusted to 86px
-- [x] **Logo & Home** — scroll-to-top on click (Home keeps it, logo reverted)
-- [x] **Navbar scroll animation** — switched CSS transition to Framer Motion spring (stiffness 180, damping 22)
-- [x] **Best Sellers** — shows 3 products (slice 0-3), centered grid instead of horizontal scroll, removed decorative dots, staggered scroll-in animation
-- [x] **Mega menu featured** — replaced hardcoded placeholder "Nutyum" labels with real product images + names from PRODUCTS (synced with BestSellers)
-- [x] **Duplicate keys** — fixed footer (`link.href` → `col-heading-label`) and mega menu (`link.href` → `href-label`)
-- [x] **Unused files** — removed all dead code (15 files total: 5 UI components, 2 hooks, 3 data files, 1 lib, 4 barrel exports)
-- [x] **Discover → Shop flow** — Discover vibe pills now pass `?vibe=` param, Shop page reads it via `useSearchParams` and auto-filters
-- [x] **Shop page** — reduced top padding (`pt-24` → `pt-8` / `sm:pt-12`)
+### Completed (Supabase Auth Integration)
+- [x] **Supabase Auth connected** — credentials provider validates against Supabase Auth (falls back to demo store if disconnected)
+- [x] **Sign-up route** — creates users in Supabase Auth via admin API with `email_confirm: true`
+- [x] **Forgot password** — `/forgot-password` page with Supabase `resetPasswordForEmail()`, `/auth/callback` route, `/reset-password` page with `updateUser()`
+- [x] **Callback URL redirect** — sign-in redirects back to the page user was trying to access
+- [x] **Reset success banner** — green alert on sign-in page when redirected from password reset
+- [x] **"Forgot password?" link** added to sign-in form
+- [x] **Session auto-refresh** — `session.update()` called after sign-in/sign-up so Navbar updates immediately
+- [x] **Demo users removed** — test accounts deleted from Supabase Auth
+- [x] **Google OAuth** — configured in NextAuth, needs env vars (deferred)
+- [x] **BestSellers "Add" button** — wired to cart store (was missing onClick)
+- [x] **Navbar shadow** — subtle bottom shadow always present (deepens on scroll)
+- [x] **Build** — 0 errors, 17 routes
 - [x] **Git push** — committed and pushed to GitHub
-- [x] **Build** — 0 errors, 15 routes
 
 ### Still Pending
 - [ ] Supabase/Drizzle integration, Supabase auth, Razorpay payments

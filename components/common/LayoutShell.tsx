@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/navbar/Navbar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { CartSync } from "@/components/cart/CartSync";
 import { SearchOverlay } from "@/components/search/SearchOverlay";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useUIStore } from "@/hooks/use-ui-store";
@@ -19,6 +20,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       {children}
       <CartDrawer open={cartOpen} onOpenChange={(open) => { if (!open) closeCart(); }} />
       <SearchOverlay isOpen={searchOpen} onClose={() => toggleSearch()} />
+      <CartSync />
     </>
   );
 }

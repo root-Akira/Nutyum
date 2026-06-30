@@ -10,6 +10,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -35,6 +36,7 @@ export default function ProductDetailPage({
   const product = PRODUCTS.find((p) => p.slug === slug);
   const prefersReduced = useReducedMotion();
   const addItem = useCartStore((s) => s.addItem);
+  const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
 
   if (!product) {
@@ -212,7 +214,7 @@ export default function ProductDetailPage({
 
             <button
               type="button"
-              onClick={() => addItem(product, quantity)}
+              onClick={() => requireAuth(() => addItem(product, quantity))}
               className="rounded-full bg-[#173D22] px-10 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
               style={{ fontFamily: "var(--font-body)" }}
             >

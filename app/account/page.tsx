@@ -1,6 +1,7 @@
 import { Metadata } from "next";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 export const metadata: Metadata = {
   title: "My Account | Nutyum",
@@ -49,20 +50,7 @@ export default async function AccountPage() {
           </div>
 
           <div className="mt-8 border-t border-[rgba(23,61,34,0.1)] pt-6">
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <button
-                type="submit"
-                className="rounded-full border border-red-300 px-6 py-2 text-sm font-medium text-red-600 transition-all hover:bg-red-50"
-                style={{ fontFamily: "var(--font-body)" }}
-              >
-                Sign Out
-              </button>
-            </form>
+            <SignOutButton />
           </div>
         </div>
       </div>
