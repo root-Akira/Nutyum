@@ -1,11 +1,12 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Star, Minus, Plus } from "lucide-react";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import type { Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -33,11 +34,28 @@ export default function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const product = PRODUCTS.find((p) => p.slug === slug);
+  const [product, setProduct] = useState<Product | undefined>(
+    STATIC_PRODUCTS.find((p) => p.slug === slug)
+  );
+  const [related, setRelated] = useState<Product[]>([]);
   const prefersReduced = useReducedMotion();
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const found = data.find((p: Product) => p.slug === slug);
+        if (found) {
+          setProduct(found);
+          setRelated(data.filter((p: Product) => p.id !== found.id));
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   if (!product) {
     return (
@@ -65,7 +83,6 @@ export default function ProductDetailPage({
   const badgeLabel =
     product.badgeLabel ||
     (product.isNew ? "NEW ARRIVAL" : product.isBestSeller ? "BESTSELLER" : "");
-  const related = PRODUCTS.filter((p) => p.id !== product.id);
 
   const containerVariants = {
     hidden: {},

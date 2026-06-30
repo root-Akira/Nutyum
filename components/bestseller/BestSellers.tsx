@@ -1,16 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Plus } from "lucide-react";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import type { Product } from "@/types";
-
-// ─── Top 3 products ─────────────────────────────────────────────────────────────
-const TOP_PRODUCTS = PRODUCTS.slice(0, 3);
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -90,6 +88,19 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 export function BestSellers() {
+  const [topProducts, setTopProducts] = useState<Product[]>(
+    STATIC_PRODUCTS.slice(0, 3)
+  );
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) setTopProducts(data.slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="overflow-hidden bg-[#FDFAF3] py-20 sm:py-28" aria-labelledby="bestsellers-title">
 
@@ -123,7 +134,7 @@ export function BestSellers() {
         role="list"
         aria-label="Best selling products"
       >
-        {TOP_PRODUCTS.map((p, i) => (
+        {topProducts.map((p, i) => (
           <div key={p.id} role="listitem">
             <ProductCard product={p} index={i} />
           </div>

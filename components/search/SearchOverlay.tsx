@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search } from "lucide-react";
@@ -15,7 +15,8 @@ import {
   CommandEmpty,
   CommandGroup,
 } from "@/components/ui/command";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import type { Product } from "@/types";
 import { formatPrice } from "@/lib/formatters";
 
 interface SearchOverlayProps {
@@ -26,9 +27,19 @@ interface SearchOverlayProps {
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) setProducts(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered = query.trim()
-    ? PRODUCTS.filter((p) => {
+    ? products.filter((p) => {
         const q = query.toLowerCase();
         return (
           p.name.toLowerCase().includes(q) ||

@@ -4,8 +4,8 @@ import { useState, useMemo, useEffect, Suspense } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { PRODUCTS } from "@/data/products";
-import { VIBE_TAGS } from "@/types";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import { VIBE_TAGS, type Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
@@ -18,8 +18,18 @@ function ShopContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) setProducts(data);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const vibe = searchParams.get("vibe");
@@ -29,7 +39,7 @@ function ShopContent() {
   }, [searchParams]);
 
   const filtered = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return products.filter((p) => {
       const matchesSearch =
         !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,7 +47,7 @@ function ShopContent() {
       const matchesVibe = !activeVibe || p.vibes.includes(activeVibe as never);
       return matchesSearch && matchesVibe;
     });
-  }, [search, activeVibe]);
+  }, [search, activeVibe, products]);
 
   return (
     <main className="min-h-screen bg-[#FAF7EE]">

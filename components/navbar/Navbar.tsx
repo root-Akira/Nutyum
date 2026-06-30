@@ -8,12 +8,12 @@ import { ChevronDown, Star, ShoppingBag, Menu, X, User } from "lucide-react";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { useUIStore } from "@/hooks/use-ui-store";
 import { useSession } from "next-auth/react";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import type { Product } from "@/types";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 const SCROLL_EASE = "cubic-bezier(0.5, 0, 0, 1)";
 const FE: [number, number, number, number] = [0.5, 0, 0, 1];
-const TOP_PRODUCTS = PRODUCTS.slice(0, 3);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface MegaNavItem {
@@ -98,7 +98,7 @@ const MOBILE_NAV = [
 ];
 
 // ─── Mega Menu Panel ──────────────────────────────────────────────────────────
-function MegaMenuPanel({ item }: { item: MegaNavItem }) {
+function MegaMenuPanel({ item, products }: { item: MegaNavItem; products: Product[] }) {
   return (
     <motion.div
       key="mega-panel"
@@ -155,7 +155,7 @@ function MegaMenuPanel({ item }: { item: MegaNavItem }) {
             Shop Best Sellers
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {TOP_PRODUCTS.map((prod) => (
+            {products.map((prod) => (
               <Link
                 key={prod.id}
                 href={`/shop/${prod.slug}`}
@@ -345,8 +345,20 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [topProducts, setTopProducts] = useState<Product[]>(
+    STATIC_PRODUCTS.slice(0, 3)
+  );
   const closeTimerRef = useRef<number | undefined>(undefined);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) setTopProducts(data.slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -554,7 +566,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
 
         {/* ── Mega menu panel (full-width, anchored to header) ── */}
         <AnimatePresence>
-          {activeMega && <MegaMenuPanel item={activeMega} />}
+          {activeMega && <MegaMenuPanel item={activeMega} products={topProducts} />}
         </AnimatePresence>
       </motion.header>
 
