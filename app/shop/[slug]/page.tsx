@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Star, Minus, Plus } from "lucide-react";
 import { PRODUCTS } from "@/data/products";
-import { ProductCard } from "@/components/products";
+import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/hooks/use-cart-store";

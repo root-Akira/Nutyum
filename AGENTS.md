@@ -34,8 +34,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Best Sellers** — shows 3 products (slice 0-3), centered grid instead of horizontal scroll, removed decorative dots, staggered scroll-in animation
 - [x] **Mega menu featured** — replaced hardcoded placeholder "Nutyum" labels with real product images + names from PRODUCTS (synced with BestSellers)
 - [x] **Duplicate keys** — fixed footer (`link.href` → `col-heading-label`) and mega menu (`link.href` → `href-label`)
-- [x] **Unused files removed** — 9 dead components, 1 hook, stale data exports
+- [x] **Unused files** — removed all dead code (15 files total: 5 UI components, 2 hooks, 3 data files, 1 lib, 4 barrel exports)
 - [x] **Discover → Shop flow** — Discover vibe pills now pass `?vibe=` param, Shop page reads it via `useSearchParams` and auto-filters
+- [x] **Shop page** — reduced top padding (`pt-24` → `pt-8` / `sm:pt-12`)
+- [x] **Git push** — committed and pushed to GitHub
 - [x] **Build** — 0 errors, 15 routes
 
 ### Still Pending
