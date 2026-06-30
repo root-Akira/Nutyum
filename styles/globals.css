@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  --radius-button: var(--radius-button);
+  --radius-card: var(--radius-card);
+  --radius-input: var(--radius-input);
+  --radius-image: var(--radius-image);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  /* Custom Nutyum Tokens */
+  --color-brand-green: hsl(var(--brand-green));
+  --color-brand-green-light: hsl(var(--brand-green-light));
+  --color-brand-orange: hsl(var(--brand-orange));
+  --color-brand-orange-light: hsl(var(--brand-orange-light));
+  --color-brand-yellow: hsl(var(--brand-yellow));
+  
+  --font-heading: var(--font-cormorant);
+  --font-body: var(--font-manrope);
+
+  --spacing-container: var(--container-width);
+  --spacing-container-sm: var(--container-width-sm);
+  --spacing-container-lg: var(--container-width-lg);
+
+  --shadow-soft: 0 10px 40px rgba(23, 61, 34, 0.08);
+  --shadow-medium: 0 20px 60px rgba(23, 61, 34, 0.12);
+  --shadow-heavy: 0 40px 100px rgba(23, 61, 34, 0.18);
+
+  --duration-fast: 200ms;
+  --duration-normal: 350ms;
+  --duration-slow: 600ms;
+  --ease-custom: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --default-transition-duration: 350ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  :root {
+    /* Base Colors - Premium Healthy Snack Theme */
+    --background: 45 54.5% 95.7%; /* #FAF7EE */
+    --foreground: 137.4 45.2% 16.5%; /* #173D22 */
+    
+    --card: 52.5 57.1% 97.3%; /* #FCFBF4 */
+    --card-foreground: 137.4 45.2% 16.5%; /* #173D22 */
+    
+    --popover: 52.5 57.1% 97.3%; /* #FCFBF4 */
+    --popover-foreground: 137.4 45.2% 16.5%; /* #173D22 */
+    
+    --primary: 137.4 45.2% 16.5%; /* #173D22 */
+    --primary-foreground: 45 54.5% 95.7%; /* #FAF7EE */
+    
+    --secondary: 37.6 76.2% 49%; /* #E0961A */
+    --secondary-foreground: 45 54.5% 95.7%; /* #FAF7EE */
+    
+    --muted: 70.9 15.5% 86.1%;
+    --muted-foreground: 133.3 11.1% 31.8%; /* #4C5A48 */
+    
+    --accent: 37.6 76.2% 49%; /* #E0961A */
+    --accent-foreground: 45 54.5% 95.7%; /* #FAF7EE */
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 54.5% 95.7%; /* #FAF7EE */
+
+    --border: 70.9 15.5% 86.1%; /* Equivalent to rgba(23,61,34,0.12) */
+    --input: 70.9 15.5% 86.1%;
+    --ring: 137.4 45.2% 16.5%;
+    
+    --radius: 0.5rem;
+
+    /* Component Radii */
+    --radius-button: 999px;
+    --radius-card: 24px;
+    --radius-input: 16px;
+    --radius-image: 24px;
+
+    /* Nutyum Brand Colors */
+    --brand-green: 137.4 45.2% 16.5%;
+    --brand-green-light: 137.4 35% 26.5%;
+    --brand-orange: 37.6 76.2% 49%;
+    --brand-orange-light: 37.6 70% 59%;
+    --brand-yellow: 40 80% 65%;
+
+    /* Container Widths */
+    --container-width: 1200px;
+    --container-width-sm: 800px;
+    --container-width-lg: 1440px;
+  }
+
+  .dark {
+    --background: 20 14% 12%;
+    --foreground: 40 33% 98%;
+    
+    --card: 20 14% 16%;
+    --card-foreground: 40 33% 98%;
+    
+    --popover: 20 14% 16%;
+    --popover-foreground: 40 33% 98%;
+    
+    --primary: 142 30% 45%;
+    --primary-foreground: 20 14% 12%;
+    
+    --secondary: 25 80% 65%;
+    --secondary-foreground: 20 14% 12%;
+    
+    --muted: 20 10% 25%;
+    --muted-foreground: 40 20% 70%;
+    
+    --accent: 40 60% 50%;
+    --accent-foreground: 20 14% 12%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 40 33% 98%;
+
+    --border: 20 10% 25%;
+    --input: 20 10% 25%;
+    --ring: 142 30% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), serif;
+  }
+
+  ::selection {
+    background-color: hsl(var(--brand-green));
+    color: white;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .container-custom {
+    @apply w-full mx-auto max-w-(--spacing-container) px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Typography Roles */
+  .text-display {
+    font-family: var(--font-heading), serif;
+    @apply text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight;
+  }
+
+  .text-heading {
+    font-family: var(--font-heading), serif;
+    @apply text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight;
+  }
+
+  .text-body {
+    font-family: var(--font-body), sans-serif;
+    @apply text-base font-normal leading-relaxed;
+  }
+
+  .text-button {
+    font-family: var(--font-body), sans-serif;
+    @apply text-base font-semibold tracking-wide;
+  }
+
+  .text-caption {
+    font-family: var(--font-body), sans-serif;
+    @apply text-sm font-medium text-muted-foreground;
+  }
+}
