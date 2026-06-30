@@ -34,6 +34,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Navbar shadow** — subtle bottom shadow always present (deepens on scroll)
 - [x] **Build** — 0 errors, 17 routes
 - [x] **Git push** — committed and pushed to GitHub
+- [x] **Cart persistence fix** — sign-out no longer overwrites API cart, CartSync uses session status for reliable load/sync
 
 ### Still Pending
 - [ ] Supabase/Drizzle integration, Supabase auth, Razorpay payments
