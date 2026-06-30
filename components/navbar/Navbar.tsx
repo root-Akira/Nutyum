@@ -395,9 +395,11 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       <AnnouncementBar />
 
       <motion.header
-        className="sticky top-0 z-40 border-b border-[rgba(23,61,34,0.08)] bg-[#FFFEFB]"
+        className="sticky top-0 z-40 bg-[#FFFEFB]"
         style={{
-          boxShadow: scrolled ? "rgba(0,0,0,0.14) 0px 1px 4px 0px" : "none",
+          boxShadow: scrolled
+            ? "0 4px 24px rgba(0,0,0,0.10)"
+            : "0 2px 12px rgba(0,0,0,0.06)",
           transition: `box-shadow 0.4s ${SCROLL_EASE}`,
         }}
         onMouseLeave={scheduleClose}

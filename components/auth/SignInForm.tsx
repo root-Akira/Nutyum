@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { update } = useSession();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const resetSuccess = searchParams.get("reset") === "success";
   const [email, setEmail] = useState("");
@@ -26,13 +27,13 @@ function SignInContent() {
       redirect: false,
     });
 
-    setLoading(false);
-
     if (result?.error) {
       setError("Invalid email or password");
+      setLoading(false);
       return;
     }
 
+    await update();
     router.push(callbackUrl);
     router.refresh();
   }

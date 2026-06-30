@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Plus } from "lucide-react";
 import { PRODUCTS } from "@/data/products";
+import { useCartStore } from "@/hooks/use-cart-store";
 import type { Product } from "@/types";
 
 // ─── Top 3 products ─────────────────────────────────────────────────────────────
@@ -14,6 +15,8 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 function ProductCard({ product, index }: { product: Product; index: number }) {
+  const addItem = useCartStore((s) => s.addItem);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -58,6 +61,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         <div className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
           <button
             type="button"
+            onClick={() => addItem(product)}
             aria-label={`Add ${product.name} to cart`}
             className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
             style={{ fontFamily: "var(--font-body)" }}
