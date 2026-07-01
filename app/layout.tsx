@@ -37,12 +37,7 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           <SessionProvider>
             <LayoutShell>{children}</LayoutShell>
           </SessionProvider>
