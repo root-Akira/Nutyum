@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,8 @@ export function WishlistButton({
   const add = useWishlistStore((s) => s.add);
   const remove = useWishlistStore((s) => s.remove);
   const [saving, setSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const handleToggle = useCallback(async () => {
     if (!session) {
@@ -52,6 +54,14 @@ export function WishlistButton({
       setSaving(false);
     }
   }, [session, router, has, product, add, remove]);
+
+  if (!mounted) {
+    return (
+      <button type="button" aria-label="Add to wishlist" className={`flex items-center justify-center ${className}`}>
+        <Heart size={size} strokeWidth={2} className="stroke-[#4C5A48]" />
+      </button>
+    );
+  }
 
   return (
     <button

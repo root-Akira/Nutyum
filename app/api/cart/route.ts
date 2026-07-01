@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseFetch } from "@/lib/supabase-fetch";
+import { supabaseFetch, getErrorMessage } from "@/lib/supabase-fetch";
 
 export async function GET() {
   const session = await auth();
@@ -13,12 +13,12 @@ export async function GET() {
     `cart_items?user_id=eq.${userId}&select=*`
   );
 
-  if (error) {
-    console.error("Cart GET error:", error);
+  if (error || !Array.isArray(rows)) {
+    if (error) console.error("Cart GET error:", error);
     return NextResponse.json({ items: [] });
   }
 
-  const items = (rows || []).map((r: Record<string, unknown>) => ({
+  const items = rows.map((r: Record<string, unknown>) => ({
     productId: (r.product_data as Record<string, unknown>).id as string,
     quantity: r.quantity,
     product: r.product_data as Record<string, unknown>,
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     if (upsertError) {
       console.error("Cart UPSERT error:", upsertError);
-      return NextResponse.json({ error: upsertError.message || upsertError }, { status: 500 });
+      return NextResponse.json({ error: getErrorMessage(upsertError) || "Cart sync failed" }, { status: 500 });
     }
   }
 

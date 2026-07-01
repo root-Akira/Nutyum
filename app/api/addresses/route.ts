@@ -2,89 +2,89 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 
-const TABLE_ERR = "Addresses table not found — run the setup SQL";
-
-function isTableMissing(error: unknown): boolean {
-  const msg = typeof error === "object" && error ? String((error as Record<string, unknown>).message || "") : "";
-  return msg.includes("does not exist") || msg.includes("schema cache");
-}
-
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json([]);
+
+    const { data, error } = await supabaseFetch(
+      `addresses?user_id=eq.${session.user.id}`
+    );
+
+    if (error || !Array.isArray(data)) return NextResponse.json([]);
+
+    const mapped = (data).map((a: Record<string, unknown>) => ({
+      id: a.id,
+      line1: a.line1,
+      line2: a.line2,
+      city: a.city,
+      state: a.state,
+      pincode: a.pincode,
+      phone: a.phone,
+      isDefault: false,
+    }));
+
+    return NextResponse.json(mapped);
+  } catch (err) {
+    console.error("Addresses GET error:", err);
     return NextResponse.json([]);
   }
-
-  const { data, error } = await supabaseFetch(
-    `addresses?user_id=eq.${session.user.id}&order=created_at.desc`
-  );
-
-  if (error) {
-    return NextResponse.json([]);
-  }
-
-  const mapped = (data || []).map((a: Record<string, unknown>) => ({
-    id: a.id,
-    line1: a.line1,
-    line2: a.line2,
-    city: a.city,
-    state: a.state,
-    pincode: a.pincode,
-    phone: a.phone,
-    isDefault: a.is_default || false,
-  }));
-
-  return NextResponse.json(mapped);
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { line1, line2, city, state, pincode, phone, isDefault } = await req.json();
-
-  if (!line1 || !city || !state || !pincode) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
-  const body: Record<string, unknown> = {
-    user_id: session.user.id,
-    line1,
-    line2: line2 || "",
-    city,
-    state,
-    pincode,
-    phone: phone || "",
-  };
-
-  if (isDefault) {
-    body.is_default = true;
-  }
-
-  const { data, error } = await supabaseFetch("addresses", {
-    method: "POST",
-    headers: { "Prefer": "return=representation" },
-    body: JSON.stringify(body),
-  });
-
-  if (error) {
-    if (isTableMissing(error)) {
-      return NextResponse.json({ error: TABLE_ERR }, { status: 503 });
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: error.message || error }, { status: 500 });
-  }
 
-  const a = Array.isArray(data) ? data[0] : data;
-  return NextResponse.json({
-    id: a.id,
-    line1: a.line1,
-    line2: a.line2,
-    city: a.city,
-    state: a.state,
-    pincode: a.pincode,
-    phone: a.phone,
-    isDefault: a.is_default || false,
-  });
+    const { line1, line2, city, state, pincode, phone } = await req.json();
+
+    if (!line1 || !city || !state || !pincode) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const body = {
+      user_id: session.user.id,
+      line1,
+      line2: line2 || "",
+      city,
+      state,
+      pincode,
+      phone: phone || "",
+    };
+
+    const { data, error } = await supabaseFetch("addresses", {
+      method: "POST",
+      headers: { "Prefer": "return=representation" },
+      body: JSON.stringify(body),
+    });
+
+    if (error) {
+      const msg = typeof error === "object" && error ? String((error as Record<string, unknown>).message || "") : String(error);
+      if (msg.includes("does not exist") || msg.includes("schema cache")) {
+        return NextResponse.json({ error: "Addresses table not set up — run the SQL in Supabase SQL Editor" }, { status: 503 });
+      }
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
+
+    const a = Array.isArray(data) ? data[0] : data;
+    if (!a) {
+      return NextResponse.json({ error: "Failed to create address" }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      id: a.id,
+      line1: a.line1,
+      line2: a.line2,
+      city: a.city,
+      state: a.state,
+      pincode: a.pincode,
+      phone: a.phone,
+      isDefault: false,
+    });
+  } catch (err) {
+    console.error("Addresses POST error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

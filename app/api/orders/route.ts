@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseFetch } from "@/lib/supabase-fetch";
+import { supabaseFetch, getErrorMessage } from "@/lib/supabase-fetch";
 
 export async function GET() {
   const session = await auth();
@@ -12,11 +12,11 @@ export async function GET() {
     `orders?user_id=eq.${session.user.id}&select=*,order_items(*)&order=created_at.desc`
   );
 
-  if (error) {
-    return NextResponse.json({ error: error.message || error }, { status: 500 });
+  if (error || !Array.isArray(orders)) {
+    return NextResponse.json({ error: error ? getErrorMessage(error) : "Orders not found" }, { status: error ? 500 : 404 });
   }
 
-  const mapped = (orders || []).map((o: Record<string, unknown>) => ({
+  const mapped = orders.map((o: Record<string, unknown>) => ({
     id: o.id,
     status: o.status,
     subtotal: o.subtotal,

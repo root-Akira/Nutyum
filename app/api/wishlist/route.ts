@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseFetch } from "@/lib/supabase-fetch";
+import { supabaseFetch, getErrorMessage } from "@/lib/supabase-fetch";
 
 function isTableMissing(error: unknown): boolean {
   const msg = typeof error === "object" && error ? String((error as Record<string, unknown>).message || "") : "";
@@ -17,12 +17,11 @@ export async function GET() {
     `wishlist?user_id=eq.${session.user.id}&select=*&order=created_at.desc`
   );
 
-  if (error) {
-    // Table doesn't exist yet — return empty
+  if (error || !Array.isArray(data)) {
     return NextResponse.json([]);
   }
 
-  const mapped = (data || []).map((w: Record<string, unknown>) => ({
+  const mapped = data.map((w: Record<string, unknown>) => ({
     id: w.id,
     productId: w.product_id,
     product: w.product_data,
@@ -61,7 +60,7 @@ export async function POST(req: Request) {
     if (isTableMissing(error)) {
       return NextResponse.json({ error: "Wishlist not available — run DB migration first" }, { status: 503 });
     }
-    return NextResponse.json({ error: error.message || error }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 
   const w = Array.isArray(data) ? data[0] : data;
@@ -97,7 +96,7 @@ export async function DELETE(req: Request) {
     if (isTableMissing(error)) {
       return NextResponse.json({ error: "Wishlist not available — run DB migration first" }, { status: 503 });
     }
-    return NextResponse.json({ error: error.message || error }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
