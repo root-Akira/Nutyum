@@ -21,7 +21,7 @@ export async function GET() {
       state: a.state,
       pincode: a.pincode,
       phone: a.phone,
-      isDefault: false,
+      isDefault: !!a.is_default,
     }));
 
     return NextResponse.json(mapped);
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { line1, line2, city, state, pincode, phone } = await req.json();
+    const { line1, line2, city, state, pincode, phone, isDefault } = await req.json();
 
     if (!line1 || !city || !state || !pincode) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       state,
       pincode,
       phone: phone || "",
+      is_default: !!isDefault,
     };
 
     const { data, error } = await supabaseFetch("addresses", {
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
       state: a.state,
       pincode: a.pincode,
       phone: a.phone,
-      isDefault: false,
+      isDefault: !!a.is_default,
     });
   } catch (err) {
     console.error("Addresses POST error:", err);

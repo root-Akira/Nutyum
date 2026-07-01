@@ -13,7 +13,7 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { line1, line2, city, state, pincode, phone } = await req.json();
+    const { line1, line2, city, state, pincode, phone, isDefault } = await req.json();
 
     const body: Record<string, unknown> = {};
     if (line1 !== undefined) body.line1 = line1;
@@ -22,6 +22,7 @@ export async function PUT(
     if (state !== undefined) body.state = state;
     if (pincode !== undefined) body.pincode = pincode;
     if (phone !== undefined) body.phone = phone;
+    if (isDefault !== undefined) body.is_default = !!isDefault;
 
     const { data, error } = await supabaseFetch(
       `addresses?id=eq.${id}&user_id=eq.${session.user.id}`,
@@ -53,7 +54,7 @@ export async function PUT(
       state: a.state,
       pincode: a.pincode,
       phone: a.phone,
-      isDefault: false,
+      isDefault: !!a.is_default,
     });
   } catch (err) {
     console.error("Addresses PUT error:", err);
