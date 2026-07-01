@@ -117,7 +117,7 @@ export function BestSellers() {
       .catch(() => {});
   }, []);
 
-  const bestSellers = allProducts.filter((p) => p.isBestSeller).slice(0, 3);
+  const bestSellers = allProducts.filter((p) => !p.isComingSoon).slice(0, 3);
   const comingSoon = allProducts.filter((p) => p.isComingSoon);
 
   return (
