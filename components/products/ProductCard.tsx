@@ -27,7 +27,7 @@ export function ProductCard({
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: EASE, delay: index * 0.08 }}
-      className={cn("group flex-none w-[240px] sm:w-[260px] cursor-pointer will-change-transform")}
+      className={cn("group w-full max-w-[260px] cursor-pointer will-change-transform")}
     >
       <div
         className="relative mb-4 overflow-hidden rounded-2xl"
