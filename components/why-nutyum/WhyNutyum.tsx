@@ -78,7 +78,7 @@ function BenefitCard({
 export function WhyNutyum() {
   return (
     <section
-      className="bg-[#FAF7EE] py-20 sm:py-28"
+      className="bg-[#FAF7EE] py-20 sm:py-28 pb-16 sm:pb-20"
       aria-labelledby="why-nutyum-title"
     >
       <div className="mx-auto max-w-(--spacing-container) px-4 sm:px-6 lg:px-8">

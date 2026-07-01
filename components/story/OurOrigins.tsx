@@ -44,21 +44,6 @@ export function OurOrigins() {
       {/* Dark overlay for text legibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60" aria-hidden="true" />
 
-      {/* ── Spinning badge (top-right, Two Leaves style) ── */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 18, ease: "linear" }}
-        className="absolute right-6 top-6 z-10 sm:right-10 sm:top-10 will-change-transform"
-        aria-hidden="true"
-      >
-        <div className="flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full border-2 border-[#A8D44B] bg-[#A8D44B]">
-          <div className="text-center">
-            <p className="text-[7px] sm:text-[8px] font-bold uppercase leading-none tracking-[0.15em] text-[#173D22]">FROM FARM</p>
-            <p className="text-[18px] sm:text-[22px]">🪷</p>
-            <p className="text-[7px] sm:text-[8px] font-bold uppercase leading-none tracking-[0.15em] text-[#173D22]">TO BOWL</p>
-          </div>
-        </div>
-      </motion.div>
 
       {/* ── Content ── */}
       <div className="relative z-10 flex min-h-[inherit] flex-col items-center justify-between px-6 py-20 sm:py-28">
