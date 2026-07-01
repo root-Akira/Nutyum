@@ -8,6 +8,7 @@ import { Star, Plus } from "lucide-react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import type { Product } from "@/types";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -46,6 +47,13 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           <span className="text-[10px] font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
             {product.rating} ({product.reviewCount})
           </span>
+        </div>
+
+        {/* Wishlist heart */}
+        <div className="absolute right-3 top-14 z-10 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
+            <WishlistButton product={product} size={14} />
+          </div>
         </div>
 
         {/* Product image */}
