@@ -418,7 +418,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       >
         <motion.div
           className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8"
-          animate={{ height: scrolled ? 86 : 97 }}
+          animate={{ height: 70 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
           <nav className="hidden items-center gap-9 lg:flex" aria-label="Primary navigation">

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 // ─── Slide data ───────────────────────────────────────────────────────────────
 const SLIDES = [
@@ -66,7 +66,7 @@ export function HeroCarousel() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: "calc(100svh - 92px)" }}
+      style={{ height: "calc(100svh - 70px)" }}
       aria-label="Hero product showcase"
       aria-roledescription="carousel"
     >
@@ -154,9 +154,7 @@ export function HeroCarousel() {
                 {slide.pillSub}
               </span>
             </div>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#173D22]">
-              <ArrowRight size={13} className="text-white" strokeWidth={2.5} />
-            </div>
+
           </motion.div>
         </motion.div>
       </AnimatePresence>
