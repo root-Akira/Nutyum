@@ -25,6 +25,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ### Completed
 - [x] **DB products verified** — `/api/products` returns 6 products from Supabase `products` table with proper field mapping (bgColor, isNew, isBestSeller, badgeLabel, weight, vibes); build succeeds with 0 errors, 17 routes
 - [x] **Restarted dev server** — confirmed API responding correctly
+- [x] **Added "demo classic-pudina"** — ₹499, 500g, NEW badge, upserted via Supabase REST API on `slug` conflict; API now serves 7 products
+- [x] **Pushed to GitHub**
 
 ### Hydration warning (cosmetic)
 - **"Some attributes didn't match"** warning on client — caused by browser extension (password manager/ad blocker) injecting attributes into DOM before React hydrates. Tree hydrates fine. Suppress by testing in incognito.
