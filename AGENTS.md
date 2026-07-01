@@ -37,6 +37,10 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **Sidebar Sign Out** — moved from Account Settings page to sidebar below Account Settings
 - [x] **Hydration fix** — replaced `next-themes` with passthrough provider to eliminate DOM attribute mismatch
 - [x] **Account section audit** — all pages and API routes verified (Profile, Orders, Wishlist, Account Settings, addresses, change password)
+- [x] **Coming Soon products** — `isComingSoon` + `launchDate` on Product type, DB migration (0004), seed update, badge logic, purchase disabled
+- [x] **BestSellers tabs** — toggle between Best Sellers / Coming Soon with original gold badge design; "We are planning to bring something new!" when empty
+- [x] **Our Origins icons** — emojis replaced with lucide SVG icons (Leaf, Globe, Mountain) + glass effect
+- [x] **No-action-without-permission rule** — added to AGENTS.md
 
 ### Still Pending
 - [ ] Razorpay payments
