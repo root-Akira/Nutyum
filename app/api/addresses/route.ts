@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 
+const TABLE_ERR = "Addresses table not found — run the setup SQL";
+
+function isTableMissing(error: unknown): boolean {
+  const msg = typeof error === "object" && error ? String((error as Record<string, unknown>).message || "") : "";
+  return msg.includes("does not exist") || msg.includes("schema cache");
+}
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -52,7 +59,6 @@ export async function POST(req: Request) {
     phone: phone || "",
   };
 
-  // Only include is_default if it's true (column may not exist yet)
   if (isDefault) {
     body.is_default = true;
   }
@@ -64,6 +70,9 @@ export async function POST(req: Request) {
   });
 
   if (error) {
+    if (isTableMissing(error)) {
+      return NextResponse.json({ error: TABLE_ERR }, { status: 503 });
+    }
     return NextResponse.json({ error: error.message || error }, { status: 500 });
   }
 

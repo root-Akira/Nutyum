@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Trash2 } from "lucide-react";
+import { Heart } from "lucide-react";
+import { ProductCard } from "@/components/products/ProductCard";
+import { useCartStore } from "@/hooks/use-cart-store";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import type { Product } from "@/types";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -14,13 +17,6 @@ type WishlistItem = {
   product: Product;
   createdAt: string;
 };
-
-function formatPrice(paise: number) {
-  return `₹${(paise / 100).toLocaleString("en-IN")}`;
-}
-
-import { useCartStore } from "@/hooks/use-cart-store";
-import { useRequireAuth } from "@/lib/use-require-auth";
 
 export default function WishlistPage() {
   const [items, setItems] = useState<WishlistItem[]>([]);
@@ -37,21 +33,6 @@ export default function WishlistPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  async function handleRemove(productId: string) {
-    const res = await fetch("/api/wishlist", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId }),
-    });
-    if (res.ok) {
-      setItems((prev) => prev.filter((i) => i.productId !== productId));
-    }
-  }
-
-  function handleAddToCart(product: Product) {
-    requireAuth(() => addItem(product, 1));
-  }
 
   if (loading) {
     return (
@@ -88,45 +69,19 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 justify-items-center">
       {items.map((item, i) => (
         <motion.div
           key={item.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: i * 0.05, ease: EASE }}
-          className="group relative rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-5"
         >
-          <div className="mb-3 flex items-start justify-between">
-            <div
-              className="flex h-16 w-16 items-center justify-center rounded-xl text-2xl"
-              style={{ backgroundColor: item.product.bgColor || "#FAF7EE" }}
-            >
-              🪷
-            </div>
-            <button
-              onClick={() => handleRemove(item.productId)}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-red-200 bg-white text-red-500 opacity-0 transition-all hover:border-red-400 hover:bg-red-50 group-hover:opacity-100"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          <Link href={`/shop/${item.product.slug}`}>
-            <h3 className="mb-1 text-sm font-semibold text-[#173D22] transition-colors hover:text-[#E0961A]" style={{ fontFamily: "var(--font-heading)" }}>
-              {item.product.name}
-            </h3>
-          </Link>
-          <p className="mb-3 text-xs text-[#4C5A48]">{item.product.weight}</p>
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-[#173D22]">{formatPrice(item.product.price)}</p>
-            <button
-              onClick={() => handleAddToCart(item.product)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#173D22] px-4 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#0e2616]"
-            >
-              <ShoppingBag className="h-3.5 w-3.5" /> Add to Cart
-            </button>
-          </div>
+          <ProductCard
+            product={item.product}
+            index={i}
+            onAddToCart={(p) => requireAuth(() => addItem(p))}
+          />
         </motion.div>
       ))}
     </div>

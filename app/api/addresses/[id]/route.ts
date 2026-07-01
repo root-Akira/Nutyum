@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 
+const TABLE_ERR = "Addresses table not found — run the setup SQL";
+
+function isTableMissing(error: unknown): boolean {
+  const msg = typeof error === "object" && error ? String((error as Record<string, unknown>).message || "") : "";
+  return msg.includes("does not exist") || msg.includes("schema cache");
+}
+
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -33,6 +40,9 @@ export async function PUT(
   );
 
   if (error) {
+    if (isTableMissing(error)) {
+      return NextResponse.json({ error: TABLE_ERR }, { status: 503 });
+    }
     return NextResponse.json({ error: error.message || error }, { status: 500 });
   }
 
@@ -73,6 +83,9 @@ export async function DELETE(
   );
 
   if (error) {
+    if (isTableMissing(error)) {
+      return NextResponse.json({ error: TABLE_ERR }, { status: 503 });
+    }
     return NextResponse.json({ error: error.message || error }, { status: 500 });
   }
 
