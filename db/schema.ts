@@ -62,3 +62,16 @@ export const addresses = pgTable("addresses", {
   pincode: text("pincode"),
   phone: text("phone"),
 });
+
+export const reviews = pgTable("reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  rating: integer("rating").notNull(),
+  title: text("title").notNull(),
+  comment: text("comment").notNull(),
+  product: text("product").notNull(),
+  location: text("location").default(""),
+  isApproved: boolean("is_approved").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});

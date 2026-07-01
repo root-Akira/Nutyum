@@ -1,0 +1,476 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
+
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+interface Review {
+  id: string;
+  name: string;
+  location: string;
+  rating: number;
+  date: string;
+  title: string;
+  comment: string;
+  product: string;
+}
+
+const CITIES_BY_STATE: Record<string, string[]> = {
+  "Andhra Pradesh": ["Amaravati", "Anantapur", "Eluru", "Guntur", "Kakinada", "Kurnool", "Nellore", "Ongole", "Rajahmundry", "Srikakulam", "Tirupati", "Vijayawada", "Visakhapatnam", "Vizianagaram"],
+  "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang", "Ziro"],
+  "Assam": ["Dibrugarh", "Dispur", "Guwahati", "Jorhat", "Nagaon", "Silchar", "Tezpur", "Tinsukia"],
+  "Bihar": ["Arrah", "Begusarai", "Bhagalpur", "Bihar Sharif", "Darbhanga", "Gaya", "Hajipur", "Katihar", "Muzaffarpur", "Patna", "Purnia", "Sasaram", "Siwan"],
+  "Chhattisgarh": ["Bhilai", "Bilaspur", "Durg", "Korba", "Raigarh", "Raipur", "Rajnandgaon"],
+  "Goa": ["Margao", "Mapusa", "Panaji", "Ponda", "Vasco da Gama"],
+  "Gujarat": ["Ahmedabad", "Anand", "Bharuch", "Bhavnagar", "Bhuj", "Gandhinagar", "Gandhidham", "Jamnagar", "Junagadh", "Morbi", "Nadiad", "Navsari", "Porbandar", "Rajkot", "Surat", "Vadodara", "Valsad", "Vapi"],
+  "Haryana": ["Ambala", "Bhiwani", "Chandigarh", "Faridabad", "Gurugram", "Hisar", "Karnal", "Kurukshetra", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"],
+  "Himachal Pradesh": ["Dharamshala", "Hamirpur", "Kangra", "Kullu", "Mandi", "Palampur", "Shimla", "Solan", "Una"],
+  "Jharkhand": ["Bokaro", "Deoghar", "Dhanbad", "Giridih", "Hazaribagh", "Jamshedpur", "Ramgarh", "Ranchi"],
+  "Karnataka": ["Bagalkot", "Ballari", "Belagavi", "Bengaluru", "Bidar", "Chitradurga", "Davangere", "Gadag", "Hassan", "Hospet", "Hubballi", "Kalaburagi", "Kolar", "Mangaluru", "Mysuru", "Raichur", "Shivamogga", "Tumakuru", "Udupi"],
+  "Kerala": ["Alappuzha", "Ernakulam", "Kannur", "Kasaragod", "Kochi", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"],
+  "Madhya Pradesh": ["Bhopal", "Burhanpur", "Chhindwara", "Dewas", "Gwalior", "Indore", "Jabalpur", "Mandsaur", "Morena", "Narmadapuram", "Rewa", "Sagar", "Satna", "Shivpuri", "Ujjain"],
+  "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Chandrapur", "Dhule", "Jalgaon", "Jalna", "Kalyan-Dombivli", "Kolhapur", "Latur", "Mumbai", "Nagpur", "Nanded", "Nashik", "Navi Mumbai", "Parbhani", "Pune", "Ratnagiri", "Sangli", "Satara", "Solapur", "Thane", "Vasai-Virar", "Wardha"],
+  "Manipur": ["Bishnupur", "Churachandpur", "Imphal", "Thoubal"],
+  "Meghalaya": ["Nongstoin", "Shillong", "Tura"],
+  "Mizoram": ["Aizawl", "Champhai", "Lunglei", "Serchhip"],
+  "Nagaland": ["Dimapur", "Kohima", "Mokokchung", "Tuensang", "Wokha"],
+  "Odisha": ["Balasore", "Barbil", "Bhadrak", "Bhubaneswar", "Baripada", "Cuttack", "Jharsuguda", "Paradip", "Puri", "Rourkela", "Sambalpur"],
+  "Punjab": ["Amritsar", "Bathinda", "Hoshiarpur", "Jalandhar", "Ludhiana", "Mohali", "Moga", "Patiala", "Phagwara"],
+  "Rajasthan": ["Ajmer", "Alwar", "Banswara", "Bharatpur", "Bhilwara", "Bikaner", "Chittorgarh", "Ganganagar", "Jaipur", "Jodhpur", "Kota", "Pali", "Sikar", "Tonk", "Udaipur"],
+  "Sikkim": ["Gangtok", "Gyalshing", "Mangan", "Namchi"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Cuddalore", "Dindigul", "Erode", "Kanchipuram", "Kumbakonam", "Madurai", "Nagercoil", "Ooty", "Salem", "Thanjavur", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Vellore"],
+  "Telangana": ["Adilabad", "Hyderabad", "Karimnagar", "Khammam", "Mahbubnagar", "Nalgonda", "Nizamabad", "Sangareddy", "Warangal"],
+  "Tripura": ["Agartala", "Dharmanagar", "Kailashahar", "Udaipur"],
+  "Uttar Pradesh": ["Agra", "Aligarh", "Ayodhya", "Azamgarh", "Bareilly", "Firozabad", "Ghaziabad", "Gorakhpur", "Jhansi", "Kanpur", "Lucknow", "Mathura", "Meerut", "Moradabad", "Muzaffarnagar", "Noida", "Prayagraj", "Saharanpur", "Varanasi"],
+  "Uttarakhand": ["Dehradun", "Haldwani", "Haridwar", "Kashipur", "Nainital", "Rishikesh", "Roorkee", "Rudrapur"],
+  "West Bengal": ["Asansol", "Bardhaman", "Darjeeling", "Durgapur", "Haldia", "Howrah", "Kolkata", "Krishnanagar", "Malda", "Murshidabad", "Siliguri"],
+  "Andaman and Nicobar Islands": ["Port Blair"],
+  "Chandigarh": ["Chandigarh"],
+  "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
+  "Delhi": ["Delhi", "Faridabad", "Ghaziabad", "Gurugram", "Noida"],
+  "Jammu and Kashmir": ["Anantnag", "Baramulla", "Jammu", "Kathua", "Sopore", "Srinagar", "Udhampur"],
+  "Ladakh": ["Kargil", "Leh"],
+  "Lakshadweep": ["Kavaratti"],
+  "Puducherry": ["Karaikal", "Puducherry", "Yanam"],
+};
+
+const STATES = Object.keys(CITIES_BY_STATE).sort();
+
+const REVIEWS: Review[] = [
+  {
+    id: "1",
+    name: "Priya S.",
+    location: "Mumbai, Maharashtra",
+    rating: 5,
+    date: "June 2026",
+    title: "Best snack I've ever had!",
+    comment: "I ordered the Variety Pack and every single flavour is amazing. The Dark Chocolate one is my absolute favourite — it satisfies my sweet cravings without any guilt. Already placed my second order!",
+    product: "Nutyum Variety Pack",
+  },
+  {
+    id: "2",
+    name: "Arjun M.",
+    location: "Bengaluru, Karnataka",
+    rating: 5,
+    date: "May 2026",
+    title: "Perfect evening munch",
+    comment: "The Himalayan Sea Salt Makhana is perfectly seasoned — not too salty, just right. Light, crunchy, and way healthier than chips. My go-to snack for work from home days.",
+    product: "Himalayan Sea Salt Makhana",
+  },
+  {
+    id: "3",
+    name: "Ananya K.",
+    location: "Delhi",
+    rating: 4,
+    date: "May 2026",
+    title: "Great taste, loved the peri peri",
+    comment: "The Peri Peri flavour has a nice kick to it without being overwhelming. Would love a spicier version though! The quality is fantastic and the packaging keeps them fresh.",
+    product: "Peri Peri Makhana",
+  },
+  {
+    id: "4",
+    name: "Rahul V.",
+    location: "Pune, Maharashtra",
+    rating: 5,
+    date: "April 2026",
+    title: "Healthy snacking, finally!",
+    comment: "I've been looking for a healthy snack that actually tastes good. Nutyum delivers! The Classic Pudina is refreshing and unique. My whole family loves them.",
+    product: "Classic Pudina Makhana",
+  },
+  {
+    id: "5",
+    name: "Sneha R.",
+    location: "Hyderabad, Telangana",
+    rating: 5,
+    date: "April 2026",
+    title: "Gift-worthy presentation",
+    comment: "Ordered the Variety Pack as a gift for my sister and she loved it. The packaging is premium and the flavours are all delicious. Perfect gift for health-conscious friends.",
+    product: "Nutyum Variety Pack",
+  },
+  {
+    id: "6",
+    name: "Vikram P.",
+    location: "Chennai, Tamil Nadu",
+    rating: 4,
+    date: "March 2026",
+    title: "Turmeric & Pepper is a must-try",
+    comment: "Was sceptical about the Turmeric & Pepper flavour but it's surprisingly delicious. The earthy turmeric with the pepper kick is a brilliant combination. Great for immunity too!",
+    product: "Turmeric & Pepper Makhana",
+  },
+  {
+    id: "7",
+    name: "Neha G.",
+    location: "Ahmedabad, Gujarat",
+    rating: 5,
+    date: "March 2026",
+    title: "Better than expected",
+    comment: "I tried Nutyum at a friend's place and immediately ordered 3 packs. The Dark Chocolate is dangerous — I finished the whole pack in one sitting! Please make bigger packs.",
+    product: "Dark Chocolate Makhana",
+  },
+  {
+    id: "8",
+    name: "Amit T.",
+    location: "Kolkata, West Bengal",
+    rating: 5,
+    date: "February 2026",
+    title: "Finally, a snack for my diet",
+    comment: "I'm on a keto diet and finding snacks is tough. Nutyum makhana is low calorie, high protein, and actually tasty. The free delivery on orders above ₹999 is a nice bonus.",
+    product: "Himalayan Sea Salt Makhana",
+  },
+];
+
+function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          size={size}
+          fill={i < rating ? "#E0961A" : "none"}
+          stroke={i < rating ? "#E0961A" : "#d1d5db"}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ReviewCard({ review, index }: { review: Review; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: EASE, delay: index * 0.05 }}
+      className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 transition-all hover:shadow-md"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <StarRating rating={review.rating} />
+        <span className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          {review.date}
+        </span>
+      </div>
+      <h3 className="mb-1 text-base font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+        {review.title}
+      </h3>
+      <p className="mb-3 text-sm leading-relaxed text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+        {review.comment}
+      </p>
+      <div className="flex items-center justify-between border-t border-[rgba(23,61,34,0.06)] pt-3">
+        <div>
+          <p className="text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+            {review.name}
+          </p>
+          <p className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+            {review.location}
+          </p>
+        </div>
+        <span className="rounded-full bg-[rgba(23,61,34,0.06)] px-3 py-1 text-[10px] font-medium text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          {review.product}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
+function SubmitForm() {
+  const [form, setForm] = useState({ name: "", email: "", rating: 0, title: "", comment: "", product: "", city: "", state: "" });
+  const [hoverRating, setHoverRating] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to submit");
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center">
+        <p className="mb-2 text-lg font-semibold text-green-800" style={{ fontFamily: "var(--font-heading)" }}>
+          Thank you for your review!
+        </p>
+        <p className="text-sm text-green-700" style={{ fontFamily: "var(--font-body)" }}>
+          Your feedback helps us improve. We&apos;ll review and publish it shortly.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="name" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+            Name *
+          </label>
+          <input
+            id="name"
+            type="text"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#4C5A48]/60 focus:border-[#173D22] focus:outline-none"
+            style={{ fontFamily: "var(--font-body)" }}
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+            Email (not published) *
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#4C5A48]/60 focus:border-[#173D22] focus:outline-none"
+            style={{ fontFamily: "var(--font-body)" }}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="city" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+            City
+          </label>
+          <select
+            id="city"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+            className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] focus:border-[#173D22] focus:outline-none"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            <option value="">Select city (optional)</option>
+            {(CITIES_BY_STATE[form.state] || []).map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="state" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+            State
+          </label>
+          <select
+            id="state"
+            value={form.state}
+            onChange={(e) => setForm({ ...form, state: e.target.value, city: "" })}
+            className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] focus:border-[#173D22] focus:outline-none"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            <option value="">Select state (optional)</option>
+            {STATES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="product" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+          Product reviewed *
+        </label>
+        <select
+          id="product"
+          required
+          value={form.product}
+          onChange={(e) => setForm({ ...form, product: e.target.value })}
+          className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] focus:border-[#173D22] focus:outline-none"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          <option value="">Select a product</option>
+          <option value="Himalayan Sea Salt Makhana">Himalayan Sea Salt Makhana</option>
+          <option value="Peri Peri Makhana">Peri Peri Makhana</option>
+          <option value="Dark Chocolate Makhana">Dark Chocolate Makhana</option>
+          <option value="Classic Pudina Makhana">Classic Pudina Makhana</option>
+          <option value="Turmeric & Pepper Makhana">Turmeric & Pepper Makhana</option>
+          <option value="Nutyum Variety Pack">Nutyum Variety Pack</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+          Rating *
+        </label>
+        <div className="flex flex-row gap-2">
+          {[1, 2, 3, 4, 5].map((r) => {
+            const active = r <= (hoverRating || form.rating);
+            return (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setForm({ ...form, rating: r === form.rating ? 0 : r })}
+                onMouseEnter={() => setHoverRating(r)}
+                onMouseLeave={() => setHoverRating(0)}
+                className="transition-transform hover:scale-110"
+                aria-label={`${r} star${r !== 1 ? "s" : ""}`}
+              >
+                <Star size={22} fill={active ? "#E0961A" : "none"} stroke={active ? "#E0961A" : "#d1d5db"} />
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-1 text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          {form.rating > 0 ? `You rated ${form.rating} out of 5` : "Click a star to rate"}
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="title" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+          Review title *
+        </label>
+        <input
+          id="title"
+          type="text"
+          required
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          placeholder="Summarise your experience"
+          className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#4C5A48]/60 focus:border-[#173D22] focus:outline-none"
+          style={{ fontFamily: "var(--font-body)" }}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="comment" className="mb-1 block text-xs font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+          Your review *
+        </label>
+        <textarea
+          id="comment"
+          required
+          rows={4}
+          value={form.comment}
+          onChange={(e) => setForm({ ...form, comment: e.target.value })}
+          placeholder="Tell us what you loved (or what we can improve)"
+          className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-white px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#4C5A48]/60 focus:border-[#173D22] focus:outline-none resize-none"
+          style={{ fontFamily: "var(--font-body)" }}
+        />
+      </div>
+
+      {error && (
+        <p className="text-sm text-red-600" style={{ fontFamily: "var(--font-body)" }}>
+          {error}
+        </p>
+      )}
+      <button
+        type="submit"
+        className="rounded-full bg-[#173D22] px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
+        style={{ fontFamily: "var(--font-body)" }}
+      >
+        Submit Review
+      </button>
+    </form>
+  );
+}
+
+export default function ReviewsPage() {
+  const [apiReviews, setApiReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) {
+          const mapped = data.map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            location: r.location || "",
+            rating: r.rating,
+            date: new Date(r.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" }),
+            title: r.title,
+            comment: r.comment,
+            product: r.product,
+          }));
+          setApiReviews(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const allReviews = [...apiReviews, ...REVIEWS];
+  const overall = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length;
+
+  return (
+    <main className="min-h-screen bg-[#FAF7EE]">
+      <div className="mx-auto max-w-5xl px-6 py-24 sm:py-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="mb-16 text-center"
+        >
+          <h1 className="mb-4 text-4xl font-bold tracking-[-0.02em] text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+            What Our Customers Say
+          </h1>
+          <p className="mb-6 text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+            Real reviews from real people who love Nutyum.
+          </p>
+          <div className="inline-flex items-center gap-3 rounded-full border border-[rgba(23,61,34,0.15)] bg-white px-6 py-3">
+            <StarRating rating={Math.round(overall)} size={16} />
+            <span className="text-sm font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+              {overall.toFixed(1)} out of 5  &middot;  {allReviews.length} reviews
+            </span>
+          </div>
+        </motion.div>
+
+        <div className="mb-20 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {allReviews.map((review, i) => (
+            <ReviewCard key={review.id} review={review} index={i} />
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="mx-auto max-w-2xl"
+        >
+          <h2 className="mb-2 text-center text-2xl font-bold tracking-[-0.02em] text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+            Write a Review
+          </h2>
+          <p className="mb-8 text-center text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+            Loved our snacks? Share your experience — your feedback helps other snack lovers discover Nutyum.
+          </p>
+          <SubmitForm />
+        </motion.div>
+      </div>
+    </main>
+  );
+}
