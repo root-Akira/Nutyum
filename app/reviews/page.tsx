@@ -1,21 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { ReviewCard, StarRating, type Review } from "@/components/reviews/ReviewCard";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-interface Review {
-  id: string;
-  name: string;
-  location: string;
-  rating: number;
-  date: string;
-  title: string;
-  comment: string;
-  product: string;
-}
+type SortKey = "recent" | "oldest" | "highest";
 
 const CITIES_BY_STATE: Record<string, string[]> = {
   "Andhra Pradesh": ["Amaravati", "Anantapur", "Eluru", "Guntur", "Kakinada", "Kurnool", "Nellore", "Ongole", "Rajahmundry", "Srikakulam", "Tirupati", "Vijayawada", "Visakhapatnam", "Vizianagaram"],
@@ -58,147 +50,23 @@ const CITIES_BY_STATE: Record<string, string[]> = {
 
 const STATES = Object.keys(CITIES_BY_STATE).sort();
 
-const REVIEWS: Review[] = [
-  {
-    id: "1",
-    name: "Priya S.",
-    location: "Mumbai, Maharashtra",
-    rating: 5,
-    date: "June 2026",
-    title: "Best snack I've ever had!",
-    comment: "I ordered the Variety Pack and every single flavour is amazing. The Dark Chocolate one is my absolute favourite — it satisfies my sweet cravings without any guilt. Already placed my second order!",
-    product: "Nutyum Variety Pack",
-  },
-  {
-    id: "2",
-    name: "Arjun M.",
-    location: "Bengaluru, Karnataka",
-    rating: 5,
-    date: "May 2026",
-    title: "Perfect evening munch",
-    comment: "The Himalayan Sea Salt Makhana is perfectly seasoned — not too salty, just right. Light, crunchy, and way healthier than chips. My go-to snack for work from home days.",
-    product: "Himalayan Sea Salt Makhana",
-  },
-  {
-    id: "3",
-    name: "Ananya K.",
-    location: "Delhi",
-    rating: 4,
-    date: "May 2026",
-    title: "Great taste, loved the peri peri",
-    comment: "The Peri Peri flavour has a nice kick to it without being overwhelming. Would love a spicier version though! The quality is fantastic and the packaging keeps them fresh.",
-    product: "Peri Peri Makhana",
-  },
-  {
-    id: "4",
-    name: "Rahul V.",
-    location: "Pune, Maharashtra",
-    rating: 5,
-    date: "April 2026",
-    title: "Healthy snacking, finally!",
-    comment: "I've been looking for a healthy snack that actually tastes good. Nutyum delivers! The Classic Pudina is refreshing and unique. My whole family loves them.",
-    product: "Classic Pudina Makhana",
-  },
-  {
-    id: "5",
-    name: "Sneha R.",
-    location: "Hyderabad, Telangana",
-    rating: 5,
-    date: "April 2026",
-    title: "Gift-worthy presentation",
-    comment: "Ordered the Variety Pack as a gift for my sister and she loved it. The packaging is premium and the flavours are all delicious. Perfect gift for health-conscious friends.",
-    product: "Nutyum Variety Pack",
-  },
-  {
-    id: "6",
-    name: "Vikram P.",
-    location: "Chennai, Tamil Nadu",
-    rating: 4,
-    date: "March 2026",
-    title: "Turmeric & Pepper is a must-try",
-    comment: "Was sceptical about the Turmeric & Pepper flavour but it's surprisingly delicious. The earthy turmeric with the pepper kick is a brilliant combination. Great for immunity too!",
-    product: "Turmeric & Pepper Makhana",
-  },
-  {
-    id: "7",
-    name: "Neha G.",
-    location: "Ahmedabad, Gujarat",
-    rating: 5,
-    date: "March 2026",
-    title: "Better than expected",
-    comment: "I tried Nutyum at a friend's place and immediately ordered 3 packs. The Dark Chocolate is dangerous — I finished the whole pack in one sitting! Please make bigger packs.",
-    product: "Dark Chocolate Makhana",
-  },
-  {
-    id: "8",
-    name: "Amit T.",
-    location: "Kolkata, West Bengal",
-    rating: 5,
-    date: "February 2026",
-    title: "Finally, a snack for my diet",
-    comment: "I'm on a keto diet and finding snacks is tough. Nutyum makhana is low calorie, high protein, and actually tasty. The free delivery on orders above ₹999 is a nice bonus.",
-    product: "Himalayan Sea Salt Makhana",
-  },
-];
-
-function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          size={size}
-          fill={i < rating ? "#E0961A" : "none"}
-          stroke={i < rating ? "#E0961A" : "#d1d5db"}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ReviewCard({ review, index }: { review: Review; index: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: EASE, delay: index * 0.05 }}
-      className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 transition-all hover:shadow-md"
-    >
-      <div className="mb-3 flex items-center justify-between">
-        <StarRating rating={review.rating} />
-        <span className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-          {review.date}
-        </span>
-      </div>
-      <h3 className="mb-1 text-base font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-        {review.title}
-      </h3>
-      <p className="mb-3 text-sm leading-relaxed text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-        {review.comment}
-      </p>
-      <div className="flex items-center justify-between border-t border-[rgba(23,61,34,0.06)] pt-3">
-        <div>
-          <p className="text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
-            {review.name}
-          </p>
-          <p className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-            {review.location}
-          </p>
-        </div>
-        <span className="rounded-full bg-[rgba(23,61,34,0.06)] px-3 py-1 text-[10px] font-medium text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-          {review.product}
-        </span>
-      </div>
-    </motion.div>
-  );
-}
-
 function SubmitForm() {
   const [form, setForm] = useState({ name: "", email: "", rating: 0, title: "", comment: "", product: "", city: "", state: "" });
   const [hoverRating, setHoverRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [productNames, setProductNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) {
+          setProductNames(data.map((p: any) => p.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,12 +183,9 @@ function SubmitForm() {
           style={{ fontFamily: "var(--font-body)" }}
         >
           <option value="">Select a product</option>
-          <option value="Himalayan Sea Salt Makhana">Himalayan Sea Salt Makhana</option>
-          <option value="Peri Peri Makhana">Peri Peri Makhana</option>
-          <option value="Dark Chocolate Makhana">Dark Chocolate Makhana</option>
-          <option value="Classic Pudina Makhana">Classic Pudina Makhana</option>
-          <option value="Turmeric & Pepper Makhana">Turmeric & Pepper Makhana</option>
-          <option value="Nutyum Variety Pack">Nutyum Variety Pack</option>
+          {productNames.map((name) => (
+            <option key={name} value={name}>{name}</option>
+          ))}
         </select>
       </div>
 
@@ -399,8 +264,25 @@ function SubmitForm() {
   );
 }
 
+const FALLBACK_REVIEWS: Review[] = [
+  { id: "1", name: "Priya S.", location: "Mumbai, Maharashtra", rating: 5, date: "June 2026", title: "Best snack I've ever had!", comment: "I ordered the Variety Pack and every single flavour is amazing. The Dark Chocolate one is my absolute favourite!", product: "Nutyum Variety Pack" },
+  { id: "2", name: "Arjun M.", location: "Bengaluru, Karnataka", rating: 5, date: "May 2026", title: "Perfect evening munch", comment: "The Himalayan Sea Salt Makhana is perfectly seasoned — not too salty, just right. Light, crunchy, and way healthier than chips.", product: "Himalayan Sea Salt Makhana" },
+  { id: "3", name: "Ananya K.", location: "Delhi", rating: 4, date: "May 2026", title: "Great taste, loved the peri peri", comment: "The Peri Peri flavour has a nice kick to it without being overwhelming. Would love a spicier version though!", product: "Peri Peri Makhana" },
+  { id: "4", name: "Rahul V.", location: "Pune, Maharashtra", rating: 5, date: "April 2026", title: "Healthy snacking, finally!", comment: "I've been looking for a healthy snack that actually tastes good. Nutyum delivers!", product: "Classic Pudina Makhana" },
+  { id: "5", name: "Sneha R.", location: "Hyderabad, Telangana", rating: 5, date: "April 2026", title: "Gift-worthy presentation", comment: "Ordered the Variety Pack as a gift for my sister and she loved it. The packaging is premium and the flavours are delicious.", product: "Nutyum Variety Pack" },
+  { id: "6", name: "Vikram P.", location: "Chennai, Tamil Nadu", rating: 4, date: "March 2026", title: "Turmeric & Pepper is a must-try", comment: "Was sceptical about the Turmeric & Pepper flavour but it's surprisingly delicious.", product: "Turmeric & Pepper Makhana" },
+  { id: "7", name: "Neha G.", location: "Ahmedabad, Gujarat", rating: 5, date: "March 2026", title: "Better than expected", comment: "I tried Nutyum at a friend's place and immediately ordered 3 packs.", product: "Dark Chocolate Makhana" },
+  { id: "8", name: "Amit T.", location: "Kolkata, West Bengal", rating: 5, date: "February 2026", title: "Finally, a snack for my diet", comment: "Nutyum makhana is low calorie, high protein, and actually tasty.", product: "Himalayan Sea Salt Makhana" },
+];
+
 export default function ReviewsPage() {
-  const [apiReviews, setApiReviews] = useState<Review[]>([]);
+  const [apiReviews, setApiReviews] = useState<Review[]>(FALLBACK_REVIEWS);
+  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState<SortKey>("recent");
+
+  const scrollToForm = () => {
+    document.getElementById("write-review")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     fetch("/api/reviews")
@@ -420,11 +302,23 @@ export default function ReviewsPage() {
           setApiReviews(mapped);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const allReviews = [...apiReviews, ...REVIEWS];
-  const overall = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length;
+  const allReviews = useMemo(() => {
+    if (sort === "recent") return apiReviews;
+    if (sort === "oldest") return [...apiReviews].reverse();
+    return [...apiReviews].sort((a, b) => b.rating - a.rating);
+  }, [apiReviews, sort]);
+
+  const overall = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length || 0;
+
+  const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+    { key: "recent", label: "Most Recent" },
+    { key: "oldest", label: "Oldest First" },
+    { key: "highest", label: "Highest Rated" },
+  ];
 
   return (
     <main className="min-h-screen bg-[#FAF7EE]">
@@ -449,13 +343,51 @@ export default function ReviewsPage() {
           </div>
         </motion.div>
 
-        <div className="mb-20 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {allReviews.map((review, i) => (
-            <ReviewCard key={review.id} review={review} index={i} />
+        <div className="mb-6 flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={scrollToForm}
+            className="rounded-full border border-[#E0961A] bg-[#E0961A]/10 px-5 py-2 text-xs font-medium text-[#173D22] transition-all hover:bg-[#E0961A]/20"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Write a Review
+          </button>
+          {SORT_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setSort(opt.key)}
+              className={`rounded-full px-5 py-2 text-xs font-medium transition-all ${
+                sort === opt.key
+                  ? "bg-[#173D22] text-white"
+                  : "border border-[rgba(23,61,34,0.2)] bg-white text-[#173D22] hover:border-[#173D22]"
+              }`}
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              {opt.label}
+            </button>
           ))}
         </div>
 
+        {loading ? (
+          <div className="mb-20 flex items-center justify-center py-16">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-[rgba(23,61,34,0.15)] border-t-[3px] border-t-[#173D22]" />
+              <p className="text-sm font-medium text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                Loading reviews...
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-20 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {allReviews.map((review, i) => (
+              <ReviewCard key={review.id} review={review} index={i} />
+            ))}
+          </div>
+        )}
+
         <motion.div
+          id="write-review"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

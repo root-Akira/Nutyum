@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         comment,
         product,
         location,
-        is_approved: false,
+        is_approved: true,
       }),
     });
 

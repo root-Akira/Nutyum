@@ -27,12 +27,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - [x] **Restarted dev server** — confirmed API responding correctly
 - [x] **Added "demo classic-pudina"** — ₹499, 500g, NEW badge, upserted via Supabase REST API on `slug` conflict; API now serves 7 products
 - [x] **Pushed to GitHub**
+- [x] **Support pages created** — 8 pages (contact, FAQ, shipping, returns, privacy, terms, cookies, accessibility) + `/support` hub; 31 routes
+- [x] **`/reviews` page** — DB-backed (Supabase `reviews` table), `/api/reviews` GET/POST, state/city dropdowns filtered by state, interactive star rating (hover preview, left-to-right)
 
 ### Hydration warning (cosmetic)
-- **"Some attributes didn't match"** warning on client — caused by browser extension (password manager/ad blocker) injecting attributes into DOM before React hydrates. Tree hydrates fine. Suppress by testing in incognito.
-- `suppressHydrationWarning` already on `<html>` tag.
 
 ### Still Pending
-- [ ] Support pages (contact, FAQ, shipping, returns, privacy) — links exist in footer but routes don't
-- [ ] `/reviews` route
 - [ ] Razorpay payments

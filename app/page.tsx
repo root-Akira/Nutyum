@@ -4,6 +4,7 @@ import { Discover } from "@/components/discover/Discover";
 import { OurOrigins } from "@/components/story/OurOrigins";
 import { BrandPanel } from "@/components/story/BrandPanel";
 import { WhyNutyum } from "@/components/why-nutyum/WhyNutyum";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { Newsletter } from "@/components/newsletter/Newsletter";
 import { Footer } from "@/components/footer/Footer";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <OurOrigins />
       <BrandPanel />
       <WhyNutyum />
+      <ReviewsSection />
       <Newsletter />
       <Footer />
     </main>
