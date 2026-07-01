@@ -32,7 +32,7 @@ const SLIDES = [
   },
 ];
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 // ─── Hero Carousel ────────────────────────────────────────────────────────────
 export function HeroCarousel() {
@@ -78,9 +78,9 @@ export function HeroCarousel() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.55, ease: EASE }}
+          transition={{ duration: 0.6, ease: EASE }}
           className="absolute inset-0"
-          style={{ backgroundColor: slide.bgColor }}
+          style={{ backgroundColor: slide.bgColor, willChange: "transform" }}
           aria-roledescription="slide"
           aria-label={`Slide ${active + 1} of ${SLIDES.length}: ${slide.heading}`}
         >
@@ -89,7 +89,7 @@ export function HeroCarousel() {
             src={slide.image}
             alt={slide.imageAlt}
             fill
-            priority={active === 0}
+            priority
             sizes="100vw"
             className="object-cover"
           />
