@@ -23,14 +23,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Session: 2026-07-01
 
 ### Completed
-- [x] **DB products verified** — `/api/products` returns 6 products from Supabase `products` table with proper field mapping (bgColor, isNew, isBestSeller, badgeLabel, weight, vibes); build succeeds with 0 errors, 17 routes
-- [x] **Restarted dev server** — confirmed API responding correctly
-- [x] **Added "demo classic-pudina"** — ₹499, 500g, NEW badge, upserted via Supabase REST API on `slug` conflict; API now serves 7 products
-- [x] **Pushed to GitHub**
-- [x] **Support pages created** — 8 pages (contact, FAQ, shipping, returns, privacy, terms, cookies, accessibility) + `/support` hub; 31 routes
-- [x] **`/reviews` page** — DB-backed (Supabase `reviews` table), `/api/reviews` GET/POST, state/city dropdowns filtered by state, interactive star rating (hover preview, left-to-right)
-
-### Hydration warning (cosmetic)
+- [x] **Robust error handling in API routes** — `getErrorMessage()` helper, `Array.isArray()` guards before `.map()`/`.length`, safe non-JSON response parsing; 41 routes, 0 errors
+- [x] **Default address enforcement** — only one address can be default; `unsetAllDefaults()` clears existing default before setting new one in both POST and PUT
+- [x] **`is_default` column persistence** — API now reads/writes `is_default` to Supabase; Default badge shows on address cards
 
 ### Still Pending
 - [ ] Razorpay payments

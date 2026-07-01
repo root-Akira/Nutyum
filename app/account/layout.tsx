@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { User, Package, Heart, Settings } from "lucide-react";
+import { SidebarSignOut } from "@/components/auth/SidebarSignOut";
 
 const NAV_ITEMS = [
   { label: "Profile", href: "/account/profile", icon: User },
@@ -36,7 +37,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
                 </Link>
               ))}
 
-
+              <hr className="my-2 border-[rgba(23,61,34,0.08)]" />
+              <SidebarSignOut />
             </div>
           </nav>
 

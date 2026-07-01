@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, MapPin, Pencil, Trash2, Star } from "lucide-react";
-import { SignOutButton } from "@/components/auth/SignOutButton";
 import { CITIES_BY_STATE, STATES } from "@/lib/locations";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -358,22 +357,6 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
-      </motion.div>
-
-      {/* ─────────────── Sign Out ─────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
-        className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8"
-      >
-        <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-          Sign Out
-        </h2>
-        <p className="mb-4 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-          Sign out of your account on this device.
-        </p>
-        <SignOutButton />
       </motion.div>
     </div>
   );
