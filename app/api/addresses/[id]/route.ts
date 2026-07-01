@@ -14,18 +14,6 @@ export async function PUT(
   const { id } = await params;
   const { line1, line2, city, state, pincode, phone, isDefault } = await req.json();
 
-  // If setting as default, unset other defaults first
-  if (isDefault) {
-    await supabaseFetch(
-      `addresses?user_id=eq.${session.user.id}`,
-      {
-        method: "PATCH",
-        headers: { "Prefer": "return=minimal" },
-        body: JSON.stringify({ is_default: false }),
-      }
-    );
-  }
-
   const body: Record<string, unknown> = {};
   if (line1 !== undefined) body.line1 = line1;
   if (line2 !== undefined) body.line2 = line2;
@@ -61,7 +49,7 @@ export async function PUT(
     state: a.state,
     pincode: a.pincode,
     phone: a.phone,
-    isDefault: a.is_default,
+    isDefault: a.is_default || false,
   });
 }
 
