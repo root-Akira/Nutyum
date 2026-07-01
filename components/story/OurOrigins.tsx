@@ -3,22 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Leaf, Globe, Mountain } from "lucide-react";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+const ICON_MAP = {
+  leaf: Leaf,
+  globe: Globe,
+  mountain: Mountain,
+} as const;
+
 const PILLARS = [
   {
-    icon: "🌿",
+    icon: "leaf",
     title: "Quality, Without\nPretense",
     desc: "Whole lotus seeds. Nothing fake.",
   },
   {
-    icon: "🌍",
+    icon: "globe",
     title: "Care for People\n& Planet",
     desc: "Sourced from sustainable farms.",
   },
   {
-    icon: "🏔️",
+    icon: "mountain",
     title: "Transparent\nSourcing",
     desc: "From Indian wetlands to your snack bowl.",
   },
@@ -89,19 +96,22 @@ export function OurOrigins() {
           transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
           className="grid w-full max-w-2xl grid-cols-3 gap-6 text-center will-change-transform"
         >
-          {PILLARS.map((p) => (
-            <div key={p.title} className="flex flex-col items-center gap-3">
-              <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-[#A8D44B] text-2xl sm:text-3xl">
-                {p.icon}
+          {PILLARS.map((p) => {
+            const Icon = ICON_MAP[p.icon as keyof typeof ICON_MAP];
+            return (
+              <div key={p.title} className="flex flex-col items-center gap-3">
+                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/25 shadow-lg">
+                  <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" strokeWidth={1.5} />
+                </div>
+                <p
+                  className="whitespace-pre-line text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  {p.title}
+                </p>
               </div>
-              <p
-                className="whitespace-pre-line text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white"
-                style={{ fontFamily: "var(--font-body)" }}
-              >
-                {p.title}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </motion.div>
 
         {/* "Our Story" CTA */}
