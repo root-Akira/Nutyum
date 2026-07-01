@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseFetch } from "@/lib/supabase-fetch";
+import { supabaseFetch, unsetAllDefaults } from "@/lib/supabase-fetch";
 
 export async function PUT(
   req: Request,
@@ -23,6 +23,7 @@ export async function PUT(
     if (pincode !== undefined) body.pincode = pincode;
     if (phone !== undefined) body.phone = phone;
     if (isDefault !== undefined) body.is_default = !!isDefault;
+    if (body.is_default) await unsetAllDefaults(session.user.id);
 
     const { data, error } = await supabaseFetch(
       `addresses?id=eq.${id}&user_id=eq.${session.user.id}`,

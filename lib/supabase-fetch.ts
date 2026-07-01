@@ -7,6 +7,17 @@ export function getErrorMessage(err: unknown): string {
   return String(err);
 }
 
+export async function unsetAllDefaults(userId: string) {
+  await supabaseFetch(
+    `addresses?user_id=eq.${userId}&is_default=eq.true`,
+    {
+      method: "PATCH",
+      headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({ is_default: false }),
+    }
+  );
+}
+
 export async function supabaseFetch(path: string, options?: RequestInit) {
   try {
     const res = await fetch(`${supabaseUrl}/rest/v1/${path}`, {

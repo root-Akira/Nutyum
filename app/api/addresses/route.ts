@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseFetch } from "@/lib/supabase-fetch";
+import { supabaseFetch, unsetAllDefaults } from "@/lib/supabase-fetch";
 
 export async function GET() {
   try {
@@ -44,6 +44,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const makeDefault = !!isDefault;
+
+    if (makeDefault) await unsetAllDefaults(session.user.id);
+
     const body = {
       user_id: session.user.id,
       line1,
@@ -52,7 +56,7 @@ export async function POST(req: Request) {
       state,
       pincode,
       phone: phone || "",
-      is_default: !!isDefault,
+      is_default: makeDefault,
     };
 
     const { data, error } = await supabaseFetch("addresses", {
