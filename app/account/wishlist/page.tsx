@@ -69,7 +69,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 justify-items-center">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
       {items.map((item, i) => (
         <motion.div
           key={item.id}
