@@ -20,29 +20,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Payments:** Razorpay (Phase 3)
 - **Deployment:** Vercel
 
-## Session: 2026-06-30
+## Session: 2026-07-01
 
-### Completed (Supabase Auth + Cart)
-- [x] **Supabase Auth connected** — credentials provider validates against Supabase Auth (falls back to demo store if disconnected)
-- [x] **Sign-up route** — creates users in Supabase Auth via admin API with `email_confirm: true`
-- [x] **Forgot password** — `/forgot-password` page with Supabase `resetPasswordForEmail()`, `/auth/callback` route, `/reset-password` page with `updateUser()`
-- [x] **Callback URL redirect** — sign-in redirects back to the page user was trying to access
-- [x] **Reset success banner** — green alert on sign-in page when redirected from password reset
-- [x] **"Forgot password?" link** added to sign-in form
-- [x] **Session auto-refresh** — `session.update()` called after sign-in/sign-up so Navbar updates immediately
-- [x] **Demo users removed** — test accounts deleted from Supabase Auth
-- [x] **Google OAuth** — configured in NextAuth, needs env vars (deferred)
-- [x] **BestSellers "Add" button** — wired to cart store (was missing onClick)
-- [x] **Navbar shadow** — subtle bottom shadow always present (deepens on scroll)
-- [x] **Build** — 0 errors, 17 routes
-- [x] **Git push** — committed and pushed to GitHub
-- [x] **Cart persistence fix** — sign-out no longer overwrites API cart, CartSync uses session status for reliable load/sync
-- [x] **localStorage cart cache** — cart renders instantly from localStorage, API syncs in background
-- [x] **Drizzle cart_items table** — schema + migration generated, API route rewritten to use Supabase REST API with `cart_items` table
-- [x] **Intermittent cart fix** — never wipe localStorage cache on empty API response, upsert instead of delete+insert
-- [x] **Products table created + seeded** — 6 demo products in Supabase `products` table, seed script uses REST API
+### Completed
+- [x] **DB products verified** — `/api/products` returns 6 products from Supabase `products` table with proper field mapping (bgColor, isNew, isBestSeller, badgeLabel, weight, vibes); build succeeds with 0 errors, 17 routes
+- [x] **Restarted dev server** — confirmed API responding correctly
+
+### Hydration warning (cosmetic)
+- **"Some attributes didn't match"** warning on client — caused by browser extension (password manager/ad blocker) injecting attributes into DOM before React hydrates. Tree hydrates fine. Suppress by testing in incognito.
+- `suppressHydrationWarning` already on `<html>` tag.
 
 ### Still Pending
 - [ ] Support pages (contact, FAQ, shipping, returns, privacy) — links exist in footer but routes don't
 - [ ] `/reviews` route
-- [ ] Supabase auth, Razorpay payments
+- [ ] Razorpay payments
