@@ -407,7 +407,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       <AnnouncementBar />
 
       <motion.header
-        className="sticky top-0 z-40 bg-[#FFFEFB]"
+        className="sticky top-0 z-40 bg-[#FFFEFB]/70 backdrop-blur-xl"
         style={{
           boxShadow: scrolled
             ? "0 4px 24px rgba(0,0,0,0.10)"
