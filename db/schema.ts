@@ -61,7 +61,18 @@ export const addresses = pgTable("addresses", {
   state: text("state"),
   pincode: text("pincode"),
   phone: text("phone"),
+  isDefault: boolean("is_default").default(false),
 });
+
+export const wishlist = pgTable("wishlist", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  productId: text("product_id").notNull(),
+  productData: jsonb("product_data").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userProductUnq: unique().on(table.userId, table.productId),
+}));
 
 export const reviews = pgTable("reviews", {
   id: uuid("id").defaultRandom().primaryKey(),

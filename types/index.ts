@@ -130,10 +130,19 @@ export interface Order {
 }
 
 export interface Address {
+  id: string;
   line1: string;
   line2?: string;
   city: string;
   state: string;
   pincode: string;
   phone: string;
+  isDefault?: boolean;
+}
+
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  product: Product;
+  createdAt: string;
 }

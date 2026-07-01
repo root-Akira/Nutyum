@@ -4,51 +4,11 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { ReviewCard, StarRating, type Review } from "@/components/reviews/ReviewCard";
+import { CITIES_BY_STATE, STATES } from "@/lib/locations";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 type SortKey = "recent" | "oldest" | "highest";
-
-const CITIES_BY_STATE: Record<string, string[]> = {
-  "Andhra Pradesh": ["Amaravati", "Anantapur", "Eluru", "Guntur", "Kakinada", "Kurnool", "Nellore", "Ongole", "Rajahmundry", "Srikakulam", "Tirupati", "Vijayawada", "Visakhapatnam", "Vizianagaram"],
-  "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang", "Ziro"],
-  "Assam": ["Dibrugarh", "Dispur", "Guwahati", "Jorhat", "Nagaon", "Silchar", "Tezpur", "Tinsukia"],
-  "Bihar": ["Arrah", "Begusarai", "Bhagalpur", "Bihar Sharif", "Darbhanga", "Gaya", "Hajipur", "Katihar", "Muzaffarpur", "Patna", "Purnia", "Sasaram", "Siwan"],
-  "Chhattisgarh": ["Bhilai", "Bilaspur", "Durg", "Korba", "Raigarh", "Raipur", "Rajnandgaon"],
-  "Goa": ["Margao", "Mapusa", "Panaji", "Ponda", "Vasco da Gama"],
-  "Gujarat": ["Ahmedabad", "Anand", "Bharuch", "Bhavnagar", "Bhuj", "Gandhinagar", "Gandhidham", "Jamnagar", "Junagadh", "Morbi", "Nadiad", "Navsari", "Porbandar", "Rajkot", "Surat", "Vadodara", "Valsad", "Vapi"],
-  "Haryana": ["Ambala", "Bhiwani", "Chandigarh", "Faridabad", "Gurugram", "Hisar", "Karnal", "Kurukshetra", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"],
-  "Himachal Pradesh": ["Dharamshala", "Hamirpur", "Kangra", "Kullu", "Mandi", "Palampur", "Shimla", "Solan", "Una"],
-  "Jharkhand": ["Bokaro", "Deoghar", "Dhanbad", "Giridih", "Hazaribagh", "Jamshedpur", "Ramgarh", "Ranchi"],
-  "Karnataka": ["Bagalkot", "Ballari", "Belagavi", "Bengaluru", "Bidar", "Chitradurga", "Davangere", "Gadag", "Hassan", "Hospet", "Hubballi", "Kalaburagi", "Kolar", "Mangaluru", "Mysuru", "Raichur", "Shivamogga", "Tumakuru", "Udupi"],
-  "Kerala": ["Alappuzha", "Ernakulam", "Kannur", "Kasaragod", "Kochi", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"],
-  "Madhya Pradesh": ["Bhopal", "Burhanpur", "Chhindwara", "Dewas", "Gwalior", "Indore", "Jabalpur", "Mandsaur", "Morena", "Narmadapuram", "Rewa", "Sagar", "Satna", "Shivpuri", "Ujjain"],
-  "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Chandrapur", "Dhule", "Jalgaon", "Jalna", "Kalyan-Dombivli", "Kolhapur", "Latur", "Mumbai", "Nagpur", "Nanded", "Nashik", "Navi Mumbai", "Parbhani", "Pune", "Ratnagiri", "Sangli", "Satara", "Solapur", "Thane", "Vasai-Virar", "Wardha"],
-  "Manipur": ["Bishnupur", "Churachandpur", "Imphal", "Thoubal"],
-  "Meghalaya": ["Nongstoin", "Shillong", "Tura"],
-  "Mizoram": ["Aizawl", "Champhai", "Lunglei", "Serchhip"],
-  "Nagaland": ["Dimapur", "Kohima", "Mokokchung", "Tuensang", "Wokha"],
-  "Odisha": ["Balasore", "Barbil", "Bhadrak", "Bhubaneswar", "Baripada", "Cuttack", "Jharsuguda", "Paradip", "Puri", "Rourkela", "Sambalpur"],
-  "Punjab": ["Amritsar", "Bathinda", "Hoshiarpur", "Jalandhar", "Ludhiana", "Mohali", "Moga", "Patiala", "Phagwara"],
-  "Rajasthan": ["Ajmer", "Alwar", "Banswara", "Bharatpur", "Bhilwara", "Bikaner", "Chittorgarh", "Ganganagar", "Jaipur", "Jodhpur", "Kota", "Pali", "Sikar", "Tonk", "Udaipur"],
-  "Sikkim": ["Gangtok", "Gyalshing", "Mangan", "Namchi"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Cuddalore", "Dindigul", "Erode", "Kanchipuram", "Kumbakonam", "Madurai", "Nagercoil", "Ooty", "Salem", "Thanjavur", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Vellore"],
-  "Telangana": ["Adilabad", "Hyderabad", "Karimnagar", "Khammam", "Mahbubnagar", "Nalgonda", "Nizamabad", "Sangareddy", "Warangal"],
-  "Tripura": ["Agartala", "Dharmanagar", "Kailashahar", "Udaipur"],
-  "Uttar Pradesh": ["Agra", "Aligarh", "Ayodhya", "Azamgarh", "Bareilly", "Firozabad", "Ghaziabad", "Gorakhpur", "Jhansi", "Kanpur", "Lucknow", "Mathura", "Meerut", "Moradabad", "Muzaffarnagar", "Noida", "Prayagraj", "Saharanpur", "Varanasi"],
-  "Uttarakhand": ["Dehradun", "Haldwani", "Haridwar", "Kashipur", "Nainital", "Rishikesh", "Roorkee", "Rudrapur"],
-  "West Bengal": ["Asansol", "Bardhaman", "Darjeeling", "Durgapur", "Haldia", "Howrah", "Kolkata", "Krishnanagar", "Malda", "Murshidabad", "Siliguri"],
-  "Andaman and Nicobar Islands": ["Port Blair"],
-  "Chandigarh": ["Chandigarh"],
-  "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
-  "Delhi": ["Delhi", "Faridabad", "Ghaziabad", "Gurugram", "Noida"],
-  "Jammu and Kashmir": ["Anantnag", "Baramulla", "Jammu", "Kathua", "Sopore", "Srinagar", "Udhampur"],
-  "Ladakh": ["Kargil", "Leh"],
-  "Lakshadweep": ["Kavaratti"],
-  "Puducherry": ["Karaikal", "Puducherry", "Yanam"],
-};
-
-const STATES = Object.keys(CITIES_BY_STATE).sort();
 
 function SubmitForm() {
   const [form, setForm] = useState({ name: "", email: "", rating: 0, title: "", comment: "", product: "", city: "", state: "" });
