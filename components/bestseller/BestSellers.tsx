@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, Plus } from "lucide-react";
+import { Star, Plus, Clock } from "lucide-react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
@@ -12,6 +12,8 @@ import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import type { Product } from "@/types";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+type Tab = "bestsellers" | "coming-soon";
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 function ProductCard({ product, index }: { product: Product; index: number }) {
@@ -41,13 +43,22 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </span>
         </div>
 
-        {/* Rating */}
-        <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
-          <Star size={10} fill="#E0961A" stroke="none" aria-hidden="true" />
-          <span className="text-[10px] font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
-            {product.rating} ({product.reviewCount})
-          </span>
-        </div>
+        {/* Rating / Launch date */}
+        {product.isComingSoon ? (
+          <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
+            <Clock size={10} stroke="#4C5A48" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+              {product.launchDate || "Soon"}
+            </span>
+          </div>
+        ) : (
+          <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
+            <Star size={10} fill="#E0961A" stroke="none" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+              {product.rating} ({product.reviewCount})
+            </span>
+          </div>
+        )}
 
         {/* Wishlist heart */}
         <div className="absolute right-3 top-14 z-10 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
@@ -103,18 +114,22 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 export function BestSellers() {
-  const [topProducts, setTopProducts] = useState<Product[]>(
-    STATIC_PRODUCTS.slice(0, 3)
-  );
+  const [tab, setTab] = useState<Tab>("bestsellers");
+  const [allProducts, setAllProducts] = useState<Product[]>(STATIC_PRODUCTS);
 
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length) setTopProducts(data.slice(0, 3));
+        if (Array.isArray(data) && data.length) setAllProducts(data);
       })
       .catch(() => {});
   }, []);
+
+  const bestSellers = allProducts.filter((p) => p.isBestSeller).slice(0, 3);
+  const comingSoon = allProducts.filter((p) => p.isComingSoon);
+  const displayProducts = tab === "bestsellers" ? bestSellers : comingSoon;
+  const hasComingSoon = comingSoon.length > 0;
 
   return (
     <section className="overflow-hidden bg-[#FDFAF3] py-20 sm:py-28" aria-labelledby="bestsellers-title">
@@ -130,31 +145,55 @@ export function BestSellers() {
         </p>
       </div>
 
-      {/* ── "BEST SELLERS" badge label ── */}
+      {/* ── Tabs ── */}
       <div className="mb-10 flex justify-center px-6">
-        <div className="inline-block">
-          <h2
-            id="bestsellers-title"
-            className="border-2 border-[#E0961A] px-6 py-2 text-lg font-bold uppercase tracking-widest text-[#173D22] bg-[rgba(224,150,26,0.08)]"
+        <div className="inline-flex items-center gap-0 rounded-xl border border-[rgba(23,61,34,0.15)] bg-white p-1 shadow-sm">
+          <button
+            onClick={() => setTab("bestsellers")}
+            className={`rounded-lg px-5 py-2 text-sm font-bold uppercase tracking-widest transition-all ${
+              tab === "bestsellers"
+                ? "bg-[#173D22] text-white shadow-sm"
+                : "text-[#4C5A48] hover:text-[#173D22]"
+            }`}
             style={{ fontFamily: "var(--font-body)" }}
           >
             Best Sellers
-          </h2>
+          </button>
+          {hasComingSoon && (
+            <button
+              onClick={() => setTab("coming-soon")}
+              className={`rounded-lg px-5 py-2 text-sm font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 ${
+                tab === "coming-soon"
+                  ? "bg-[#173D22] text-white shadow-sm"
+                  : "text-[#4C5A48] hover:text-[#173D22]"
+              }`}
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              <Clock size={14} strokeWidth={2} />
+              Coming Soon
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ── Centered product grid ── */}
-      <div
-        className="flex justify-center gap-5 px-6 pb-4 flex-wrap"
-        role="list"
-        aria-label="Best selling products"
-      >
-        {topProducts.map((p, i) => (
-          <div key={p.id} role="listitem">
-            <ProductCard product={p} index={i} />
-          </div>
-        ))}
-      </div>
+      {/* ── Product grid ── */}
+      {displayProducts.length > 0 ? (
+        <div
+          className="flex justify-center gap-5 px-6 pb-4 flex-wrap"
+          role="list"
+          aria-label={tab === "bestsellers" ? "Best selling products" : "Coming soon products"}
+        >
+          {displayProducts.map((p, i) => (
+            <div key={p.id} role="listitem">
+              <ProductCard product={p} index={i} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-sm text-[#4C5A48] px-6">
+          {tab === "coming-soon" ? "No upcoming products right now." : "No best sellers yet."}
+        </p>
+      )}
 
       {/* ── CTA button ── */}
       <div className="mt-10 flex justify-center">

@@ -1,6 +1,5 @@
 import { HeroCarousel } from "@/components/hero/HeroCarousel";
 import { BestSellers } from "@/components/bestseller/BestSellers";
-import { ComingSoon } from "@/components/coming-soon/ComingSoon";
 import { Discover } from "@/components/discover/Discover";
 import { OurOrigins } from "@/components/story/OurOrigins";
 import { BrandPanel } from "@/components/story/BrandPanel";
@@ -14,7 +13,6 @@ export default function Home() {
     <main>
       <HeroCarousel />
       <BestSellers />
-      <ComingSoon />
       <Discover />
       <OurOrigins />
       <BrandPanel />
