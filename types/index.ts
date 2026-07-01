@@ -29,6 +29,8 @@ export interface Product {
   vibes: VibeTag[];
   isNew: boolean;
   isBestSeller: boolean;
+  isComingSoon: boolean;
+  launchDate?: string;
   rating: number;
   reviewCount: number;
   weight: string;

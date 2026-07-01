@@ -22,6 +22,8 @@ function mapDbToProduct(row: DbProduct): Product {
     vibes: row.vibes as VibeTag[],
     isNew: row.is_new as boolean,
     isBestSeller: row.is_best_seller as boolean,
+    isComingSoon: row.is_coming_soon as boolean ?? false,
+    launchDate: (row.launch_date as string | null) ?? undefined,
     rating: row.rating as number,
     reviewCount: row.review_count as number,
     weight: row.weight as string,

@@ -14,6 +14,8 @@ export const products = pgTable("products", {
   vibes: text("vibes").array(),
   isNew: boolean("is_new").default(false),
   isBestSeller: boolean("is_best_seller").default(false),
+  isComingSoon: boolean("is_coming_soon").default(false),
+  launchDate: text("launch_date"),
   rating: real("rating").default(0),
   reviewCount: integer("review_count").default(0),
   weight: text("weight"),

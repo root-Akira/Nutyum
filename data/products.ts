@@ -24,12 +24,14 @@ import type { Product } from "@/types";
  *   bgColor     – hex background for cards
  *   category    – "classic" | "spicy" | "sweet" | "gift"
  *   vibes       – filter tags (max 2)
- *   isNew       – shows "NEW ARRIVAL" badge
+ *   isNew        – shows "NEW ARRIVAL" badge
  *   isBestSeller – shows "BESTSELLER" badge
- *   rating      – 0–5
- *   reviewCount – number of reviews
- *   weight      – pack size string (e.g. "100g")
- *   badgeLabel  – uppercase badge text
+ *   isComingSoon – shows "COMING SOON" badge, disables purchase
+ *   launchDate   – optional date string (e.g. "July 15")
+ *   rating       – 0–5
+ *   reviewCount  – number of reviews
+ *   weight       – pack size string (e.g. "100g")
+ *   badgeLabel   – uppercase badge text
  */
 export const PRODUCTS: Product[] = [
   {
@@ -44,6 +46,7 @@ export const PRODUCTS: Product[] = [
     vibes: ["Lightly Salted", "Crunchy & Light"],
     isNew: false,
     isBestSeller: true,
+    isComingSoon: false,
     rating: 4.9,
     reviewCount: 84,
     weight: "100g",
@@ -60,6 +63,7 @@ export const PRODUCTS: Product[] = [
     vibes: ["Bold Heat", "Savory Twist"],
     isNew: false,
     isBestSeller: true,
+    isComingSoon: false,
     rating: 4.7,
     reviewCount: 61,
     weight: "70g",
@@ -77,6 +81,7 @@ export const PRODUCTS: Product[] = [
     vibes: ["A Sweet Treat", "Zero Guilt"],
     isNew: true,
     isBestSeller: false,
+    isComingSoon: false,
     rating: 5,
     reviewCount: 12,
     weight: "70g",
@@ -94,6 +99,7 @@ export const PRODUCTS: Product[] = [
     vibes: ["Classic Flavors", "Evening Munch"],
     isNew: false,
     isBestSeller: false,
+    isComingSoon: false,
     rating: 4.8,
     reviewCount: 42,
     weight: "70g",
@@ -111,6 +117,7 @@ export const PRODUCTS: Product[] = [
     vibes: ["Perfect Gift", "Guilt-Free"],
     isNew: false,
     isBestSeller: false,
+    isComingSoon: false,
     rating: 5,
     reviewCount: 8,
     weight: "350g",
@@ -126,11 +133,12 @@ export const PRODUCTS: Product[] = [
     bgColor: "#f0e6c8",
     category: "spicy",
     vibes: ["Savory Twist", "Whole Grain"],
-    isNew: true,
+    isNew: false,
     isBestSeller: false,
+    isComingSoon: true,
+    launchDate: "August 1",
     rating: 4.6,
     reviewCount: 18,
     weight: "70g",
-    badgeLabel: "NEW ARRIVAL",
   },
 ];

@@ -20,7 +20,7 @@ export function ProductCard({
 }) {
   const badgeLabel =
     product.badgeLabel ||
-    (product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "");
+    (product.isComingSoon ? "COMING SOON" : product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "");
 
   return (
     <motion.div
@@ -69,16 +69,23 @@ export function ProductCard({
         />
 
         <div className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
-          <button
-            type="button"
-            aria-label={`Add ${product.name} to cart`}
-            onClick={() => onAddToCart?.(product)}
-            className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
-            Add
-          </button>
+          {product.isComingSoon ? (
+            <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm"
+              style={{ fontFamily: "var(--font-body)" }}>
+              Coming Soon
+            </span>
+          ) : (
+            <button
+              type="button"
+              aria-label={`Add ${product.name} to cart`}
+              onClick={() => onAddToCart?.(product)}
+              className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
+              Add
+            </button>
+          )}
         </div>
       </div>
 

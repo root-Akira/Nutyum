@@ -37,7 +37,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             className="inline-block border-2 border-[#173D22] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#173D22] bg-white"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            {product.badgeLabel || (product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "")}
+            {product.badgeLabel || (product.isComingSoon ? "COMING SOON" : product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "")}
           </span>
         </div>
 
@@ -67,16 +67,23 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
         {/* Add button — appears on hover */}
         <div className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
-          <button
-            type="button"
-            onClick={() => requireAuth(() => addItem(product))}
-            aria-label={`Add ${product.name} to cart`}
-            className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
-            Add
-          </button>
+          {product.isComingSoon ? (
+            <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm"
+              style={{ fontFamily: "var(--font-body)" }}>
+              Coming Soon
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => requireAuth(() => addItem(product))}
+              aria-label={`Add ${product.name} to cart`}
+              className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
+              Add
+            </button>
+          )}
         </div>
       </div>
 

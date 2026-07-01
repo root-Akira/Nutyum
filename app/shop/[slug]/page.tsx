@@ -83,7 +83,7 @@ export default function ProductDetailPage({
 
   const badgeLabel =
     product.badgeLabel ||
-    (product.isNew ? "NEW ARRIVAL" : product.isBestSeller ? "BESTSELLER" : "");
+    (product.isComingSoon ? "COMING SOON" : product.isNew ? "NEW ARRIVAL" : product.isBestSeller ? "BESTSELLER" : "");
 
   const containerVariants = {
     hidden: {},
@@ -205,39 +205,54 @@ export default function ProductDetailPage({
             variants={prefersReduced ? {} : itemVariants}
             className="flex flex-wrap items-center gap-4 pt-2"
           >
-            <div className="flex items-center gap-3 rounded-full border border-[#173D22]/20 bg-white px-4 py-2">
-              <button
-                type="button"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                aria-label="Decrease quantity"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-[#173D22] transition-colors hover:bg-[#173D22]/10"
-              >
-                <Minus size={14} strokeWidth={2} />
-              </button>
-              <span
-                className="min-w-[1.5rem] text-center text-sm font-semibold text-[#173D22]"
-                style={{ fontFamily: "var(--font-body)" }}
-              >
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                aria-label="Increase quantity"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-[#173D22] transition-colors hover:bg-[#173D22]/10"
-              >
-                <Plus size={14} strokeWidth={2} />
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => requireAuth(() => addItem(product, quantity))}
-              className="rounded-full bg-[#173D22] px-10 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Add to Cart — {formatPrice(product.price * quantity)}
-            </button>
+            {product.isComingSoon ? (
+              <>
+                <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-10 py-4 text-sm font-semibold text-white"
+                  style={{ fontFamily: "var(--font-body)" }}>
+                  Coming Soon
+                </span>
+                {product.launchDate && (
+                  <span className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                    Launching {product.launchDate}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 rounded-full border border-[#173D22]/20 bg-white px-4 py-2">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    aria-label="Decrease quantity"
+                    className="flex h-7 w-7 items-center justify-center rounded-full text-[#173D22] transition-colors hover:bg-[#173D22]/10"
+                  >
+                    <Minus size={14} strokeWidth={2} />
+                  </button>
+                  <span
+                    className="min-w-[1.5rem] text-center text-sm font-semibold text-[#173D22]"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                    aria-label="Increase quantity"
+                    className="flex h-7 w-7 items-center justify-center rounded-full text-[#173D22] transition-colors hover:bg-[#173D22]/10"
+                  >
+                    <Plus size={14} strokeWidth={2} />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => requireAuth(() => addItem(product, quantity))}
+                  className="rounded-full bg-[#173D22] px-10 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  Add to Cart — {formatPrice(product.price * quantity)}
+                </button>
+              </>
+            )}
 
             <WishlistButton
               product={product}
