@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Star, Plus } from "lucide-react";
 import type { Product } from "@/types";
 import { cn } from "@/lib/utils";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -43,7 +44,7 @@ export function ProductCard({
           </div>
         )}
 
-        <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
           <Star size={10} fill="#E0961A" stroke="none" aria-hidden="true" />
           <span
             className="text-[10px] font-semibold text-[#173D22]"
@@ -51,6 +52,12 @@ export function ProductCard({
           >
             {product.rating} ({product.reviewCount})
           </span>
+        </div>
+
+        <div className="absolute right-3 top-14 z-20 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
+            <WishlistButton product={product} size={14} />
+          </div>
         </div>
 
         <Image

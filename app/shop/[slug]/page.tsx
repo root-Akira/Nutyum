@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -237,6 +238,12 @@ export default function ProductDetailPage({
             >
               Add to Cart — {formatPrice(product.price * quantity)}
             </button>
+
+            <WishlistButton
+              product={product}
+              size={22}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(23,61,34,0.2)] bg-white transition-all hover:border-red-300 hover:bg-red-50"
+            />
           </motion.div>
         </motion.div>
       </section>
