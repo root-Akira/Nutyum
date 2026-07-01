@@ -4,15 +4,43 @@ import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useWishlistStore } from "@/hooks/use-wishlist-store";
 
-export function WishlistSync() {
-  const { data: session } = useSession();
-  const loaded = useWishlistStore((s) => s.loaded);
-  const load = useWishlistStore((s) => s.load);
-  const fetched = useRef(false);
+const STORAGE_KEY = "nutyum-wishlist";
 
+export function WishlistSync() {
+  const { data: session, status } = useSession();
+  const loaded = useWishlistStore((s) => s.loaded);
+  const ids = useWishlistStore((s) => s.ids);
+  const load = useWishlistStore((s) => s.load);
+  const hasFetchedApi = useRef(false);
+
+  // 1. Load wishlist from localStorage immediately on mount
   useEffect(() => {
-    if (!session?.user?.id || fetched.current) return;
-    fetched.current = true;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          load(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [load]);
+
+  // 2. Save wishlist to localStorage whenever ids change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+    } catch {
+      // quota exceeded
+    }
+  }, [ids]);
+
+  // 3. Fetch from API when signed in
+  useEffect(() => {
+    if (!session?.user?.id || hasFetchedApi.current) return;
+    hasFetchedApi.current = true;
     fetch("/api/wishlist")
       .then((r) => r.json())
       .then((data) => {
@@ -23,13 +51,14 @@ export function WishlistSync() {
       .catch(() => {});
   }, [session?.user?.id, load]);
 
-  // Reset on sign-out
+  // 4. Reset on sign-out
   useEffect(() => {
-    if (!session?.user?.id && loaded) {
-      fetched.current = false;
+    if (!session?.user?.id && status === "unauthenticated") {
+      hasFetchedApi.current = false;
+      try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
       load([]);
     }
-  }, [session?.user?.id, loaded, load]);
+  }, [session?.user?.id, status, load]);
 
   return null;
 }
