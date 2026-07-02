@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/navbar/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CartSync } from "@/components/cart/CartSync";
 import { WishlistSync } from "@/components/wishlist/WishlistSync";
@@ -19,6 +20,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     <>
       <Navbar cartItemCount={totalItems} />
       {children}
+      <Footer />
       <CartDrawer open={cartOpen} onOpenChange={(open) => { if (!open) closeCart(); }} />
       <SearchOverlay isOpen={searchOpen} onClose={() => toggleSearch()} />
       <CartSync />
