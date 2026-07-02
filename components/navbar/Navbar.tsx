@@ -346,7 +346,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [topProducts, setTopProducts] = useState<Product[]>(
-    STATIC_PRODUCTS.slice(0, 3)
+    STATIC_PRODUCTS.filter(p => p.isBestSeller).slice(0, 3)
   );
   const closeTimerRef = useRef<number | undefined>(undefined);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -355,7 +355,10 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length) setTopProducts(data.slice(0, 3));
+        if (Array.isArray(data) && data.length) {
+          const best = data.filter((p: Product) => p.isBestSeller).slice(0, 3);
+          if (best.length) setTopProducts(best);
+        }
       })
       .catch(() => {});
   }, []);

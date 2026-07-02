@@ -1,10 +1,10 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Minus, Plus } from "lucide-react";
+import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import type { Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -43,6 +43,31 @@ export default function ProductDetailPage({
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    return () => el.removeEventListener("scroll", checkScroll);
+  }, [checkScroll, related]);
+
+  const scrollBy = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({
+      left: dir === "left" ? -340 : 340,
+      behavior: "smooth",
+    });
+  };
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
@@ -175,7 +200,7 @@ export default function ProductDetailPage({
             {product.description}
           </motion.p>
 
-          {product.vibes.length > 0 && (
+          {product.vibes?.length > 0 && (
             <motion.div
               variants={prefersReduced ? {} : itemVariants}
               className="flex flex-wrap gap-2"
@@ -276,18 +301,41 @@ export default function ProductDetailPage({
             >
               You May Also Like
             </motion.h2>
-          </div>
-          <div
-            className="flex gap-5 overflow-x-auto px-6 pb-4 sm:px-12 md:px-16 lg:px-20"
-            role="list"
-            aria-label="Related products"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {related.map((p, i) => (
-              <div key={p.id} role="listitem">
-                <ProductCard product={p} index={i} />
+            <div className="relative">
+              {canScrollLeft && (
+                <button
+                  type="button"
+                  onClick={() => scrollBy("left")}
+                  aria-label="Scroll left"
+                  className="absolute -left-1 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md text-[#173D22] hover:bg-[#173D22] hover:text-white transition-colors"
+                >
+                  <ChevronLeft size={18} strokeWidth={2} />
+                </button>
+              )}
+              <div
+                ref={scrollRef}
+                className="flex gap-5 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden"
+                style={{ scrollbarWidth: "none" }}
+                role="list"
+                aria-label="Related products"
+              >
+                {related.map((p, i) => (
+                  <div key={p.id} role="listitem" className="shrink-0">
+                    <ProductCard product={p} index={i} />
+                  </div>
+                ))}
               </div>
-            ))}
+              {canScrollRight && (
+                <button
+                  type="button"
+                  onClick={() => scrollBy("right")}
+                  aria-label="Scroll right"
+                  className="absolute -right-1 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md text-[#173D22] hover:bg-[#173D22] hover:text-white transition-colors"
+                >
+                  <ChevronRight size={18} strokeWidth={2} />
+                </button>
+              )}
+            </div>
           </div>
         </section>
       )}

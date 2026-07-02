@@ -25,7 +25,9 @@ export function WishlistButton({
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (!session) {
       router.push(`/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`);
       return;
