@@ -9,6 +9,7 @@ import { VIBE_TAGS, type Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
+import { getVibes } from "@/lib/get-vibes";
 import { cn } from "@/lib/utils";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -19,6 +20,7 @@ function ShopContent() {
   const [search, setSearch] = useState("");
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
+  const [allVibes, setAllVibes] = useState<string[]>([...VIBE_TAGS]);
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
   useEffect(() => {
@@ -31,11 +33,15 @@ function ShopContent() {
   }, []);
 
   useEffect(() => {
+    getVibes().then(setAllVibes).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const vibe = searchParams.get("vibe");
-    if (vibe && VIBE_TAGS.includes(vibe as never)) {
+    if (vibe && allVibes.includes(vibe)) {
       setActiveVibe(vibe);
     }
-  }, [searchParams]);
+  }, [searchParams, allVibes]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -114,7 +120,7 @@ function ShopContent() {
           >
             All
           </button>
-          {VIBE_TAGS.map((vibe) => {
+          {allVibes.map((vibe) => {
             const isSelected = activeVibe === vibe;
             return (
               <button

@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
-// ─── Vibe tags (Two Leaves "mood" pill style) ─────────────────────────────────
-const VIBES = [
-  "A Sweet Treat", "Evening Munch", "High Protein", "Guilt-Free",
-  "Crunchy & Light", "Over Popcorn", "Perfect Gift", "Savory Twist",
-  "Classic Flavors", "Whole Grain", "Focused & Clear", "Bold Heat",
-  "Lightly Salted", "Snack Ritual", "Calm & Cozy", "Zero Guilt",
-];
+import { VIBE_TAGS } from "@/types";
+import { getVibes } from "@/lib/get-vibes";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export function Discover() {
   const [selected, setSelected] = useState<string | null>(null);
+  const [allVibes, setAllVibes] = useState<string[]>([...VIBE_TAGS]);
+
+  useEffect(() => {
+    getVibes().then(setAllVibes).catch(() => {});
+  }, []);
 
   return (
     <section
@@ -81,7 +80,7 @@ export function Discover() {
             role="group"
             aria-label="Explore by vibe"
           >
-            {VIBES.map((vibe) => {
+            {allVibes.map((vibe) => {
               const isSelected = selected === vibe;
               return (
                 <button
