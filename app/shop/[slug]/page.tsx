@@ -110,7 +110,7 @@ export default function ProductDetailPage({
             style={{ backgroundColor: product.bgColor, aspectRatio: "4/5" }}
           >
             <Image
-              src={product.images[0] || "/placeholder.png"}
+              src={product.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
               alt={product.name}
               fill
               priority

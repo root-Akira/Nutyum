@@ -31,7 +31,7 @@ export function CartItem({ item }: CartItemProps) {
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
         <Image
-          src={item.product.images[0] || "/placeholder.svg"}
+          src={item.product.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
           alt={item.product.name}
           fill
           className="object-cover"

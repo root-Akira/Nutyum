@@ -164,7 +164,7 @@ function MegaMenuPanel({ item, products }: { item: MegaNavItem; products: Produc
               >
                 <div className="relative aspect-[4/3]">
                   <Image
-                    src={prod.images[0] || "/placeholder.png"}
+                    src={prod.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
                     alt={prod.name}
                     fill
                     sizes="(max-width: 768px) 33vw, 200px"
@@ -290,7 +290,7 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
           >
             <div className="flex items-center justify-between border-b border-[rgba(23,61,34,0.1)] px-6 pb-4">
               <Image
-                src="/logo.png"
+                src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png"
                 alt="Nutyum"
                 width={120}
                 height={42}
@@ -438,7 +438,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             className="justify-self-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#173D22] focus-visible:ring-offset-2 rounded-sm"
           >
             <Image
-              src="/logo.png"
+              src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png"
               alt="Nutyum — Real Food. Real Good."
               width={160}
               height={56}

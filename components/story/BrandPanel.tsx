@@ -54,7 +54,7 @@ export function BrandPanel() {
           className="relative min-h-[380px] lg:min-h-[520px] will-change-transform"
         >
           <Image
-            src="/brand-panel.png"
+            src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/brand-panel.png"
             alt="Nutyum makhana products on vibrant terracotta background"
             fill
             sizes="(max-width: 1024px) 100vw, 60vw"

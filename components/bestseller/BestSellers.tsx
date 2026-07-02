@@ -60,7 +60,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
         {/* Product image */}
         <Image
-          src={product.images[0] || "/placeholder.png"}
+          src={product.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
           alt={product.name}
           fill
           sizes="260px"
@@ -117,7 +117,7 @@ export function BestSellers() {
       .catch(() => {});
   }, []);
 
-  const bestSellers = allProducts.filter((p) => !p.isComingSoon).slice(0, 3);
+  const bestSellers = allProducts.filter((p) => p.isBestSeller).slice(0, 3);
   const comingSoon = allProducts.filter((p) => p.isComingSoon);
 
   return (

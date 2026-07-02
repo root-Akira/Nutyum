@@ -40,7 +40,7 @@ export function OurOrigins() {
     >
       {/* ── Full-bleed background image ── */}
       <Image
-        src="/origins-bg.png"
+        src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/origins-bg.png"
         alt="Aerial view of Indian lotus fields at dawn"
         fill
         sizes="100vw"

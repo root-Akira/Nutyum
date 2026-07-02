@@ -66,6 +66,17 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 ### Still Pending
 - [ ] Razorpay payments
 
+## Session: 2026-07-02 (cont'd)
+
+### Completed
+- [x] **Admin panel: RLS fix** — separated supabase clients (anon key for auth, service role for data queries) so login doesn't override the service role key
+- [x] **Admin panel: Image upload** — file upload to Supabase Storage `product-images` bucket in product form; `Upload` button alongside URL input
+- [x] **Supabase Storage bucket** — created `product-images` bucket (public), uploaded all asset images
+- [x] **DB images updated** — all 8 product records now use Supabase Storage URLs instead of relative paths
+- [x] **Main site: all image paths migrated** — `data/products.ts`, `db/seed.ts`, `HeroCarousel.tsx`, `BrandPanel.tsx`, `OurOrigins.tsx`, `Navbar.tsx` now use Storage URLs; placeholder fallbacks updated
+- [x] **Hydration fix** — `suppressHydrationWarning` on `<body>` (Grammarly extension interference)
+- [x] **next/image config** — added `remotePatterns` for Supabase Storage hostname in `next.config.ts`
+
 ---
 
 ## Nutyum Admin Panel — `/home/akira/Downloads/nutyum-admin/`

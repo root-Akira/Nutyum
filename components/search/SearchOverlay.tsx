@@ -113,7 +113,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       >
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                           <Image
-                            src={product.images[0] ?? "/placeholder.svg"}
+                            src={product.images[0] ?? "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
                             alt={product.name}
                             fill
                             className="object-cover"
