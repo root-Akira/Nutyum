@@ -42,5 +42,91 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **Our Origins icons** — emojis replaced with lucide SVG icons (Leaf, Globe, Mountain) + glass effect
 - [x] **No-action-without-permission rule** — added to AGENTS.md
 
+### Repositories
+- **Main website** → `https://github.com/root-Akira/Nutyum` (this repo)
+- **Admin panel** → `https://github.com/root-Akira/Nutyum-admin` (separate repo, linked below)
+
+## Session: 2026-07-02
+
+### Completed
+- [x] **Navbar height reduced to 70px** — changed from animated 86/97px to fixed 70px; updated hero offset
+- [x] **Hero carousel smooth slide animation** — `mode="sync"` with opacity fade, ease-in-out, `willChange: transform`, preloaded images
+- [x] **Navbar glass effect** — `bg-[#FFFEFB]/70 backdrop-blur-xl`
+- [x] **Admin panel scaffolded** — `/home/akira/Downloads/nutyum-admin/` — Vite + React 19 + TypeScript 6 + Tailwind v4
+- [x] **Admin panel: Foundation** — routing, auth, layout (sidebar/navbar), UI components (toast/skeleton/modal/button/input/table/badge)
+- [x] **Admin panel: Dashboard** — stats cards, recent orders, top-selling products (TanStack Query with 30s refetch)
+- [x] **Admin panel: Products** — list (search, status badges, delete), form (images, tags, SEO, nutrition, coming-soon toggle)
+- [x] **Admin panel: Orders** — list (filter by status, search), detail (items, address, status update, tracking, notes, status history)
+- [x] **Admin panel: Customers** — list (search), detail (profile, order history, addresses, stats)
+- [x] **Admin panel: Reviews** — pending/approved tabs, approve/reject/delete, admin reply modal
+- [x] **Admin panel: Coupons** — list (search), form (type, value, dates, usage limits)
+- [x] **Admin panel: CMS** — banners (add/delete), CMS pages (list/edit HTML content)
+- [x] **Admin panel: Settings** — shipping zones (add/delete), payments (transaction log), site settings (store info, COD, maintenance mode, social links)
+
 ### Still Pending
 - [ ] Razorpay payments
+
+---
+
+## Nutyum Admin Panel — `/home/akira/Downloads/nutyum-admin/`
+
+### Tech Stack
+- **Vite 8 + React 19 + TypeScript 6 + Tailwind v4**
+- **Supabase JS client** (same project as main Nutyum)
+- **React Router v7** — SPA routing, lazy-loaded pages
+- **TanStack Query v5** — server state, cache, refetch intervals
+- **Lucide React** — icons (matches main site)
+
+### Theme
+Nutyum palette: `#173D22` (green primary), `#E0961A` (gold accent), `#FAF7EE` (cream bg), `#FFFEFB` (card bg)
+
+### Features Built
+
+| # | Section | Pages | Status |
+|---|---------|-------|--------|
+| 1 | **Auth** | Login, ProtectedRoute, session timeout | ✅ |
+| 2 | **Dashboard** | Stats cards (orders/revenue/pending/low-stock), recent orders, top products | ✅ |
+| 3 | **Products** | List (search), Add/Edit form (images, stock, price, SEO, coming-soon toggle, tags, nutrition, ingredients, categories) | ✅ |
+| 4 | **Orders** | List (filter by status, search), Detail (items, address, timeline, status update, tracking, internal notes, status history) | ✅ |
+| 5 | **Customers** | List (search), Detail (profile, order history, addresses, stats) | ✅ |
+| 6 | **Reviews** | Pending/approved tabs, approve/reject/delete, admin reply modal | ✅ |
+| 7 | **Coupons** | List (search), Add/Edit form (type, value, min-order, dates, usage limits) | ✅ |
+| 8 | **CMS** | Banners (add/delete/reorder), CMS Pages (list/edit HTML content) | ✅ |
+| 9 | **Settings** | Shipping zones (add/delete), Payments (transaction log), Site Settings (store info, COD, maintenance mode, social links) | ✅ |
+
+### Not Yet Built
+- Variants per product (pack sizes / flavors)
+- Bulk actions (prices, stock, delete)
+- Stock history / low-stock threshold config
+- Invoice generation / packing slips
+- Block/unblock customers
+- Auto-discounts
+- Subscriptions (Subscribe & Save)
+- Promotional pop-ups
+- Courier partner integration
+- Refund management
+- GST / tax settings
+- Analytics & reports (CSV export)
+- Marketing tools (abandoned cart, campaigns, referral)
+- Email/SMS notification templates
+- Activity log / role-based access / auto-logout
+
+### Running
+```bash
+cd /home/akira/Downloads/nutyum-admin
+npm run dev      # Vite dev server (default port 5173)
+npm run build    # tsc + vite build
+```
+
+### DB Tables Needed in Supabase
+- `orders` — order data with status/payment tracking
+- `order_items` — line items per order
+- `order_status_logs` — status change history
+- `products` — product details (already exists)
+- `reviews` — customer reviews (already exists)
+- `coupons` — discount coupons
+- `banners` — homepage banners
+- `cms_pages` — static page content
+- `shipping_zones` — shipping rates by region
+- `site_settings` — store-wide config (single row)
+- `users` — customer profiles (already exists in auth schema)
