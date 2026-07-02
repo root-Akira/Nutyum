@@ -6,7 +6,6 @@ import { BrandPanel } from "@/components/story/BrandPanel";
 import { WhyNutyum } from "@/components/why-nutyum/WhyNutyum";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { Newsletter } from "@/components/newsletter/Newsletter";
-import { Footer } from "@/components/footer/Footer";
 
 export default function Home() {
   return (
@@ -19,7 +18,6 @@ export default function Home() {
       <WhyNutyum />
       <ReviewsSection />
       <Newsletter />
-      <Footer />
     </main>
   );
 }
