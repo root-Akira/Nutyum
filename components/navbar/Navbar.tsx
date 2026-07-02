@@ -87,7 +87,7 @@ const LEFT_NAV: LeftNavItem[] = [
 
 const RIGHT_NAV = [
   { label: "My Account", href: "/account" },
-  { label: "Wholesale Partners", href: "/wholesale" },
+  { label: "Bulk Order", href: "/wholesale" },
   { label: "Snack Journal", href: "/journal" },
 ];
 
@@ -484,7 +484,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
                 lineHeight: 1,
               }}
             >
-              Wholesale
+              Bulk Order
             </Link>
             <Link
               href="/journal"
