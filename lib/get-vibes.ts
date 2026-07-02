@@ -5,7 +5,7 @@ const STORAGE_URL =
 
 export async function getVibes(): Promise<string[]> {
   try {
-    const res = await fetch(STORAGE_URL);
+    const res = await fetch(`${STORAGE_URL}?t=${Date.now()}`);
     if (!res.ok) return [...VIBE_TAGS];
     const data: unknown = await res.json();
     if (Array.isArray(data) && data.length) return data as string[];
