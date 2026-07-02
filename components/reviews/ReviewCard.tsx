@@ -14,6 +14,7 @@ export interface Review {
   title: string;
   comment: string;
   product: string;
+  admin_reply?: string;
 }
 
 export function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -52,6 +53,12 @@ export function ReviewCard({ review, index = 0 }: { review: Review; index?: numb
       <p className="mb-3 text-sm leading-relaxed text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
         {review.comment}
       </p>
+      {review.admin_reply && (
+        <div className="mb-3 rounded-lg bg-[rgba(23,61,34,0.04)] border border-[rgba(23,61,34,0.08)] p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#173D22] mb-0.5">Response from Nutyum</p>
+          <p className="text-sm text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>{review.admin_reply}</p>
+        </div>
+      )}
       <div className="flex items-center justify-between border-t border-[rgba(23,61,34,0.06)] pt-3">
         <div>
           <p className="text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>

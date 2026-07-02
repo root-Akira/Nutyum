@@ -5,17 +5,39 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function GET() {
   try {
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/reviews?select=*&is_approved=eq.true&order=created_at.desc`,
-      {
-        headers: {
-          apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
-        },
+    const [reviewsRes, repliesRes] = await Promise.all([
+      fetch(
+        `${supabaseUrl}/rest/v1/reviews?select=*&is_approved=eq.true&order=created_at.desc`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+          },
+        }
+      ),
+      fetch(
+        `${supabaseUrl}/storage/v1/object/product-images/config/review-replies.json`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+          },
+        }
+      ),
+    ]);
+
+    if (!reviewsRes.ok) return NextResponse.json([], { status: 200 });
+    const data = await reviewsRes.json();
+
+    if (repliesRes.ok) {
+      const replies = await repliesRes.json();
+      for (const review of data) {
+        if (replies[review.id]) {
+          review.admin_reply = replies[review.id];
+        }
       }
-    );
-    if (!res.ok) return NextResponse.json([], { status: 200 });
-    const data = await res.json();
+    }
+
     return NextResponse.json(data);
   } catch {
     return NextResponse.json([], { status: 200 });

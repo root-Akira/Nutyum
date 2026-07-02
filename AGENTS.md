@@ -46,7 +46,7 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - **Main website** → `https://github.com/root-Akira/Nutyum` (this repo)
 - **Admin panel** → `https://github.com/root-Akira/Nutyum-admin` (separate repo, linked below)
 
-## Session: 2026-07-02
+## Session: 2026-07-02 (cont'd)
 
 ### Completed
 - [x] **Navbar height reduced to 70px** — changed from animated 86/97px to fixed 70px; updated hero offset

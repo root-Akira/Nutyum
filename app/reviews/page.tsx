@@ -258,6 +258,7 @@ export default function ReviewsPage() {
             title: r.title,
             comment: r.comment,
             product: r.product,
+            admin_reply: r.admin_reply || undefined,
           }));
           setApiReviews(mapped);
         }
