@@ -410,12 +410,16 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       <AnnouncementBar />
 
       <motion.header
-        className="sticky top-0 z-40 bg-[#FFFEFB]/70 backdrop-blur-xl"
+        className={`sticky z-40 bg-[#FFFEFB]/70 backdrop-blur-xl ${
+          scrolled ? "mx-4 mb-2 rounded-2xl" : ""
+        }`}
         style={{
+          top: scrolled ? "8px" : "0",
           boxShadow: scrolled
             ? "0 4px 24px rgba(0,0,0,0.10)"
             : "0 2px 12px rgba(0,0,0,0.06)",
-          transition: `box-shadow 0.4s ${SCROLL_EASE}`,
+          transition: `top 0.4s ${SCROLL_EASE}, box-shadow 0.4s ${SCROLL_EASE}, border-radius 0.4s ${SCROLL_EASE}, margin 0.4s ${SCROLL_EASE}, width 0.4s ${SCROLL_EASE}`,
+          width: scrolled ? "calc(100% - 32px)" : "100%",
         }}
         onMouseLeave={scheduleClose}
       >

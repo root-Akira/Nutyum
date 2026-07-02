@@ -76,6 +76,12 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **Main site: all image paths migrated** — `data/products.ts`, `db/seed.ts`, `HeroCarousel.tsx`, `BrandPanel.tsx`, `OurOrigins.tsx`, `Navbar.tsx` now use Storage URLs; placeholder fallbacks updated
 - [x] **Hydration fix** — `suppressHydrationWarning` on `<body>` (Grammarly extension interference)
 - [x] **next/image config** — added `remotePatterns` for Supabase Storage hostname in `next.config.ts`
+- [x] **ProductCard clickable** — wrapped in `<Link href="/shop/{slug}">`; Add to Cart and WishlistButton use `e.stopPropagation()` to avoid navigation
+- [x] **ProductCard bgColor fallback** — `#f0ece4` default when `bg_color` is null
+- [x] **You May Also Like scroll arrows** — left/right buttons with hidden scrollbar, fixed-width cards
+- [x] **Navbar Best Sellers filter** — only shows `isBestSeller` products, sliced to 3
+- [x] **Demo product fixed** — `bg_color`, `rating`, `review_count`, `description` updated via API
+- [x] **GitHub push** — `bd6a4c8` (ProductCard clickable, scroll arrows, best seller filter, demo fix, wishlist stopPropagation)
 
 ---
 
