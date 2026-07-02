@@ -43,15 +43,7 @@ export default function ProductDetailPage({
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
-  const [poll, setPoll] = useState(0);
-
   useEffect(() => {
-    const id = setInterval(() => setPoll(n => n + 1), 15000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    void poll;
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
@@ -63,7 +55,7 @@ export default function ProductDetailPage({
         }
       })
       .catch(() => {});
-  }, [slug, poll]);
+  }, [slug]);
 
   if (!product) {
     return (

@@ -21,22 +21,14 @@ function ShopContent() {
   const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
-  const [poll, setPoll] = useState(0);
-
   useEffect(() => {
-    const id = setInterval(() => setPoll(n => n + 1), 15000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    void poll;
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length) setProducts(data);
       })
       .catch(() => {});
-  }, [poll]);
+  }, []);
 
   useEffect(() => {
     const vibe = searchParams.get("vibe");

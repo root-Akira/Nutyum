@@ -23,15 +23,7 @@ export function ReviewsSection() {
   const [apiReviews, setApiReviews] = useState<Review[]>(FALLBACK_REVIEWS);
   const [loading, setLoading] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [poll, setPoll] = useState(0);
-
   useEffect(() => {
-    const id = setInterval(() => setPoll(n => n + 1), 15000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    void poll;
     fetch("/api/reviews")
       .then((r) => r.json())
       .then((data) => {
@@ -52,7 +44,7 @@ export function ReviewsSection() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [poll]);
+  }, []);
 
   const overall = apiReviews.reduce((s, r) => s + r.rating, 0) / apiReviews.length || 0;
   const doubled = [...apiReviews, ...apiReviews];

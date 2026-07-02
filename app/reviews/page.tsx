@@ -239,19 +239,11 @@ export default function ReviewsPage() {
   const [apiReviews, setApiReviews] = useState<Review[]>(FALLBACK_REVIEWS);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortKey>("recent");
-  const [poll, setPoll] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setPoll(n => n + 1), 15000);
-    return () => clearInterval(id);
-  }, []);
-
   const scrollToForm = () => {
     document.getElementById("write-review")?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    void poll;
     fetch("/api/reviews")
       .then((r) => r.json())
       .then((data) => {
@@ -272,7 +264,7 @@ export default function ReviewsPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [poll]);
+  }, []);
 
   const allReviews = useMemo(() => {
     if (sort === "recent") return apiReviews;
