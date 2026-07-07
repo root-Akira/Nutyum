@@ -63,25 +63,46 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **Admin panel: CMS** — banners (add/delete), CMS pages (list/edit HTML content)
 - [x] **Admin panel: Settings** — shipping zones (add/delete), payments (transaction log), site settings (store info, COD, maintenance mode, social links)
 
-### Still Pending
-- [ ] Razorpay payments
+### Still Pending (23 items)
 
-## Session: 2026-07-02 (cont'd)
+#### AGENTS.md
+- [ ] Update pending/completed lists with latest session work
 
-### Completed
-- [x] **Admin panel: RLS fix** — separated supabase clients (anon key for auth, service role for data queries) so login doesn't override the service role key
-- [x] **Admin panel: Image upload** — file upload to Supabase Storage `product-images` bucket in product form; `Upload` button alongside URL input
-- [x] **Supabase Storage bucket** — created `product-images` bucket (public), uploaded all asset images
-- [x] **DB images updated** — all 8 product records now use Supabase Storage URLs instead of relative paths
-- [x] **Main site: all image paths migrated** — `data/products.ts`, `db/seed.ts`, `HeroCarousel.tsx`, `BrandPanel.tsx`, `OurOrigins.tsx`, `Navbar.tsx` now use Storage URLs; placeholder fallbacks updated
-- [x] **Hydration fix** — `suppressHydrationWarning` on `<body>` (Grammarly extension interference)
-- [x] **next/image config** — added `remotePatterns` for Supabase Storage hostname in `next.config.ts`
-- [x] **ProductCard clickable** — wrapped in `<Link href="/shop/{slug}">`; Add to Cart and WishlistButton use `e.stopPropagation()` to avoid navigation
-- [x] **ProductCard bgColor fallback** — `#f0ece4` default when `bg_color` is null
-- [x] **You May Also Like scroll arrows** — left/right buttons with hidden scrollbar, fixed-width cards
-- [x] **Navbar Best Sellers filter** — only shows `isBestSeller` products, sliced to 3
-- [x] **Demo product fixed** — `bg_color`, `rating`, `review_count`, `description` updated via API
-- [x] **GitHub push** — `bd6a4c8` (ProductCard clickable, scroll arrows, best seller filter, demo fix, wishlist stopPropagation)
+#### Main Website
+- [x] **Set `is_best_seller=true` on DB products** — 3 products already flagged ✅
+- [ ] **Razorpay payments** integration (High)
+- [ ] **Google OAuth** — configure `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` (Medium)
+- [x] **Error boundaries** — `app/error.tsx`, `app/global-error.tsx`, `app/not-found.tsx` created
+- [x] **Align DB schemas** — added `is_out_of_stock`, `image_alts`, `compare_price`, `sku`, `stock` + TypeScript types + `mapDbToProduct` mapping
+- [ ] **Bulk Order page** — replace static wholesale page with real inquiry form + API (pending client feedback)
+
+#### Admin Panel — Setup
+- [x] **Run `supabase-migration.sql`** in Supabase SQL Editor — all 10 tables created, default data inserted, users synced ✅
+- [ ] **Tighten RLS policies** — admin role only (High)
+- [x] **Zod validation** on admin forms — product, coupon, site settings forms (High/Medium)
+- [ ] **Configure SMTP** for production email sending (password reset, order confirmations) (Low)
+
+#### Admin Panel — Features Not Yet Built
+- [ ] Variants per product (pack sizes / flavors)
+- [ ] Bulk actions (prices, stock, delete)
+- [ ] Stock history / low-stock threshold config
+- [ ] Invoice generation / packing slips
+- [ ] Block/unblock customers
+- [ ] Auto-discounts
+- [ ] Promotional pop-ups
+- [ ] Courier partner integration
+- [ ] Refund management
+- [ ] GST / tax settings
+- [ ] Analytics & reports (CSV export)
+- [ ] Marketing tools (abandoned cart, campaigns, referral)
+- [ ] Email/SMS notification templates
+- [ ] Activity log / role-based access / auto-logout
+
+#### Blocked (need Supabase Dashboard SQL Editor)
+- [ ] Direct Postgres unreachable (IPv6 only, no route)
+- [x] `public.users` table + auth trigger created ✅
+- [x] `admin_reply` column on `reviews` — Storage JSON fallback removed, using DB directly ✅
+- [ ] DB schema drift on `products` table
 
 ---
 
@@ -103,30 +124,13 @@ Nutyum palette: `#173D22` (green primary), `#E0961A` (gold accent), `#FAF7EE` (c
 |---|---------|-------|--------|
 | 1 | **Auth** | Login, ProtectedRoute, session timeout | ✅ |
 | 2 | **Dashboard** | Stats cards (orders/revenue/pending/low-stock), recent orders, top products | ✅ |
-| 3 | **Products** | List (search), Add/Edit form (images, stock, price, SEO, coming-soon toggle, tags, nutrition, ingredients, categories) | ✅ |
+| 3 | **Products** | List (search), Add/Edit form (images, stock, price, SEO, coming-soon toggle, tags, nutrition, ingredients, categories, vibes) | ✅ |
 | 4 | **Orders** | List (filter by status, search), Detail (items, address, timeline, status update, tracking, internal notes, status history) | ✅ |
 | 5 | **Customers** | List (search), Detail (profile, order history, addresses, stats) | ✅ |
 | 6 | **Reviews** | Pending/approved tabs, approve/reject/delete, admin reply modal | ✅ |
 | 7 | **Coupons** | List (search), Add/Edit form (type, value, min-order, dates, usage limits) | ✅ |
-| 8 | **CMS** | Banners (add/delete/reorder), CMS Pages (list/edit HTML content) | ✅ |
+| 8 | **CMS** | Banners (add/delete/reorder), CMS Pages (list/edit HTML content), Vibes (add/list/delete) | ✅ |
 | 9 | **Settings** | Shipping zones (add/delete), Payments (transaction log), Site Settings (store info, COD, maintenance mode, social links) | ✅ |
-
-### Not Yet Built
-- Variants per product (pack sizes / flavors)
-- Bulk actions (prices, stock, delete)
-- Stock history / low-stock threshold config
-- Invoice generation / packing slips
-- Block/unblock customers
-- Auto-discounts
-- Subscriptions (Subscribe & Save)
-- Promotional pop-ups
-- Courier partner integration
-- Refund management
-- GST / tax settings
-- Analytics & reports (CSV export)
-- Marketing tools (abandoned cart, campaigns, referral)
-- Email/SMS notification templates
-- Activity log / role-based access / auto-logout
 
 ### Running
 ```bash

@@ -28,6 +28,11 @@ function mapDbToProduct(row: DbProduct): Product {
     reviewCount: row.review_count as number,
     weight: row.weight as string,
     badgeLabel: (row.badge_label as string | null) ?? undefined,
+    isOutOfStock: (row.is_out_of_stock as boolean) ?? undefined,
+    imageAlts: (row.image_alts as string[]) ?? undefined,
+    comparePrice: (row.compare_price as number | null) ?? undefined,
+    sku: (row.sku as string) ?? undefined,
+    stock: (row.stock as number) ?? undefined,
   };
 }
 

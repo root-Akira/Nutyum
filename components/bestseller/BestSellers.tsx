@@ -64,7 +64,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           alt={product.name}
           fill
           sizes="260px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-contain transition-transform duration-500 group-hover:scale-105"
         />
 
         {/* Add button — appears on hover */}

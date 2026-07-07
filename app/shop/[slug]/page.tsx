@@ -139,7 +139,7 @@ export default function ProductDetailPage({
               fill
               priority
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
+              className="object-contain"
             />
           </div>
         </motion.div>

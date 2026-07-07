@@ -162,13 +162,13 @@ function MegaMenuPanel({ item, products }: { item: MegaNavItem; products: Produc
                 className="group flex flex-col overflow-hidden rounded-2xl"
                 style={{ backgroundColor: prod.bgColor }}
               >
-                <div className="relative aspect-[4/3]">
+                <div className="relative aspect-[3/4]">
                   <Image
                     src={prod.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
                     alt={prod.name}
                     fill
                     sizes="(max-width: 768px) 33vw, 200px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="px-4 pb-4 pt-2">

@@ -35,6 +35,11 @@ export interface Product {
   reviewCount: number;
   weight: string;
   badgeLabel?: string;
+  isOutOfStock?: boolean;
+  imageAlts?: string[];
+  comparePrice?: number;
+  sku?: string;
+  stock?: number;
 }
 
 // === Cart ===

@@ -67,7 +67,7 @@ export function ProductCard({
             alt={product.name}
             fill
             sizes="260px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-contain transition-transform duration-500 group-hover:scale-105"
           />
 
           <div
