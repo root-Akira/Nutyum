@@ -92,6 +92,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       {/* Text */}
       <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
         ₹{product.price}
+        {(product.comparePrice && product.comparePrice > 0) ? (
+          <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.comparePrice}</span>
+        ) : (product.originalPrice && product.originalPrice > 0) ? (
+          <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.originalPrice}</span>
+        ) : null}
       </p>
       <p className="mb-1.5 text-base font-medium leading-snug text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
         {product.name}

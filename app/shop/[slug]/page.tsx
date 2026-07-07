@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
-import type { Product } from "@/types";
+import type { Product, ProductVariant } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,8 @@ export default function ProductDetailPage({
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -82,6 +84,22 @@ export default function ProductDetailPage({
       .catch(() => {});
   }, [slug]);
 
+  useEffect(() => {
+    fetch(`/api/products/${slug}/variants`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.variants)) {
+          setVariants(data.variants);
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
+
+  // Reset quantity when variant changes
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedVariant]);
+
   if (!product) {
     return (
       <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 bg-[#FDFAF3] px-6">
@@ -104,6 +122,11 @@ export default function ProductDetailPage({
       </main>
     );
   }
+
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const displayComparePrice = selectedVariant
+    ? (selectedVariant.compare_price > 0 ? selectedVariant.compare_price : 0)
+    : (product.comparePrice && product.comparePrice > 0 ? product.comparePrice : product.originalPrice && product.originalPrice > 0 ? product.originalPrice : 0);
 
   const badgeLabel =
     product.badgeLabel ||
@@ -171,10 +194,13 @@ export default function ProductDetailPage({
 
           <motion.p
             variants={prefersReduced ? {} : itemVariants}
-            className="text-2xl font-semibold text-[#173D22]"
+            className="text-2xl font-semibold text-[#173D22] flex items-center gap-3"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            {formatPrice(product.price)}
+            <span>{formatPrice(displayPrice)}</span>
+            {displayComparePrice > 0 && (
+              <span className="text-lg text-[#4C5A48]/50 line-through font-normal">{formatPrice(displayComparePrice)}</span>
+            )}
           </motion.p>
 
           <motion.div
@@ -222,8 +248,32 @@ export default function ProductDetailPage({
             className="text-sm font-medium text-[#4C5A48]"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            Weight: {product.weight}
+            Weight: {selectedVariant ? selectedVariant.name : product.weight}
           </motion.p>
+
+          {variants.length > 0 && (
+            <motion.div
+              variants={prefersReduced ? {} : itemVariants}
+              className="flex flex-wrap gap-2"
+            >
+              {variants.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setSelectedVariant(selectedVariant?.id === v.id ? null : v)}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-sm font-medium transition-all",
+                    selectedVariant?.id === v.id
+                      ? "border-[#173D22] bg-[#173D22] text-white"
+                      : "border-[#173D22]/30 text-[#4C5A48] hover:border-[#173D22]/60"
+                  )}
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  {v.name} — {formatPrice(v.price)}
+                </button>
+              ))}
+            </motion.div>
+          )}
 
           <motion.div
             variants={prefersReduced ? {} : itemVariants}
@@ -269,11 +319,16 @@ export default function ProductDetailPage({
                 </div>
                 <button
                   type="button"
-                  onClick={() => requireAuth(() => addItem(product, quantity))}
+                  onClick={() => requireAuth(() => {
+                    const cartProduct = selectedVariant
+                      ? { ...product, price: selectedVariant.price }
+                      : product;
+                    addItem(cartProduct, quantity, selectedVariant ? { variantId: selectedVariant.id, variantName: selectedVariant.name } : undefined);
+                  })}
                   className="rounded-full bg-[#173D22] px-10 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  Add to Cart — {formatPrice(product.price * quantity)}
+                  Add to Cart — {formatPrice(displayPrice * quantity)}
                 </button>
               </>
             )}

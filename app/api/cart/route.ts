@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch, getErrorMessage } from "@/lib/supabase-fetch";
 
+function encodeProductId(item: { productId: string; variantId?: string }) {
+  return item.variantId ? `${item.productId}::${item.variantId}` : item.productId;
+}
+
+function decodeProductId(encoded: string): { productId: string; variantId?: string } {
+  const parts = encoded.split("::");
+  return { productId: parts[0], variantId: parts[1] || undefined };
+}
+
 export async function GET() {
   const session = await auth();
   const userId = session?.user?.id;
@@ -18,11 +27,16 @@ export async function GET() {
     return NextResponse.json({ items: [] });
   }
 
-  const items = rows.map((r: Record<string, unknown>) => ({
-    productId: (r.product_data as Record<string, unknown>).id as string,
-    quantity: r.quantity,
-    product: r.product_data as Record<string, unknown>,
-  }));
+  const items = rows.map((r: Record<string, unknown>) => {
+    const { productId, variantId } = decodeProductId(r.product_id as string);
+    return {
+      productId,
+      variantId,
+      variantName: variantId ? ((r.product_data as Record<string, unknown>)?.variantName as string) : undefined,
+      quantity: r.quantity,
+      product: r.product_data as Record<string, unknown>,
+    };
+  });
 
   return NextResponse.json({ items });
 }
@@ -35,7 +49,7 @@ export async function POST(req: Request) {
   }
 
   const { items } = await req.json() as {
-    items: { productId: string; quantity: number; product: Record<string, unknown> }[];
+    items: { productId: string; variantId?: string; variantName?: string; quantity: number; product: Record<string, unknown> }[];
   };
 
   // Upsert current items (insert or update on conflict)
@@ -48,8 +62,10 @@ export async function POST(req: Request) {
         body: JSON.stringify(
           items.map((item) => ({
             user_id: userId,
-            product_id: item.productId,
-            product_data: item.product,
+            product_id: encodeProductId(item),
+            product_data: item.variantId
+              ? { ...item.product, variantName: item.variantName }
+              : item.product,
             quantity: item.quantity,
           }))
         ),
@@ -63,7 +79,7 @@ export async function POST(req: Request) {
   }
 
   // Remove items no longer in the cart
-  const activeIds = items.map((i) => i.productId);
+  const activeIds = items.map((i) => encodeProductId(i));
   let delPath: string;
   if (activeIds.length > 0) {
     delPath = `cart_items?user_id=eq.${userId}&product_id=not.in.(${activeIds.join(",")})`;

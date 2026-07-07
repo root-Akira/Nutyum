@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useCartStore } from "@/hooks/use-cart-store";
 
 const STORAGE_KEY = "nutyum-cart";
+const COUPON_KEY = "nutyum-coupon";
 
 export function CartSync() {
   const { data: session, status } = useSession();
   const items = useCartStore((s) => s.items);
+  const couponCode = useCartStore((s) => s.couponCode);
+  const discount = useCartStore((s) => s.discount);
   const loadItems = useCartStore((s) => s.loadItems);
   const loaded = useCartStore((s) => s.loaded);
   const hasFetchedApi = useRef(false);
   const syncing = useRef(false);
   const lastSaved = useRef("");
+  const lastCoupon = useRef("");
 
-  // 1. Load cart from localStorage immediately on mount
+  // 1. Load cart + coupon from localStorage immediately on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -23,6 +27,17 @@ export function CartSync() {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length) {
           useCartStore.setState({ items: parsed, loaded: true });
+        }
+      }
+    } catch {
+      // ignore
+    }
+    try {
+      const raw = localStorage.getItem(COUPON_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.discount) {
+          useCartStore.setState({ couponCode: parsed.couponCode || '', discount: parsed.discount });
         }
       }
     } catch {
@@ -46,7 +61,27 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [items]);
 
-  // 3. Load cart from API when user signs in
+  // 3. Save coupon to localStorage whenever it changes
+  useEffect(() => {
+    const state = JSON.stringify({ couponCode, discount });
+    if (state === lastCoupon.current) return;
+    lastCoupon.current = state;
+
+    const timeout = setTimeout(() => {
+      try {
+        if (discount) {
+          localStorage.setItem(COUPON_KEY, state);
+        } else {
+          localStorage.removeItem(COUPON_KEY);
+        }
+      } catch {
+        // ignore
+      }
+    }, 200);
+    return () => clearTimeout(timeout);
+  }, [couponCode, discount]);
+
+  // 4. Load cart from API when user signs in
   useEffect(() => {
     const uid = session?.user?.id ?? null;
     if (uid && !hasFetchedApi.current) {
@@ -71,12 +106,14 @@ export function CartSync() {
     if (!uid && status === "unauthenticated") {
       hasFetchedApi.current = false;
       lastSaved.current = "";
+      lastCoupon.current = "";
       localStorage.removeItem(STORAGE_KEY);
-      useCartStore.setState({ loaded: false });
+      localStorage.removeItem(COUPON_KEY);
+      useCartStore.setState({ loaded: false, couponCode: '', discount: null, couponError: '' });
     }
   }, [session?.user?.id, status, loadItems, items]);
 
-  // 4. Sync cart to API when items change (only when signed in)
+  // 5. Sync cart to API when items change (only when signed in)
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
     if (!loaded || syncing.current) return;

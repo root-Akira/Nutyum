@@ -42,18 +42,46 @@ export interface Product {
   stock?: number;
 }
 
+// === Variants ===
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  name: string;
+  sku: string | null;
+  price: number;
+  compare_price: number;
+  stock: number;
+  is_active: boolean;
+}
+
 // === Cart ===
 export interface CartItem {
   productId: string;
+  variantId?: string;
+  variantName?: string;
   quantity: number;
   product: Product;
 }
 
+export interface DiscountInfo {
+  code: string;
+  type: 'flat' | 'percentage';
+  value: number;
+  discountAmount: number;
+}
+
 export interface CartStore {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  couponCode: string;
+  discount: DiscountInfo | null;
+  couponError: string;
+  couponPending: boolean;
+  setCouponCode: (code: string) => void;
+  applyCoupon: (subtotal: number) => Promise<void>;
+  removeCoupon: () => void;
+  addItem: (product: Product, quantity?: number, variant?: { variantId: string; variantName: string }) => void;
+  removeItem: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;

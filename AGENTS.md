@@ -63,10 +63,14 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **Admin panel: CMS** — banners (add/delete), CMS pages (list/edit HTML content)
 - [x] **Admin panel: Settings** — shipping zones (add/delete), payments (transaction log), site settings (store info, COD, maintenance mode, social links)
 
-### Still Pending (23 items)
+## Session: 2026-07-07
 
-#### AGENTS.md
-- [ ] Update pending/completed lists with latest session work
+### Completed
+- [x] **Variant selector on product page** — active variants from admin panel show as selectable pills; price/weight updates on selection; composite key in cart for same-product-different-variant support (`app/api/products/[slug]/variants`, updated cart store, API, CartItem, CartDrawer)
+- [x] **Admin: Bulk actions** — checkbox selection, bulk action bar, update price (set/add/%), update stock, batch delete on product list
+- [x] **Coupons on main site** — `POST /api/coupons/validate` (validates active/expiry/dates/limits/min-order), `POST /api/coupons/apply` (increments usage), coupon input in CartDrawer with error/success states, discount line in cart summary, cart store coupon state, localStorage persistence
+
+### Still Pending (21 items)
 
 #### Main Website
 - [x] **Set `is_best_seller=true` on DB products** — 3 products already flagged ✅
@@ -78,13 +82,13 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 
 #### Admin Panel — Setup
 - [x] **Run `supabase-migration.sql`** in Supabase SQL Editor — all 10 tables created, default data inserted, users synced ✅
-- [ ] **Tighten RLS policies** — admin role only (High)
+- [x] **Tighten RLS policies** — admin role only (ss5494602@gmail.com) ✅
 - [x] **Zod validation** on admin forms — product, coupon, site settings forms (High/Medium)
 - [ ] **Configure SMTP** for production email sending (password reset, order confirmations) (Low)
 
 #### Admin Panel — Features Not Yet Built
 - [ ] Variants per product (pack sizes / flavors)
-- [ ] Bulk actions (prices, stock, delete)
+- [x] Bulk actions (prices, stock, delete)
 - [ ] Stock history / low-stock threshold config
 - [ ] Invoice generation / packing slips
 - [ ] Block/unblock customers
@@ -103,6 +107,7 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] `public.users` table + auth trigger created ✅
 - [x] `admin_reply` column on `reviews` — Storage JSON fallback removed, using DB directly ✅
 - [ ] DB schema drift on `products` table
+- [x] `ALTER TABLE coupons ADD COLUMN IF NOT EXISTS show_in_store BOOLEAN NOT NULL DEFAULT false;` — done ✅
 
 ---
 
