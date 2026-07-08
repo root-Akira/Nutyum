@@ -127,6 +127,7 @@ export default function ProductDetailPage({
   const displayComparePrice = selectedVariant
     ? (selectedVariant.compare_price > 0 ? selectedVariant.compare_price : 0)
     : (product.comparePrice && product.comparePrice > 0 ? product.comparePrice : product.originalPrice && product.originalPrice > 0 ? product.originalPrice : 0);
+  const outOfStock = selectedVariant ? selectedVariant.stock === 0 : !!product.isOutOfStock;
 
   const badgeLabel =
     product.badgeLabel ||
@@ -272,15 +273,18 @@ export default function ProductDetailPage({
                   key={v.id}
                   type="button"
                   onClick={() => setSelectedVariant(selectedVariant?.id === v.id ? null : v)}
+                  disabled={v.stock === 0}
                   className={cn(
                     "rounded-full border px-4 py-2 text-sm font-medium transition-all",
                     selectedVariant?.id === v.id
                       ? "border-[#173D22] bg-[#173D22] text-white"
+                      : v.stock === 0
+                      ? "border-red-200 text-red-400 cursor-not-allowed opacity-60"
                       : "border-[#173D22]/30 text-[#4C5A48] hover:border-[#173D22]/60"
                   )}
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  {v.name} — {formatPrice(v.price)}
+                  {v.name} — {v.stock === 0 ? "Out of Stock" : formatPrice(v.price)}
                 </button>
               ))}
             </motion.div>
@@ -330,16 +334,25 @@ export default function ProductDetailPage({
                 </div>
                 <button
                   type="button"
-                  onClick={() => requireAuth(() => {
-                    const cartProduct = selectedVariant
-                      ? { ...product, price: selectedVariant.price }
-                      : product;
-                    addItem(cartProduct, quantity, selectedVariant ? { variantId: selectedVariant.id, variantName: selectedVariant.name } : undefined);
-                  })}
-                  className="rounded-full bg-[#173D22] px-10 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
+                  disabled={outOfStock}
+                  onClick={() => {
+                    if (outOfStock) return;
+                    requireAuth(() => {
+                      const cartProduct = selectedVariant
+                        ? { ...product, price: selectedVariant.price }
+                        : product;
+                      addItem(cartProduct, quantity, selectedVariant ? { variantId: selectedVariant.id, variantName: selectedVariant.name } : undefined);
+                    })
+                  }}
+                  className={cn(
+                    "rounded-full px-10 py-4 text-sm font-semibold text-white transition-all",
+                    outOfStock
+                      ? "bg-[#4C5A48]/50 cursor-not-allowed"
+                      : "bg-[#173D22] hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
+                  )}
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  Add to Cart — {formatPrice(displayPrice * quantity)}
+                  {outOfStock ? "Out of Stock" : `Add to Cart — ${formatPrice(displayPrice * quantity)}`}
                 </button>
               </>
             )}
