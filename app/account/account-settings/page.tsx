@@ -22,6 +22,7 @@ const emptyAddrForm = { line1: "", line2: "", city: "", state: "", pincode: "", 
 
 export default function SettingsPage() {
   // ─── Profile ───
+  const [profileLoading, setProfileLoading] = useState(true);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -54,7 +55,8 @@ export default function SettingsPage() {
         setName(data.name || "");
         setPhone(data.phone || "");
         setEmail(data.email || "");
-      });
+      })
+      .finally(() => setProfileLoading(false));
     loadAddresses();
   }, []);
 
@@ -135,6 +137,14 @@ export default function SettingsPage() {
     if (!confirm("Delete this address?")) return;
     const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
     if (res.ok) setAddresses((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  if (profileLoading && loadingAddr) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#173D22] border-t-transparent" />
+      </div>
+    )
   }
 
   return (
