@@ -68,11 +68,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        return token;
+      }
+      if (!token.id || !hasSupabase) return token;
+      // Check if user was blocked since token was issued
+      const { data: userCheck } = await supabaseAdmin
+        .from("users")
+        .select("is_blocked")
+        .eq("id", token.id)
+        .maybeSingle();
+      if (userCheck?.is_blocked) return {};
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id as string;
+      if (!token.id || !session.user) return session;
+      session.user.id = token.id as string;
       return session;
     },
   },
