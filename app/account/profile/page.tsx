@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export default function ProfilePage() {
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -18,8 +19,17 @@ export default function ProfilePage() {
         setName(data.name || "");
         setPhone(data.phone || "");
         setEmail(data.email || "");
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#173D22] border-t-transparent" />
+      </div>
+    )
+  }
 
   return (
     <motion.div
