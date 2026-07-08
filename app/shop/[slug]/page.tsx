@@ -127,7 +127,8 @@ export default function ProductDetailPage({
   const displayComparePrice = selectedVariant
     ? (selectedVariant.compare_price > 0 ? selectedVariant.compare_price : 0)
     : (product.comparePrice && product.comparePrice > 0 ? product.comparePrice : product.originalPrice && product.originalPrice > 0 ? product.originalPrice : 0);
-  const outOfStock = selectedVariant ? selectedVariant.stock === 0 : !!product.isOutOfStock;
+  const allVariantsOutOfStock = variants.length > 0 && variants.every(v => v.stock === 0);
+  const outOfStock = selectedVariant ? selectedVariant.stock === 0 : (allVariantsOutOfStock || !!product.isOutOfStock);
 
   const badgeLabel =
     product.badgeLabel ||
