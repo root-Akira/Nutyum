@@ -28,7 +28,11 @@ function SignInContent() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      if (result.code === "blocked") {
+        setError("Your account has been blocked. Please contact support.");
+      } else {
+        setError("Invalid email or password");
+      }
       setLoading(false);
       return;
     }

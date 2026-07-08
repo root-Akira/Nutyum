@@ -1,7 +1,11 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+
+class BlockedError extends CredentialsSignin {
+  code = "blocked";
+}
 
 const hasSupabase = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -19,11 +23,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Use Supabase Auth when connected
         if (hasSupabase) {
+          const email = credentials.email as string;
+
+          // Check if user is blocked
+          const { data: userCheck } = await supabaseAdmin
+            .from("users")
+            .select("is_blocked")
+            .eq("email", email)
+            .maybeSingle();
+          if (userCheck?.is_blocked) throw new BlockedError();
+
           const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-            email: credentials.email as string,
+            email,
             password: credentials.password as string,
           });
-          if (error || !data?.user) return null;
+          if (error || !data?.user) {
+            // Also check if sign-in failed because user is banned
+            const { data: bannedCheck } = await supabaseAdmin
+              .from("users")
+              .select("is_blocked")
+              .eq("email", email)
+              .maybeSingle();
+            if (bannedCheck?.is_blocked) throw new BlockedError();
+            return null;
+          }
           return {
             id: data.user.id,
             email: data.user.email!,
