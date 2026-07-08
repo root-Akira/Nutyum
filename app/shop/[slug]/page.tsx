@@ -408,7 +408,7 @@ export default function ProductDetailPage({
                 aria-label="Related products"
               >
                 {related.map((p, i) => (
-                  <div key={p.id} role="listitem" className="shrink-0">
+                  <div key={p.id} role="listitem" className="shrink-0 w-[260px]">
                     <ProductCard product={p} index={i} />
                   </div>
                 ))}
