@@ -2,9 +2,8 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Loader } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { VIBE_TAGS, type Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
@@ -19,7 +18,8 @@ function ShopContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [allVibes, setAllVibes] = useState<string[]>([...VIBE_TAGS]);
   const addItem = useCartStore((s) => s.addItem);
   const requireAuth = useRequireAuth();
@@ -29,7 +29,8 @@ function ShopContent() {
       .then((data) => {
         if (Array.isArray(data) && data.length) setProducts(data);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setProductsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -154,7 +155,11 @@ function ShopContent() {
       </div>
 
       <div className="mx-auto max-w-7xl px-6 pb-24">
-        {filtered.length > 0 ? (
+        {productsLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader size={28} className="animate-spin text-[#173D22]" />
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 justify-items-center">
             {filtered.map((product, index) => (
               <ProductCard

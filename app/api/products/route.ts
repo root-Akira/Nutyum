@@ -54,10 +54,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     const ratings = await computeRatings();
-    return NextResponse.json(applyRatings([product], ratings)[0]);
+    return NextResponse.json(applyRatings([product], ratings)[0], {
+      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+    });
   }
 
   const products = await getProducts();
   const ratings = await computeRatings();
-  return NextResponse.json(applyRatings(products, ratings));
+  return NextResponse.json(applyRatings(products, ratings), {
+    headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+  });
 }

@@ -4,8 +4,7 @@ import { use, useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import { Star, Minus, Plus, ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import type { Product, ProductVariant } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
@@ -35,9 +34,8 @@ export default function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const [product, setProduct] = useState<Product | undefined>(
-    STATIC_PRODUCTS.find((p) => p.slug === slug)
-  );
+  const [product, setProduct] = useState<Product | undefined>();
+  const [productLoading, setProductLoading] = useState(true);
   const [related, setRelated] = useState<Product[]>([]);
   const prefersReduced = useReducedMotion();
   const addItem = useCartStore((s) => s.addItem);
@@ -72,6 +70,7 @@ export default function ProductDetailPage({
     });
   };
   useEffect(() => {
+    setProductLoading(true);
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
@@ -82,7 +81,8 @@ export default function ProductDetailPage({
           setRelated(data.filter((p: Product) => p.id !== found.id));
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setProductLoading(false));
   }, [slug]);
 
   useEffect(() => {
@@ -102,6 +102,14 @@ export default function ProductDetailPage({
   useEffect(() => {
     setQuantity(1);
   }, [selectedVariant]);
+
+  if (productLoading) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#FDFAF3]">
+        <Loader size={28} className="animate-spin text-[#173D22]" />
+      </main>
+    );
+  }
 
   if (!product) {
     return (
