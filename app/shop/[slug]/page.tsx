@@ -44,6 +44,7 @@ export default function ProductDetailPage({
   const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [variantsLoading, setVariantsLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -85,6 +86,7 @@ export default function ProductDetailPage({
   }, [slug]);
 
   useEffect(() => {
+    setVariantsLoading(true);
     fetch(`/api/products/${slug}/variants`)
       .then((r) => r.json())
       .then((data) => {
@@ -92,7 +94,8 @@ export default function ProductDetailPage({
           setVariants(data.variants);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setVariantsLoading(false));
   }, [slug]);
 
   // Reset quantity when variant changes
@@ -127,8 +130,13 @@ export default function ProductDetailPage({
   const displayComparePrice = selectedVariant
     ? (selectedVariant.compare_price > 0 ? selectedVariant.compare_price : 0)
     : (product.comparePrice && product.comparePrice > 0 ? product.comparePrice : product.originalPrice && product.originalPrice > 0 ? product.originalPrice : 0);
+  const variantsLoaded = !variantsLoading;
   const allVariantsOutOfStock = variants.length > 0 && variants.every(v => v.stock === 0);
-  const outOfStock = selectedVariant ? selectedVariant.stock === 0 : (allVariantsOutOfStock || !!product.isOutOfStock);
+  const outOfStock = selectedVariant
+    ? selectedVariant.stock === 0
+    : variantsLoaded && variants.length > 0
+      ? allVariantsOutOfStock
+      : !!product.isOutOfStock;
 
   const badgeLabel =
     product.badgeLabel ||
