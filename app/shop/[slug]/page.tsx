@@ -226,6 +226,17 @@ export default function ProductDetailPage({
             {product.description}
           </motion.p>
 
+          {product.ingredients && product.ingredients.length > 0 && (
+            <motion.div variants={prefersReduced ? {} : itemVariants} className="space-y-1.5">
+              <h3 className="text-sm font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>Ingredients</h3>
+              <p className="text-sm text-[#4C5A48] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
+                {product.ingredients.join(", ")}
+              </p>
+            </motion.div>
+          )}
+
+
+
           {product.vibes?.length > 0 && (
             <motion.div
               variants={prefersReduced ? {} : itemVariants}
