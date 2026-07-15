@@ -91,7 +91,7 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] Bulk actions (prices, stock, delete)
 - [ ] Stock history / low-stock threshold config
 - [ ] Invoice generation / packing slips
-- [ ] Block/unblock customers
+- [x] Block/unblock customers
 - [ ] Auto-discounts
 - [ ] Promotional pop-ups
 - [ ] Courier partner integration
