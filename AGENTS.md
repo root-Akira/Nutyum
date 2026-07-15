@@ -29,9 +29,39 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 ## Session: 2026-07-01
 
 ### Completed
-- [x] **Robust error handling in API routes** — `getErrorMessage()` helper, `Array.isArray()` guards before `.map()`/`.length`, safe non-JSON response parsing; 41 routes, 0 errors
-- [x] **Default address enforcement** — only one address can be default; `unsetAllDefaults()` clears existing default before setting new one in both POST and PUT
-- [x] **`is_default` column persistence** — API now reads/writes `is_default` to Supabase; Default badge shows on address cards
+- [x] **Robust error handling in API routes** — 41 routes, 0 errors
+- [x] **Navbar 70px**, glass effect, **hero carousel** smooth animation
+- [x] **Default address enforcement** — `unsetAllDefaults()` before setting new default
+- [x] **Account section** — Profile, Orders, Wishlist, Addresses, Change Password all verified
+- [x] **Hydration fix** — passthrough provider replaced `next-themes`
+- [x] **Coming Soon** products — `isComingSoon` + `launchDate`, badge, purchase disabled
+- [x] **BestSellers tabs** — toggle Best Sellers / Coming Soon
+- [x] **Our Origins** — lucide SVG icons (Leaf, Globe, Mountain)
+
+### Repositories
+- **Main website** → `https://github.com/root-Akira/Nutyum` (this repo)
+- **Admin panel** → `https://github.com/root-Akira/Nutyum-admin` (separate repo)
+
+## Session: 2026-07-02
+
+### Completed
+- [x] **Admin panel** scaffolded — Vite + React 19 + TS 6 + Tailwind v4
+- [x] Auth, Dashboard, Products (list/form), Orders (list/detail), Customers, Reviews, Coupons, CMS, Settings (shipping/payments/site)
+
+## Session: 2026-07-08
+
+### Completed
+- [x] **Loading states & flash fixes** — shop page no longer shows `STATIC_PRODUCTS` fallback then replaces with real data (shows spinner while loading); product detail page same pattern; API caching headers (`s-maxage=30, stale-while-revalidate=60`) on `/api/products`
+- [x] **Block/unblock customers** — admin detail page: Block/Unblock button with ConfirmModal; uses `supabaseAdmin.auth.admin.updateUserById()` with `ban_duration: '876000h'` (block) or `'none'` (unblock); syncs `is_blocked` to `public.users`; invalidates customer list query on success
+- [x] **Blocked badge on customer list** — added `blocked` status to `StatusBadge` (red "Blocked" label); list uses `'blocked'` instead of `'cancelled'`
+- [x] **Blocked user sign-in message** — `CredentialsSignin` subclass `BlockedError` with code `"blocked"`; `auth.ts` checks `users.is_blocked` before sign-in; `SignInForm.tsx` shows "Your account has been blocked. Please contact support." on `result.code === "blocked"`
+- [x] **Session invalidation for blocked users** — `jwt` callback queries `users.is_blocked` on every request; returns empty token if blocked, effectively logging them out
+- [x] **Loading states** — `loading.tsx` at `app/`, `app/shop/`, `app/shop/[slug]/`, `app/account/`; spinner on `/account/profile` page while profile data loads; form skeletons on admin `product-form.tsx` and `coupon-form.tsx` edit modes; loading state on `/account/account-settings` profile section
+- [x] **Account redirect fix** — moved `/account` → `/account/profile` redirect from `page.tsx` to `next.config.ts` `async redirects()`; deleted `app/account/page.tsx` to eliminate `AccountPage` `performance.measure()` error
+- [x] **Banners removed** — deleted `banners.tsx`, removed from `App.tsx` lazy import + route, removed from `sidebar.tsx` nav link + `ImageIcon` import, removed from `dashboard-layout.tsx` path map
+- [x] **CMS Pages connected** — `GET /api/cms/content?slug=:slug` API route; `/pages/[slug]` dynamic route renders HTML content with prose styles; `lib/cms.ts` shared fetch helper; admin CMS Pages has "Seed Default Pages" button (inserts about/faq/contact with default HTML via `upsert ignoreDuplicates`)
+- [x] **Out of stock button fix** — added `variantsLoading` state; `outOfStock` now waits for variants to finish loading before deciding, preventing "Add to Cart" flash when all variants are OOS
+- [x] **You May Also Like alignment** — horizontal scroll cards now have fixed `w-[260px]` wrapper for consistent card sizing
 - [x] **Wishlist heart on BestSellers** — added WishlistButton to BestSellers product cards
 - [x] **ProductCard responsive width** — `w-full max-w-[260px]` instead of fixed `w-[260px]` to eliminate gap in grid layouts
 - [x] **Sidebar Sign Out** — moved from Account Settings page to sidebar below Account Settings
@@ -41,36 +71,6 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [x] **BestSellers tabs** — toggle between Best Sellers / Coming Soon with original gold badge design; "We are planning to bring something new!" when empty
 - [x] **Our Origins icons** — emojis replaced with lucide SVG icons (Leaf, Globe, Mountain) + glass effect
 - [x] **No-action-without-permission rule** — added to AGENTS.md
-
-### Repositories
-- **Main website** → `https://github.com/root-Akira/Nutyum` (this repo)
-- **Admin panel** → `https://github.com/root-Akira/Nutyum-admin` (separate repo, linked below)
-
-## Session: 2026-07-02 (cont'd)
-
-### Completed
-- [x] **Navbar height reduced to 70px** — changed from animated 86/97px to fixed 70px; updated hero offset
-- [x] **Hero carousel smooth slide animation** — `mode="sync"` with opacity fade, ease-in-out, `willChange: transform`, preloaded images
-- [x] **Navbar glass effect** — `bg-[#FFFEFB]/70 backdrop-blur-xl`
-- [x] **Admin panel scaffolded** — `/home/akira/Downloads/nutyum-admin/` — Vite + React 19 + TypeScript 6 + Tailwind v4
-- [x] **Admin panel: Foundation** — routing, auth, layout (sidebar/navbar), UI components (toast/skeleton/modal/button/input/table/badge)
-- [x] **Admin panel: Dashboard** — stats cards, recent orders, top-selling products (TanStack Query with 30s refetch)
-- [x] **Admin panel: Products** — list (search, status badges, delete), form (images, tags, SEO, nutrition, coming-soon toggle)
-- [x] **Admin panel: Orders** — list (filter by status, search), detail (items, address, status update, tracking, notes, status history)
-- [x] **Admin panel: Customers** — list (search), detail (profile, order history, addresses, stats)
-- [x] **Admin panel: Reviews** — pending/approved tabs, approve/reject/delete, admin reply modal
-- [x] **Admin panel: Coupons** — list (search), form (type, value, dates, usage limits)
-- [x] **Admin panel: CMS** — banners (add/delete), CMS pages (list/edit HTML content)
-- [x] **Admin panel: Settings** — shipping zones (add/delete), payments (transaction log), site settings (store info, COD, maintenance mode, social links)
-
-## Session: 2026-07-07
-
-### Completed
-- [x] **Variant selector on product page** — active variants from admin panel show as selectable pills; price/weight updates on selection; composite key in cart for same-product-different-variant support (`app/api/products/[slug]/variants`, updated cart store, API, CartItem, CartDrawer)
-- [x] **Admin: Bulk actions** — checkbox selection, bulk action bar, update price (set/add/%), update stock, batch delete on product list
-- [x] **Coupons on main site** — `POST /api/coupons/validate` (validates active/expiry/dates/limits/min-order), `POST /api/coupons/apply` (increments usage), coupon input in CartDrawer with error/success states, discount line in cart summary, cart store coupon state, localStorage persistence
-
-### Still Pending (21 items)
 
 #### Main Website
 - [x] **Set `is_best_seller=true` on DB products** — 3 products already flagged ✅
