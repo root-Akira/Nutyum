@@ -7,7 +7,7 @@ class BlockedError extends CredentialsSignin {
   code = "blocked";
 }
 
-const hasSupabase = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+const hasSupabase = !!((process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
