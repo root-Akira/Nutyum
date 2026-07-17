@@ -38,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             password: credentials.password as string,
           });
           if (error || !data?.user) {
-            // Also check if sign-in failed because user is banned
+            console.error("Supabase signInWithPassword error:", error?.message || error?.name || JSON.stringify(error));
             const { data: bannedCheck } = await getSupabaseAdmin()
               .from("users")
               .select("is_blocked")
@@ -55,6 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Fallback: demo store
+        if (!hasSupabase) console.warn("Supabase env vars missing, using demo store fallback");
         const { findUser } = await import("@/lib/demo-user-store");
         const user = findUser(credentials.email as string);
         if (!user || user.password !== credentials.password) return null;
