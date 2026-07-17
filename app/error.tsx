@@ -5,10 +5,10 @@ import Link from "next/link";
 
 export default function Error({
   error,
-  unstable_retry,
+  reset,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  reset: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -27,7 +27,7 @@ export default function Error({
       </p>
       <div className="flex gap-4">
         <button
-          onClick={() => unstable_retry()}
+          onClick={() => reset()}
           className="px-6 py-3 bg-brand-green text-white rounded-full font-medium hover:bg-brand-green/90 transition-colors"
         >
           Try again

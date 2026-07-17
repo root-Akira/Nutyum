@@ -2,10 +2,10 @@
 
 export default function GlobalError({
   error,
-  unstable_retry,
+  reset,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  reset: () => void;
 }) {
   return (
     <html lang="en">
@@ -22,7 +22,7 @@ export default function GlobalError({
           A critical error occurred. Please refresh the page or try again.
         </p>
         <button
-          onClick={() => unstable_retry()}
+          onClick={() => reset()}
           className="px-6 py-3 bg-[#173D22] text-white rounded-full font-medium hover:bg-[#173D22]/90 transition-colors"
         >
           Try again
