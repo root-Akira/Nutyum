@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ export function ForgotPasswordForm() {
     setError("");
     setLoading(true);
 
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error: err } = await getSupabase().auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     });
 

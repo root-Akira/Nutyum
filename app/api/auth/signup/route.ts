@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const hasSupabase = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     if (hasSupabase) {
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      const { data, error } = await getSupabaseAdmin().auth.admin.createUser({
         email,
         password,
         email_confirm: true,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET() {
   const session = await auth();
@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error } = await supabaseAdmin.auth.admin.getUserById(session.user.id);
+  const { data, error } = await getSupabaseAdmin().auth.admin.getUserById(session.user.id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -30,7 +30,7 @@ export async function PUT(req: Request) {
 
   const { name, phone } = await req.json();
 
-  const { data, error } = await supabaseAdmin.auth.admin.updateUserById(session.user.id, {
+  const { data, error } = await getSupabaseAdmin().auth.admin.updateUserById(session.user.id, {
     user_metadata: { name, phone },
   });
 

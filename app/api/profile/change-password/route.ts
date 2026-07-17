@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   }
 
   // Verify current password by attempting sign-in
-  const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+  const { error: signInError } = await getSupabaseAdmin().auth.signInWithPassword({
     email: session.user.email!,
     password: currentPassword,
   });
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   }
 
   // Update password
-  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(session.user.id, {
+  const { error: updateError } = await getSupabaseAdmin().auth.admin.updateUserById(session.user.id, {
     password: newPassword,
   });
 

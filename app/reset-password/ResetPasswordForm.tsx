@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export function ResetPasswordForm() {
 
     setLoading(true);
 
-    const { error: err } = await supabase.auth.updateUser({ password });
+    const { error: err } = await getSupabase().auth.updateUser({ password });
 
     setLoading(false);
 
