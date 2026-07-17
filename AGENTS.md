@@ -150,6 +150,9 @@ npm run dev      # Vite dev server (default port 5173)
 npm run build    # tsc + vite build
 ```
 
+## Session: 2026-07-17
+- [x] **Production login fixed** — `NEXT_PUBLIC_SUPABASE_URL` at module scope was `undefined` in auth server chunk (webpack DefinePlugin didn't inline it for that chunk). Fixed by using `SUPABASE_URL` (non-public, runtime `process.env`) as primary fallback in `lib/supabase-admin.ts`, `lib/supabase.ts`, and `auth.ts`.
+
 ### DB Tables Needed in Supabase
 - `orders` — order data with status/payment tracking
 - `order_items` — line items per order
