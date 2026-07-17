@@ -87,9 +87,9 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [ ] **Configure SMTP** for production email sending (password reset, order confirmations) (Low)
 
 #### Admin Panel — Features Not Yet Built
-- [ ] Variants per product (pack sizes / flavors)
+- [x] Variants per product (pack sizes / flavors)
 - [x] Bulk actions (prices, stock, delete)
-- [ ] Stock history / low-stock threshold config
+- [x] Stock history / low-stock threshold config
 - [ ] Invoice generation / packing slips
 - [x] Block/unblock customers
 - [ ] Auto-discounts
