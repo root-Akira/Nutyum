@@ -102,6 +102,12 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - [ ] Email/SMS notification templates
 - [ ] Activity log / role-based access / auto-logout
 
+#### Deployment
+- [x] **Main site** live at `https://nutyum.in` ✅
+- [x] **Admin panel** live at `https://admin.nutyum.in` ✅
+- [ ] **Google OAuth** — configure `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` (needs Cloud Console setup)
+- [ ] **SMTP** — configure for production email
+
 #### Blocked (need Supabase Dashboard SQL Editor)
 - [ ] Direct Postgres unreachable (IPv6 only, no route)
 - [x] `public.users` table + auth trigger created ✅
