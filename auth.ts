@@ -9,7 +9,7 @@ class BlockedError extends CredentialsSignin {
 
 const hasSupabase = !!((process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-async function getOrCreateSupabaseUser(email: string, name?: string): Promise<string | null> {
+async function getOrCreateSupabaseUser(email: string, name?: string | null): Promise<string | null> {
   // 1. Look up existing user in public.users table
   const { data: existing } = await getSupabaseAdmin()
     .from("users")
@@ -22,7 +22,7 @@ async function getOrCreateSupabaseUser(email: string, name?: string): Promise<st
   const { data: created, error } = await getSupabaseAdmin().auth.admin.createUser({
     email,
     email_confirm: true,
-    user_metadata: { name },
+    user_metadata: { name: name ?? undefined },
   });
   if (error || !created?.user?.id) {
     console.error("Failed to create Supabase user:", error?.message || "Unknown error");
@@ -93,7 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, account }) {
       if (user) {
         if (account?.provider === "google" && hasSupabase && user.email) {
-          const supabaseId = await getOrCreateSupabaseUser(user.email, user.name);
+          const supabaseId = await getOrCreateSupabaseUser(user.email, user.name ?? undefined);
           token.id = supabaseId || user.id;
         } else {
           token.id = user.id;
