@@ -156,6 +156,7 @@ npm run build    # tsc + vite build
 - [x] **Admin panel env vars added** — `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_SERVICE_ROLE` configured on Vercel.
 - [x] **Main website** — Login, cart, wishlist, addresses, profile, products, reviews, CMS pages all verified connected to database and working.
 - [x] **Admin panel** — Login page rendering at `admin.nutyum.in`.
+- [x] **Google OAuth** — Configured `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` on Vercel. Auto-links new/existing Supabase Auth users by email. Working at `nutyum.in/signin`.
 
 ### DB Tables Needed in Supabase
 - `orders` — order data with status/payment tracking
