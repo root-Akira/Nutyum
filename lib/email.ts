@@ -251,7 +251,7 @@ function passwordChangeHtml() {
                 The password for your Nutyum account was successfully changed.
             </p>
             <p style="margin:18px 0 0;font-size:14px;line-height:24px;color:#7A7A7A;">
-                If you didn't make this change, please contact us immediately at <a href="mailto:support@nutyum.in" style="color:#173D22;font-weight:600;">support@nutyum.in</a>.
+                If you didn't make this change, please contact us immediately.
             </p>
         </td>
     </tr>`;
