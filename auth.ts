@@ -9,6 +9,28 @@ class BlockedError extends CredentialsSignin {
 
 const hasSupabase = !!((process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+async function getOrCreateSupabaseUser(email: string, name?: string): Promise<string | null> {
+  // 1. Look up existing user in public.users table
+  const { data: existing } = await getSupabaseAdmin()
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  // 2. Create user in Supabase Auth
+  const { data: created, error } = await getSupabaseAdmin().auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: { name },
+  });
+  if (error || !created?.user?.id) {
+    console.error("Failed to create Supabase user:", error?.message || "Unknown error");
+    return null;
+  }
+  return created.user.id;
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google,
@@ -68,9 +90,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
+        if (account?.provider === "google" && hasSupabase && user.email) {
+          const supabaseId = await getOrCreateSupabaseUser(user.email, user.name);
+          token.id = supabaseId || user.id;
+        } else {
+          token.id = user.id;
+        }
         return token;
       }
       if (!token.id || !hasSupabase) return token;

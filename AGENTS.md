@@ -151,7 +151,11 @@ npm run build    # tsc + vite build
 ```
 
 ## Session: 2026-07-17
-- [x] **Production login fixed** — `NEXT_PUBLIC_SUPABASE_URL` at module scope was `undefined` in auth server chunk (webpack DefinePlugin didn't inline it for that chunk). Fixed by using `SUPABASE_URL` (non-public, runtime `process.env`) as primary fallback in `lib/supabase-admin.ts`, `lib/supabase.ts`, and `auth.ts`.
+- [x] **Production login fixed** — `NEXT_PUBLIC_SUPABASE_URL` at module scope was `undefined` in auth server chunk (webpack DefinePlugin didn't inline it). Fixed by using `SUPABASE_URL` (non-public, runtime `process.env`) as primary fallback across all server files.
+- [x] **All DB operations fixed** — Same `NEXT_PUBLIC_` replacement issue affected `supabase-fetch.ts`, `cms.ts`, `products.ts`, and all API routes. Fixed all 7+ files.
+- [x] **Admin panel env vars added** — `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_SERVICE_ROLE` configured on Vercel.
+- [x] **Main website** — Login, cart, wishlist, addresses, profile, products, reviews, CMS pages all verified connected to database and working.
+- [x] **Admin panel** — Login page rendering at `admin.nutyum.in`.
 
 ### DB Tables Needed in Supabase
 - `orders` — order data with status/payment tracking
