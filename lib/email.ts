@@ -238,3 +238,33 @@ export function orderCancelledEmail(
     `),
   };
 }
+
+function passwordChangeHtml() {
+  return `
+    <!-- CONTENT -->
+    <tr>
+        <td style="padding:50px 48px;">
+            <p style="margin:0;font-size:18px;font-weight:600;color:#173D22;">
+                Password Changed
+            </p>
+            <p style="margin:18px 0 36px;font-size:16px;line-height:30px;color:#5C665E;">
+                The password for your Nutyum account was successfully changed.
+            </p>
+            <p style="margin:18px 0 0;font-size:14px;line-height:24px;color:#7A7A7A;">
+                If you didn't make this change, please contact us immediately at <a href="mailto:support@nutyum.in" style="color:#173D22;font-weight:600;">support@nutyum.in</a>.
+            </p>
+        </td>
+    </tr>`;
+}
+
+export async function sendPasswordChangeEmail(email: string) {
+  await sendEmail(
+    email,
+    "Password Changed — Nutyum",
+    baseHtml(`
+      ${heroHtml("Password Changed", "Your account security is important to us.")}
+      ${passwordChangeHtml()}
+      ${footerHtml()}
+    `),
+  );
+}

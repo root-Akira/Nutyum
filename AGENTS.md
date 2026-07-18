@@ -157,6 +157,9 @@ npm run build    # tsc + vite build
 - [x] **Main website** — Login, cart, wishlist, addresses, profile, products, reviews, CMS pages all verified connected to database and working.
 - [x] **Admin panel** — Login page rendering at `admin.nutyum.in`.
 - [x] **Google OAuth** — Configured `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` on Vercel. Auto-links new/existing Supabase Auth users by email. Working at `nutyum.in/signin`.
+- [x] **SMTP/Emails** — Resend configured via Supabase SMTP. Custom HTML templates for Confirm Signup + Reset Password. Transactional email helper (`lib/email.ts`) built with order confirmation/shipping/cancellation templates.
+- [x] **Client-side Supabase fix** — Moved forgot password to server-side API route to avoid `NEXT_PUBLIC_` replacement issue. Reset password form uses hardcoded Supabase URL fallback.
+- [x] **Pending:** Razorpay payments + Checkout page (needed for order emails to work).
 
 ### DB Tables Needed in Supabase
 - `orders` — order data with status/payment tracking

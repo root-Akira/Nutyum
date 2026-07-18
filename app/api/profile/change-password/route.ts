@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { sendPasswordChangeEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -35,6 +36,11 @@ export async function POST(req: Request) {
 
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  // Send password change notification email
+  if (session.user.email) {
+    await sendPasswordChangeEmail(session.user.email);
   }
 
   return NextResponse.json({ ok: true });
