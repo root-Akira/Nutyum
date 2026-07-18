@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getSupabase } from "@/lib/supabase";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -15,18 +14,23 @@ export function ForgotPasswordForm() {
     setError("");
     setLoading(true);
 
-    const { error: err } = await getSupabase().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
-    });
-
-    setLoading(false);
-
-    if (err) {
-      setError(err.message);
-      return;
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        setLoading(false);
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError("Network error. Please try again.");
     }
-
-    setSent(true);
+    setLoading(false);
   }
 
   if (sent) {
