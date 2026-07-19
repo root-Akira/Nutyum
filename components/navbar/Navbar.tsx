@@ -472,7 +472,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             />
           </Link>
 
-          <div className="ml-auto flex items-center">
+          <div className="flex items-center lg:ml-auto">
             <div className="hidden items-center gap-6 lg:flex" aria-label="Secondary navigation">
               <Link
                 href="/"
