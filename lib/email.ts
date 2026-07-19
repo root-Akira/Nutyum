@@ -268,3 +268,31 @@ export async function sendPasswordChangeEmail(email: string) {
     `),
   );
 }
+
+function welcomeHtml(name?: string) {
+  return `
+    <!-- CONTENT -->
+    <tr>
+        <td style="padding:50px 48px;">
+            <p style="margin:0;font-size:18px;font-weight:600;color:#173D22;">
+                Welcome${name ? `, ${name}` : ""}!
+            </p>
+            <p style="margin:18px 0 36px;font-size:16px;line-height:30px;color:#5C665E;">
+                Thank you for joining Nutyum! You're now part of a community that loves premium, healthy makhana snacks. Start exploring our delicious collection.
+            </p>
+            ${btnHtml("https://nutyum.in/shop", "Start Shopping")}
+        </td>
+    </tr>`;
+}
+
+export async function sendWelcomeEmail(email: string, name?: string) {
+  await sendEmail(
+    email,
+    "Welcome to Nutyum!",
+    baseHtml(`
+      ${heroHtml("Welcome to Nutyum", "Premium roasted makhana crafted for healthier snacking.")}
+      ${welcomeHtml(name)}
+      ${footerHtml()}
+    `),
+  );
+}

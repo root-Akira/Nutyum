@@ -2,6 +2,7 @@ import NextAuth, { CredentialsSignin } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { sendWelcomeEmail } from "@/lib/email";
 
 class BlockedError extends CredentialsSignin {
   code = "blocked";
@@ -28,6 +29,12 @@ async function getOrCreateSupabaseUser(email: string, name?: string | null): Pro
     console.error("Failed to create Supabase user:", error?.message || "Unknown error");
     return null;
   }
+
+  // Send welcome email to new Google sign-up users
+  sendWelcomeEmail(email, created.user.user_metadata?.name as string | undefined).catch(
+    (e) => console.error("Failed to send welcome email:", e),
+  );
+
   return created.user.id;
 }
 
