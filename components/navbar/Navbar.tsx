@@ -428,7 +428,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
           animate={{ height: 70 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             <button
               ref={hamburgerRef}
               type="button"
@@ -472,7 +472,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             />
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="ml-auto flex items-center">
             <div className="hidden items-center gap-6 lg:flex" aria-label="Secondary navigation">
               <Link
                 href="/"
