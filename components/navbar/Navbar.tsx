@@ -424,20 +424,32 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
         onMouseLeave={scheduleClose}
       >
         <motion.div
-          className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8"
+          className="mx-auto flex items-center justify-between px-4 lg:grid lg:max-w-[1400px] lg:grid-cols-[1fr_auto_1fr] lg:px-8"
           animate={{ height: 70 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
-          <nav className="hidden items-center gap-9 lg:flex" aria-label="Primary navigation">
-            {LEFT_NAV.map((item) => (
-              <LeftNavItem
-                key={item.href}
-                item={item}
-                isOpen={openMenu === item.label}
-                onEnter={() => handleNavEnter(item.label, item.kind !== "plain")}
-              />
-            ))}
-          </nav>
+          <div className="flex items-center gap-3">
+            <button
+              ref={hamburgerRef}
+              type="button"
+              aria-label="Open navigation menu"
+              aria-expanded={mobileOpen}
+              onClick={openMobile}
+              className="text-[#173D22] lg:hidden"
+            >
+              <Menu size={22} strokeWidth={1.7} aria-hidden="true" />
+            </button>
+            <nav className="hidden items-center gap-9 lg:flex" aria-label="Primary navigation">
+              {LEFT_NAV.map((item) => (
+                <LeftNavItem
+                  key={item.href}
+                  item={item}
+                  isOpen={openMenu === item.label}
+                  onEnter={() => handleNavEnter(item.label, item.kind !== "plain")}
+                />
+              ))}
+            </nav>
+          </div>
 
           <Link
             href="/"
@@ -460,61 +472,11 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             />
           </Link>
 
-          <div className="ml-auto hidden items-center gap-6 lg:flex" aria-label="Secondary navigation">
-            <Link
-              href="/"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="text-[#173D22] transition-opacity hover:opacity-50"
-              style={{
-                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
-                fontSize: "19px",
-                fontWeight: 500,
-                lineHeight: 1,
-              }}
-            >
-              Home
-            </Link>
-            <Link
-              href="/wholesale"
-              className="text-[#173D22] transition-opacity hover:opacity-50"
-              style={{
-                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
-                fontSize: "19px",
-                fontWeight: 500,
-                lineHeight: 1,
-              }}
-            >
-              Bulk Order
-            </Link>
-            <Link
-              href="/journal"
-              className="text-[#173D22] transition-opacity hover:opacity-50"
-              style={{
-                fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
-                fontSize: "19px",
-                fontWeight: 500,
-                lineHeight: 1,
-              }}
-            >
-              Journal
-            </Link>
-            {session?.user ? (
+          <div className="flex items-center gap-3">
+            <div className="hidden items-center gap-6 lg:flex" aria-label="Secondary navigation">
               <Link
-                href="/account"
-                className="flex items-center gap-1.5 text-[#173D22] transition-opacity hover:opacity-50"
-                style={{
-                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
-                  fontSize: "19px",
-                  fontWeight: 500,
-                  lineHeight: 1,
-                }}
-              >
-                <User size={14} strokeWidth={1.8} aria-hidden="true" />
-                {session.user.name?.split(" ")[0] || "Account"}
-              </Link>
-            ) : (
-              <Link
-                href="/signin"
+                href="/"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="text-[#173D22] transition-opacity hover:opacity-50"
                 style={{
                   fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
@@ -523,33 +485,83 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
                   lineHeight: 1,
                 }}
               >
-                Sign In
+                Home
               </Link>
-            )}
-
-            <span className="h-4 w-px bg-[rgba(23,61,34,0.2)]" aria-hidden="true" />
-
-            <button
-              type="button"
-              onClick={() => useUIStore.getState().openCart()}
-              aria-label={cartItemCount > 0 ? `Cart, ${cartItemCount} items` : "Cart"}
-              className="relative text-[#173D22] transition-opacity hover:opacity-50"
-            >
-              <ShoppingBag size={17} strokeWidth={1.8} aria-hidden="true" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#E0961A] text-[9px] font-bold text-white">
-                  {cartItemCount > 9 ? "9+" : cartItemCount}
-                </span>
+              <Link
+                href="/wholesale"
+                className="text-[#173D22] transition-opacity hover:opacity-50"
+                style={{
+                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                  fontSize: "19px",
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
+              >
+                Bulk Order
+              </Link>
+              <Link
+                href="/journal"
+                className="text-[#173D22] transition-opacity hover:opacity-50"
+                style={{
+                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                  fontSize: "19px",
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
+              >
+                Journal
+              </Link>
+              {session?.user ? (
+                <Link
+                  href="/account"
+                  className="flex items-center gap-1.5 text-[#173D22] transition-opacity hover:opacity-50"
+                  style={{
+                    fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                    fontSize: "19px",
+                    fontWeight: 500,
+                    lineHeight: 1,
+                  }}
+                >
+                  <User size={14} strokeWidth={1.8} aria-hidden="true" />
+                  {session.user.name?.split(" ")[0] || "Account"}
+                </Link>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="text-[#173D22] transition-opacity hover:opacity-50"
+                  style={{
+                    fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
+                    fontSize: "19px",
+                    fontWeight: 500,
+                    lineHeight: 1,
+                  }}
+                >
+                  Sign In
+                </Link>
               )}
-            </button>
-          </div>
 
-          <div className="ml-auto flex items-center gap-3 lg:hidden">
+              <span className="h-4 w-px bg-[rgba(23,61,34,0.2)]" aria-hidden="true" />
+
+              <button
+                type="button"
+                onClick={() => useUIStore.getState().openCart()}
+                aria-label={cartItemCount > 0 ? `Cart, ${cartItemCount} items` : "Cart"}
+                className="relative text-[#173D22] transition-opacity hover:opacity-50"
+              >
+                <ShoppingBag size={17} strokeWidth={1.8} aria-hidden="true" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#E0961A] text-[9px] font-bold text-white">
+                    {cartItemCount > 9 ? "9+" : cartItemCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => useUIStore.getState().openCart()}
               aria-label="Cart"
-              className="relative text-[#173D22]"
+              className="relative text-[#173D22] lg:hidden"
             >
               <ShoppingBag size={20} strokeWidth={1.7} aria-hidden="true" />
               {cartItemCount > 0 && (
@@ -557,16 +569,6 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
                   {cartItemCount > 9 ? "9+" : cartItemCount}
                 </span>
               )}
-            </button>
-            <button
-              ref={hamburgerRef}
-              type="button"
-              aria-label="Open navigation menu"
-              aria-expanded={mobileOpen}
-              onClick={openMobile}
-              className="text-[#173D22]"
-            >
-              <Menu size={22} strokeWidth={1.7} aria-hidden="true" />
             </button>
           </div>
         </motion.div>
