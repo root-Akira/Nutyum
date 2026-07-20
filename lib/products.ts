@@ -50,13 +50,32 @@ async function fetchFromDb(path: string) {
   return res.json();
 }
 
+async function enrichPrices(products: Product[]): Promise<Product[]> {
+  const ids = products.filter(p => !p.price).map(p => p.id)
+  if (ids.length === 0) return products
+  const data = await fetchFromDb(
+    `product_variants?product_id=in.(${ids.map(id => `"${id}"`).join(',')})&select=product_id,price`
+  )
+  if (!Array.isArray(data)) return products
+  const minPrices: Record<string, number> = {}
+  for (const row of data) {
+    const pid = row.product_id as string
+    const price = Number(row.price) || 0
+    if (!minPrices[pid] || price < minPrices[pid]) minPrices[pid] = price
+  }
+  return products.map(p => ({
+    ...p,
+    price: p.price || minPrices[p.id] || 0,
+  }))
+}
+
 export async function getProducts(): Promise<Product[]> {
   try {
     const data: DbProduct[] | null = await fetchFromDb(
       "products?order=price.asc"
     );
     if (data && data.length > 0) {
-      return data.map(mapDbToProduct);
+      return enrichPrices(data.map(mapDbToProduct));
     }
   } catch {
     // fall through to static data
@@ -70,7 +89,8 @@ export async function getProduct(slug: string): Promise<Product | null> {
       `products?slug=eq.${slug}&limit=1`
     );
     if (data && data.length > 0) {
-      return mapDbToProduct(data[0]);
+      const products = await enrichPrices([mapDbToProduct(data[0])])
+      return products[0] ?? null
     }
   } catch {
     // fall through to static data
