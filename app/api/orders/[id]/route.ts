@@ -26,15 +26,23 @@ export async function GET(
   }
 
   const o = orders[0] as Record<string, unknown>;
+  const shippingAddr = o.shipping_address;
   const order = {
     id: o.id,
     status: o.status,
     subtotal: o.subtotal,
     shipping: o.shipping,
+    discountAmount: o.discount_amount || 0,
     total: o.total,
+    email: o.email,
+    phone: o.phone,
+    shippingAddress: typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || null,
     items: ((o.order_items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({
       id: i.id,
       productId: i.product_id,
+      productName: i.product_name,
+      variantName: i.variant_name,
+      productImage: i.product_image,
       quantity: i.quantity,
       price: i.price,
     })),

@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Package, MapPin } from "lucide-react";
+import { formatPrice } from "@/lib/formatters";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -22,14 +23,14 @@ type OrderDetail = {
   status: string;
   subtotal: number;
   shipping: number;
+  discountAmount: number;
   total: number;
-  items: { id: string; productId: string; quantity: number; price: number }[];
+  items: { id: string; productId: string; productName?: string; variantName?: string; productImage?: string; quantity: number; price: number }[];
   createdAt: string;
+  email?: string;
+  phone?: string;
+  shippingAddress?: { line1: string; line2?: string; city: string; state: string; pincode: string; phone: string };
 };
-
-function formatPrice(paise: number) {
-  return `₹${(paise / 100).toLocaleString("en-IN")}`;
-}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-IN", {
@@ -166,13 +167,20 @@ export default function OrderDetailPage() {
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FAF7EE]">
-                  <Package className="h-5 w-5 text-[#4C5A48]" />
+                <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-[#FAF7EE]">
+                  {item.productImage ? (
+                    <img src={item.productImage} alt={item.productName || ""} className="h-full w-full object-contain" />
+                  ) : (
+                    <Package className="h-5 w-5 text-[#4C5A48]" />
+                  )}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-                    {item.productId}
+                    {item.productName || item.productId}
                   </p>
+                  {item.variantName && (
+                    <p className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>{item.variantName}</p>
+                  )}
                   <p className="text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
                     Qty: {item.quantity}
                   </p>
@@ -194,6 +202,12 @@ export default function OrderDetailPage() {
             <span>Subtotal</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
+          {order.discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Discount</span>
+              <span>-{formatPrice(order.discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-[#4C5A48]">
             <span>Shipping</span>
             <span>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</span>
@@ -204,6 +218,23 @@ export default function OrderDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Shipping Address */}
+      {order.shippingAddress && (
+        <div className="mt-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
+          <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+            Shipping Address
+          </h3>
+          <div className="flex items-start gap-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#173D22]" />
+            <div>
+              <p>{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}</p>
+              <p>{order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}</p>
+              <p>Phone: {order.shippingAddress.phone}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

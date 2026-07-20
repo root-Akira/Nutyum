@@ -27,10 +27,18 @@ export const products = pgTable("products", {
 export const orders = pgTable("orders", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id"),
+  email: text("email"),
+  phone: text("phone"),
   status: text("status").default("pending"),
   subtotal: integer("subtotal"),
   shipping: integer("shipping").default(0),
   total: integer("total"),
+  discountAmount: integer("discount_amount").default(0),
+  couponCode: text("coupon_code"),
+  shippingAddress: jsonb("shipping_address"),
+  razorpayOrderId: text("razorpay_order_id"),
+  razorpayPaymentId: text("razorpay_payment_id"),
+  razorpaySignature: text("razorpay_signature"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -38,8 +46,20 @@ export const orderItems = pgTable("order_items", {
   id: uuid("id").defaultRandom().primaryKey(),
   orderId: uuid("order_id").references(() => orders.id),
   productId: uuid("product_id").references(() => products.id),
+  variantId: text("variant_id"),
+  variantName: text("variant_name"),
+  productName: text("product_name"),
+  productImage: text("product_image"),
   quantity: integer("quantity").notNull(),
   price: integer("price").notNull(),
+});
+
+export const orderStatusLogs = pgTable("order_status_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id").references(() => orders.id),
+  status: text("status").notNull(),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const cartItems = pgTable("cart_items", {

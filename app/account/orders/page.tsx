@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Package, ChevronRight } from "lucide-react";
+import { formatPrice } from "@/lib/formatters";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -28,14 +29,11 @@ type Order = {
   status: string;
   subtotal: number;
   shipping: number;
+  discountAmount: number;
   total: number;
-  items: { id: string; productId: string; quantity: number; price: number }[];
+  items: { id: string; productId: string; productName?: string; quantity: number; price: number }[];
   createdAt: string;
 };
-
-function formatPrice(paise: number) {
-  return `₹${(paise / 100).toLocaleString("en-IN")}`;
-}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-IN", {
