@@ -8,7 +8,7 @@ type DbProduct = Record<string, unknown>;
 
 function mapDbToProduct(row: DbProduct): Product {
   const badge = row.badge_label as string | undefined
-  const isBehavioral = !!(badge && ["NEW", "BESTSELLER", "COMING SOON"].includes(badge))
+  const hasBadge = !!badge
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -23,9 +23,9 @@ function mapDbToProduct(row: DbProduct): Product {
     category: row.category as ProductCategory,
     vibes: row.vibes as VibeTag[],
     badgeLabel: badge ?? undefined,
-    isNew: isBehavioral ? badge === "NEW" : (row.is_new as boolean) || false,
-    isBestSeller: isBehavioral ? badge === "BESTSELLER" : (row.is_best_seller as boolean) || false,
-    isComingSoon: isBehavioral ? badge === "COMING SOON" : (row.is_coming_soon as boolean) || false,
+    isNew: hasBadge ? badge === "NEW" || badge === "NEW ARRIVAL" : (row.is_new as boolean) || false,
+    isBestSeller: hasBadge ? badge === "BESTSELLER" : (row.is_best_seller as boolean) || false,
+    isComingSoon: hasBadge ? badge === "COMING SOON" : (row.is_coming_soon as boolean) || false,
     launchDate: (row.launch_date as string | null) ?? undefined,
     rating: row.rating as number,
     reviewCount: row.review_count as number,
