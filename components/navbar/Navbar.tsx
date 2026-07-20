@@ -302,17 +302,6 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
               </button>
             </div>
             <nav className="px-6 py-4" aria-label="Mobile navigation links">
-              {LEFT_NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onClose}
-                  className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {item.label}
-                </Link>
-              ))}
               <Link
                 href="/"
                 onClick={onClose}
@@ -322,12 +311,36 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
                 Home
               </Link>
               <Link
+                href="/shop"
+                onClick={onClose}
+                className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Shop
+              </Link>
+              <Link
                 href="/wholesale"
                 onClick={onClose}
                 className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
                 style={{ fontFamily: "var(--font-body)" }}
               >
                 Bulk Order
+              </Link>
+              <Link
+                href="/reviews"
+                onClick={onClose}
+                className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Reviews
+              </Link>
+              <Link
+                href="/learn"
+                onClick={onClose}
+                className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Learn
               </Link>
               <Link
                 href="/journal"
