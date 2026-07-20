@@ -5,7 +5,7 @@ import { OurOrigins } from "@/components/story/OurOrigins";
 import { BrandPanel } from "@/components/story/BrandPanel";
 import { WhyNutyum } from "@/components/why-nutyum/WhyNutyum";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
-import { Newsletter } from "@/components/newsletter/Newsletter";
+import { FAQ } from "@/components/faq/FAQ";
 
 export default function Home() {
   return (
@@ -17,7 +17,7 @@ export default function Home() {
       <BrandPanel />
       <WhyNutyum />
       <ReviewsSection />
-      <Newsletter />
+      <FAQ />
     </main>
   );
 }
