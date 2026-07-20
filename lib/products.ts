@@ -7,6 +7,8 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 type DbProduct = Record<string, unknown>;
 
 function mapDbToProduct(row: DbProduct): Product {
+  const badge = row.badge_label as string | undefined
+  const isBehavioral = !!(badge && ["NEW", "BESTSELLER", "COMING SOON"].includes(badge))
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -20,14 +22,14 @@ function mapDbToProduct(row: DbProduct): Product {
     bgColor: row.bg_color as string,
     category: row.category as ProductCategory,
     vibes: row.vibes as VibeTag[],
-    isNew: row.badge_label ? row.badge_label === "NEW" : (row.is_new as boolean) || false,
-    isBestSeller: row.badge_label ? row.badge_label === "BESTSELLER" : (row.is_best_seller as boolean) || false,
-    isComingSoon: row.badge_label ? row.badge_label === "COMING SOON" : (row.is_coming_soon as boolean) || false,
+    badgeLabel: badge ?? undefined,
+    isNew: isBehavioral ? badge === "NEW" : (row.is_new as boolean) || false,
+    isBestSeller: isBehavioral ? badge === "BESTSELLER" : (row.is_best_seller as boolean) || false,
+    isComingSoon: isBehavioral ? badge === "COMING SOON" : (row.is_coming_soon as boolean) || false,
     launchDate: (row.launch_date as string | null) ?? undefined,
     rating: row.rating as number,
     reviewCount: row.review_count as number,
     weight: row.weight as string,
-    badgeLabel: (row.badge_label as string | null) ?? undefined,
     isOutOfStock: (row.is_out_of_stock as boolean) ?? undefined,
     imageAlts: (row.image_alts as string[]) ?? undefined,
     comparePrice: (row.compare_price as number | null) ?? undefined,
