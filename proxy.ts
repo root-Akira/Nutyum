@@ -13,12 +13,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const hasKeys = !!supabaseUrl && !!serviceRoleKey
+
+  if (!hasKeys) {
+    const resp = NextResponse.next()
+    resp.headers.set('x-proxy-debug', 'no-keys')
+    return resp
+  }
+
   try {
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !serviceRoleKey) return NextResponse.next()
-
     const res = await fetch(
       `${supabaseUrl}/rest/v1/site_settings?select=maintenance_mode&limit=1`,
       {
@@ -31,13 +36,18 @@ export async function proxy(request: NextRequest) {
 
     if (res.ok) {
       const data: Array<{ maintenance_mode: boolean }> = await res.json()
-      if (data?.[0]?.maintenance_mode) {
+      const isOn = data?.[0]?.maintenance_mode === true
+      if (isOn) {
         return NextResponse.redirect(new URL('/maintenance', request.url))
       }
     }
-  } catch {
-    // Fail open — site works if check fails
-  }
 
-  return NextResponse.next()
+    const resp = NextResponse.next()
+    resp.headers.set('x-proxy-debug', `status-${res.status}`)
+    return resp
+  } catch (err) {
+    const resp = NextResponse.next()
+    resp.headers.set('x-proxy-debug', `error-${String(err).slice(0, 60)}`)
+    return resp
+  }
 }
