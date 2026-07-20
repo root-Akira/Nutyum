@@ -45,6 +45,7 @@ export default function ProductDetailPage({
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const variantAutoSelected = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -99,6 +100,15 @@ export default function ProductDetailPage({
       .finally(() => setVariantsLoading(false));
   }, [slug]);
 
+  // Auto-select first variant once so price shows correctly
+  useEffect(() => {
+    if (variants.length > 0 && !variantAutoSelected.current) {
+      variantAutoSelected.current = true;
+      const first = variants.find(v => v.stock > 0) || variants[0];
+      setSelectedVariant(first);
+    }
+  }, [variants]);
+
   // Reset quantity when variant changes
   useEffect(() => {
     setQuantity(1);
@@ -135,7 +145,9 @@ export default function ProductDetailPage({
     );
   }
 
-  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const displayPrice = selectedVariant
+    ? selectedVariant.price
+    : (product.price > 0 ? product.price : variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price);
   const displayComparePrice = selectedVariant
     ? (selectedVariant.compare_price > 0 ? selectedVariant.compare_price : 0)
     : (product.comparePrice && product.comparePrice > 0 ? product.comparePrice : product.originalPrice && product.originalPrice > 0 ? product.originalPrice : 0);
