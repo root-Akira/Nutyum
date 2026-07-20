@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ShoppingBag, Percent, X, Check, Loader2, Tag } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Sheet,
-  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -150,37 +148,8 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const discount = useCartStore(selectDiscount);
   const total = useCartStore(selectTotal);
 
-  const isControlled = open !== undefined && onOpenChange !== undefined;
-
   return (
-    <Sheet open={isControlled ? open : undefined} onOpenChange={isControlled ? onOpenChange : undefined}>
-      {!isControlled && (
-        <SheetTrigger asChild>
-          <button
-            type="button"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-primary transition-colors"
-            aria-label={`Open cart, ${totalItems} item${totalItems !== 1 ? "s" : ""}`}
-          >
-            <ShoppingBag size={18} strokeWidth={1.6} aria-hidden="true" />
-            <AnimatePresence>
-              {totalItems > 0 && (
-                <motion.span
-                  key="cart-count"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#E0961A] text-[10px] font-semibold leading-none text-white"
-                  aria-hidden="true"
-                  style={{ fontFamily: "var(--font-body, Manrope, sans-serif)" }}
-                >
-                  {totalItems > 9 ? "9+" : totalItems}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        </SheetTrigger>
-      )}
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex flex-col p-0 w-full sm:max-w-md">
         <SheetHeader className="px-5 pt-5 pb-3 border-b border-border">
           <SheetTitle className="text-left text-lg font-semibold text-primary">

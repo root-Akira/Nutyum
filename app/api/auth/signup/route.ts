@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     const { createUser } = await import("@/lib/demo-user-store");
     const user = createUser(name, email, password);
     return NextResponse.json({ id: user.id, name: user.name, email: user.email });
-  } catch (e: any) {
-    if (e.message === "User already exists") {
+  } catch (e: unknown) {
+    if ((e as Error)?.message === "User already exists") {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

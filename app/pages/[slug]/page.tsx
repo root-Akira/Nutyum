@@ -3,6 +3,14 @@ import Link from "next/link";
 import { getCmsContent } from "@/lib/cms";
 import { notFound } from "next/navigation";
 
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/on\w+="[^"]*"/gi, "")
+    .replace(/on\w+='[^']*'/gi, "")
+    .replace(/on\w+=\S+/gi, "");
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const page = await getCmsContent(slug);
@@ -26,7 +34,7 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
         </h1>
         <div
           className="prose prose-sm max-w-none text-[#4C5A48] [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-[#173D22] [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_a]:text-[#173D22] [&_a]:underline"
-          dangerouslySetInnerHTML={{ __html: page.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
         />
       </div>
     </main>

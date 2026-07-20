@@ -1,5 +1,9 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = "Nutyum <noreply@mail.nutyum.in>";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://nutyum.in";
+const LOGO_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/logo.png`
+  : "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png";
 
 function heroHtml(title: string, subtitle: string) {
   return `
@@ -11,7 +15,7 @@ function heroHtml(title: string, subtitle: string) {
                     <td align="center"
                         style="background:#ffffff;border-radius:50%;padding:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);">
                         <img
-                            src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png"
+                            src="${LOGO_URL}"
                             width="72"
                             alt="Nutyum"
                             style="display:block;border:0;">
@@ -40,7 +44,7 @@ function footerHtml() {
     <tr>
         <td style="padding:28px 40px;background:#FAFAF8;text-align:center;">
             <img
-                src="https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png"
+                src="${LOGO_URL}"
                 width="36"
                 alt="Nutyum"
                 style="display:block;margin:0 auto 14px;">
@@ -184,7 +188,7 @@ export function orderConfirmationEmail(
       ${bodyHtml(
         "Thank you for your order!",
         `Your order <strong>#${orderNumber}</strong> has been placed successfully. We've received it and will start packing soon.`,
-        btnHtml(`https://nutyum.in/account/orders/${orderNumber}`, "View Order"),
+        btnHtml(`${BASE_URL}/account/orders/${orderNumber}`, "View Order"),
       )}
       ${orderItemsHtml(items, total, deliveryDate)}
       ${footerHtml()}
@@ -209,7 +213,7 @@ export function orderShippedEmail(
         "Great news!",
         `Your order <strong>#${orderNumber}</strong> has been shipped via <strong>${courier}</strong>.<br/><br/>
          Tracking ID: <strong>${trackingId}</strong>`,
-        btnHtml(`https://nutyum.in/account/orders/${orderNumber}`, "Track Order"),
+        btnHtml(`${BASE_URL}/account/orders/${orderNumber}`, "Track Order"),
       )}
       ${orderItemsHtml(items, total)}
       ${footerHtml()}
@@ -231,7 +235,7 @@ export function orderCancelledEmail(
       ${bodyHtml(
         "Your order has been cancelled.",
         `Your order <strong>#${orderNumber}</strong> has been cancelled as requested. If a payment was made, the refund will be processed within 5-7 business days.`,
-        btnHtml(`https://nutyum.in/account/orders/${orderNumber}`, "View Details"),
+        btnHtml(`${BASE_URL}/account/orders/${orderNumber}`, "View Details"),
       )}
       ${orderItemsHtml(items, total)}
       ${footerHtml()}
@@ -280,7 +284,7 @@ function welcomeHtml(name?: string) {
             <p style="margin:18px 0 36px;font-size:16px;line-height:30px;color:#5C665E;">
                 Thank you for joining Nutyum! You're now part of a community that loves premium, healthy makhana snacks. Start exploring our delicious collection.
             </p>
-            ${btnHtml("https://nutyum.in/shop", "Start Shopping")}
+            ${btnHtml(`${BASE_URL}/shop`, "Start Shopping")}
         </td>
     </tr>`;
 }

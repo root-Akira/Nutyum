@@ -47,7 +47,6 @@ export function ReviewsSection() {
   }, []);
 
   const overall = apiReviews.reduce((s, r) => s + r.rating, 0) / apiReviews.length || 0;
-  const doubled = [...apiReviews, ...apiReviews];
 
   return (
     <section className="overflow-hidden bg-[#FAF7EE] py-20 sm:py-28" aria-labelledby="reviews-title">
@@ -95,8 +94,8 @@ export function ReviewsSection() {
 
             `}</style>
             <div className="scroll-track">
-              {doubled.map((review, i) => (
-                <div key={`${review.id}-${i}`} className="w-[340px] shrink-0">
+              {[...apiReviews, ...apiReviews].map((review, i) => (
+                <div key={`${review.id}-${i >= apiReviews.length ? 'dup' : 'orig'}-${i}`} className="w-[340px] shrink-0">
                   <ReviewCard review={review} index={0} />
                 </div>
               ))}

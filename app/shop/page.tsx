@@ -51,7 +51,7 @@ function ShopContent() {
         !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.description.toLowerCase().includes(search.toLowerCase());
-      const matchesVibe = !activeVibe || p.vibes.includes(activeVibe as never);
+      const matchesVibe = !activeVibe || (p.vibes as string[]).includes(activeVibe);
       return matchesSearch && matchesVibe;
     });
   }, [search, activeVibe, products]);
