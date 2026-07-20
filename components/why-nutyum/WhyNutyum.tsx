@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Leaf, Flame, ShieldCheck, Sprout } from "lucide-react";
 
@@ -72,7 +71,7 @@ function BenefitCard({
 export function WhyNutyum() {
   return (
     <section
-      className="relative overflow-hidden bg-[#FAF7EE] py-20 sm:py-28"
+      className="relative overflow-hidden bg-[#FAF7EE] pt-20 sm:pt-28 pb-12 sm:pb-16"
       aria-labelledby="why-nutyum-title"
     >
       {/* Subtle decorative watermark */}
@@ -113,23 +112,6 @@ export function WhyNutyum() {
           ))}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
-          className="mt-14 flex justify-center"
-        >
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-[#173D22] px-8 py-3.5 text-sm font-semibold text-[#173D22] transition-all hover:bg-[#173D22] hover:text-white"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            Discover Our Collection
-            <span className="text-base leading-none" aria-hidden="true">→</span>
-          </Link>
-        </motion.div>
       </div>
     </section>
   );
