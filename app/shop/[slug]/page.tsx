@@ -312,7 +312,7 @@ export default function ProductDetailPage({
             variants={prefersReduced ? {} : itemVariants}
             className="flex flex-wrap items-center gap-4 pt-2"
           >
-            {(product.isComingSoon || product.badgeLabel === "COMING SOON") ? (
+            {product.isComingSoon ? (
               <>
                 <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-10 py-4 text-sm font-semibold text-white"
                   style={{ fontFamily: "var(--font-body)" }}>
