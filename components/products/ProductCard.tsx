@@ -36,7 +36,7 @@ export function ProductCard({
           style={{ backgroundColor: product.bgColor || "#f0ece4", aspectRatio: "3/4" }}
         >
           {badgeLabel && (
-            <div className="absolute left-3 top-1/2 z-10 -translate-y-1/2">
+            <div className="absolute left-3 top-3 z-10">
               <span
                 className="inline-block border-2 border-[#173D22] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#173D22] bg-white"
                 style={{ fontFamily: "var(--font-body)" }}
