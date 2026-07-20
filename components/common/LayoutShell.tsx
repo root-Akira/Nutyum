@@ -6,6 +6,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CartSync } from "@/components/cart/CartSync";
 import { WishlistSync } from "@/components/wishlist/WishlistSync";
 import { SearchOverlay } from "@/components/search/SearchOverlay";
+import { Toast } from "@/components/layout/Toast";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useUIStore } from "@/hooks/use-ui-store";
 
@@ -25,6 +26,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       <SearchOverlay isOpen={searchOpen} onClose={() => toggleSearch()} />
       <CartSync />
       <WishlistSync />
+      <Toast />
     </>
   );
 }

@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { VIBE_TAGS, type Product } from "@/types";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useUIStore } from "@/hooks/use-ui-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { getVibes } from "@/lib/get-vibes";
 import { cn } from "@/lib/utils";
@@ -166,7 +167,7 @@ function ShopContent() {
                 key={product.id}
                 product={product}
                 index={index}
-                onAddToCart={(p) => requireAuth(() => addItem(p))}
+                onAddToCart={(p) => requireAuth(() => { addItem(p); useUIStore.getState().showToast("Added to cart!"); })}
               />
             ))}
           </div>

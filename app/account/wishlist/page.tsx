@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useUIStore } from "@/hooks/use-ui-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import type { Product } from "@/types";
 
@@ -80,7 +81,7 @@ export default function WishlistPage() {
           <ProductCard
             product={item.product}
             index={i}
-            onAddToCart={(p) => requireAuth(() => addItem(p))}
+            onAddToCart={(p) => requireAuth(() => { addItem(p); useUIStore.getState().showToast("Added to cart!"); })}
           />
         </motion.div>
       ))}

@@ -10,6 +10,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useUIStore } from "@/hooks/use-ui-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 
@@ -359,6 +360,7 @@ export default function ProductDetailPage({
                         ? { ...product, price: selectedVariant.price }
                         : product;
                       addItem(cartProduct, quantity, selectedVariant ? { variantId: selectedVariant.id, variantName: selectedVariant.name } : undefined);
+                      useUIStore.getState().showToast("Added to cart!");
                     })
                   }}
                   className={cn(

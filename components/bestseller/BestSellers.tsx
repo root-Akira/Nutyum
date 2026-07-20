@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Star, Plus, Clock } from "lucide-react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useUIStore } from "@/hooks/use-ui-store";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import type { Product } from "@/types";
@@ -77,7 +78,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           ) : (
             <button
               type="button"
-              onClick={() => requireAuth(() => addItem(product))}
+              onClick={() => requireAuth(() => { addItem(product); useUIStore.getState().showToast("Added to cart!"); })}
               aria-label={`Add ${product.name} to cart`}
               className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
               style={{ fontFamily: "var(--font-body)" }}
