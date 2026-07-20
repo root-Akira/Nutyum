@@ -1,19 +1,43 @@
-import { auth } from "@/auth";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
-  const session = await auth();
+  const { pathname } = request.nextUrl
 
-  if (!session?.user) {
-    const url = new URL("/signin", request.url);
-    url.searchParams.set("callbackUrl", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  if (
+    pathname.startsWith('/maintenance') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next()
   }
 
-  return NextResponse.next();
-}
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-export const config = {
-  matcher: ["/account/:path*", "/checkout/:path*"],
-};
+    if (!supabaseUrl || !serviceRoleKey) return NextResponse.next()
+
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/site_settings?select=maintenance_mode&limit=1`,
+      {
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+      },
+    )
+
+    if (res.ok) {
+      const data: Array<{ maintenance_mode: boolean }> = await res.json()
+      if (data?.[0]?.maintenance_mode) {
+        return NextResponse.redirect(new URL('/maintenance', request.url))
+      }
+    }
+  } catch {
+    // Fail open — site works if check fails
+  }
+
+  return NextResponse.next()
+}
