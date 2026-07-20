@@ -97,7 +97,8 @@ export async function POST(req: Request) {
       subtotal += price * qty;
     }
 
-    const shipping = subtotal >= 500 ? 0 : 49;
+    const FREE_SHIPPING_THRESHOLD = 999
+    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
     const discount = discountAmount || 0;
     const total = Math.max(0, subtotal + shipping - discount);
 

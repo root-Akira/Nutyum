@@ -100,7 +100,8 @@ export default function CheckoutPage() {
     }
   }, [cartItems, session, router]);
 
-  const shipping = subtotal >= 500 ? 0 : 49;
+  const FREE_SHIPPING_THRESHOLD = 999
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
   const orderTotal = total + shipping;
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
 
@@ -414,9 +415,9 @@ export default function CheckoutPage() {
                   <span>Shipping</span>
                   <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
                 </div>
-                {shipping > 0 && subtotal < 500 && (
+                {shipping > 0 && subtotal < FREE_SHIPPING_THRESHOLD && (
                   <p className="text-xs text-amber-600">
-                    Add {formatPrice(500 - subtotal)} more for free shipping
+                    Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping
                   </p>
                 )}
                 <div className="flex justify-between border-t border-[rgba(23,61,34,0.1)] pt-2 text-base font-bold text-[#173D22]">
