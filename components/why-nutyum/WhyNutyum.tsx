@@ -2,37 +2,34 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Leaf, Flame, ShieldCheck, Sprout } from "lucide-react";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const BENEFITS = [
   {
-    icon: "🪷",
+    Icon: Leaf,
     title: "Ancient Superfood",
     description:
-      "Makhana has been enjoyed in India for centuries, packed with protein and antioxidants",
-    bg: "#d6e8c0",
+      "Makhana, revered for centuries — packed with protein and antioxidants in every bite.",
   },
   {
-    icon: "🔥",
+    Icon: Flame,
     title: "Roasted, Not Fried",
     description:
-      "We air-roast each seed to perfection — zero oil, zero guilt",
-    bg: "#fad9c8",
+      "Air-roasted to golden perfection. Zero oil. Zero compromise.",
   },
   {
-    icon: "🌿",
+    Icon: ShieldCheck,
     title: "Clean Ingredients",
     description:
-      "No preservatives, no artificial flavours, no compromise",
-    bg: "#c8e4f0",
+      "No preservatives, no artificial flavours. Just pure, honest food.",
   },
   {
-    icon: "🏭",
+    Icon: Sprout,
     title: "Farm to Bag",
     description:
-      "Traceable sourcing from sustainable farms in India",
-    bg: "#f5e6c8",
+      "Sustainably sourced from family farms across India, always traceable.",
   },
 ];
 
@@ -45,27 +42,24 @@ function BenefitCard({
 }) {
   return (
     <motion.div
-      initial={false}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE, delay: index * 0.1 }}
-      className="flex items-start gap-5 rounded-[var(--radius-card)] p-6 sm:p-8 will-change-transform"
-      style={{ backgroundColor: benefit.bg }}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.6, ease: EASE, delay: index * 0.12 }}
+      className="group flex items-start gap-6 rounded-2xl border border-[rgba(23,61,34,0.06)] bg-[#FFFEFB] p-7 shadow-[0_2px_16px_rgba(23,61,34,0.04)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(23,61,34,0.08)]"
     >
-      <span
-        className="mt-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/70 text-2xl shadow-sm"
-        aria-hidden="true"
-      >
-        {benefit.icon}
-      </span>
-      <div>
+      <div className="relative mt-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[rgba(224,150,26,0.3)] bg-[rgba(224,150,26,0.06)]">
+        <benefit.Icon size={22} strokeWidth={1.5} className="text-[#E0961A]" />
+      </div>
+      <div className="min-w-0">
         <h3
-          className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#173D22]"
-          style={{ fontFamily: "var(--font-body)" }}
+          className="mb-1.5 text-sm font-semibold text-[#173D22]"
+          style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
         >
           {benefit.title}
         </h3>
         <p
-          className="text-sm leading-relaxed text-[#4C5A48]"
+          className="text-sm leading-relaxed text-[#5C665E]"
           style={{ fontFamily: "var(--font-body)" }}
         >
           {benefit.description}
@@ -78,39 +72,42 @@ function BenefitCard({
 export function WhyNutyum() {
   return (
     <section
-      className="bg-[#FAF7EE] py-20 sm:py-28 pb-16 sm:pb-20"
+      className="relative overflow-hidden bg-[#FAF7EE] py-20 sm:py-28"
       aria-labelledby="why-nutyum-title"
     >
-      <div className="mx-auto max-w-(--spacing-container) px-4 sm:px-6 lg:px-8">
-        {/* Badge */}
+      {/* Subtle decorative watermark */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.015]">
+        <Leaf size={600} strokeWidth={1} className="text-[#173D22]" />
+      </div>
+
+      <div className="relative mx-auto max-w-(--spacing-container) px-4 sm:px-6 lg:px-8">
+        {/* Heading */}
         <motion.div
-          initial={false}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="mb-6 flex justify-center will-change-transform"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="mb-16 text-center"
         >
           <h2
             id="why-nutyum-title"
-            className="inline-block border-2 border-[#E0961A] bg-[#E0961A] px-6 py-2 text-lg font-bold uppercase tracking-widest text-white"
+            className="text-[clamp(2rem,5vw,3.5rem)] leading-[1.15] tracking-[-0.02em] text-[#173D22]"
+            style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
+          >
+            Crafted with Purpose
+          </h2>
+          <div className="mx-auto mt-5 h-px w-16 bg-[#E0961A]/60" />
+          <p
+            className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[#5C665E]"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            Why Nutyum
-          </h2>
+            Every handful tells a story — from sustainable farms to thoughtfully
+            crafted flavours.
+          </p>
         </motion.div>
 
-        {/* Heading */}
-        <motion.p
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
-          className="mx-auto mb-16 max-w-3xl text-center text-[clamp(1.8rem,4vw,3.2rem)] leading-[1.2] tracking-[-0.02em] text-[#173D22] will-change-transform"
-          style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
-        >
-          Better Ingredients. Better Snacking.
-        </motion.p>
-
         {/* Grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {BENEFITS.map((b, i) => (
             <BenefitCard key={b.title} benefit={b} index={i} />
           ))}
@@ -118,17 +115,19 @@ export function WhyNutyum() {
 
         {/* CTA */}
         <motion.div
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.5 }}
-          className="mt-12 flex justify-center will-change-transform"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
+          className="mt-14 flex justify-center"
         >
           <Link
             href="/shop"
-            className="inline-flex items-center rounded-full bg-[#173D22] px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-[#0e2616] hover:shadow-[0_8px_30px_rgba(23,61,34,0.25)]"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-[#173D22] px-8 py-3.5 text-sm font-semibold text-[#173D22] transition-all hover:bg-[#173D22] hover:text-white"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            Explore Our Range
+            Discover Our Collection
+            <span className="text-base leading-none" aria-hidden="true">→</span>
           </Link>
         </motion.div>
       </div>
