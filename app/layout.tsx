@@ -19,6 +19,10 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "Nutyum | Premium Makhana Snacks",
   description: "Discover Nutyum's premium makhana snacks — healthy, bold, and crafted with care.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+  },
 };
 
 export default function RootLayout({
