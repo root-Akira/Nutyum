@@ -22,90 +22,92 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
   const requireAuth = useRequireAuth();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.6, ease: EASE, delay: index * 0.12 }}
-      className="group flex-none w-[240px] sm:w-[260px] cursor-pointer will-change-transform"
-    >
-      {/* Image card */}
-      <div
-        className="relative mb-4 overflow-hidden rounded-2xl"
-        style={{ backgroundColor: product.bgColor, aspectRatio: "3/4" }}
+    <Link href={`/shop/${product.slug}`} className="block">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, ease: EASE, delay: index * 0.12 }}
+        className="group flex-none w-[240px] sm:w-[260px] will-change-transform"
       >
-        {/* Category badge */}
-        <div className="absolute left-3 top-3 z-10">
-          <span
-            className="inline-block border-2 border-[#173D22] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#173D22] bg-white"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            {product.badgeLabel || (product.isComingSoon ? "COMING SOON" : product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "")}
-          </span>
-        </div>
+        {/* Image card */}
+        <div
+          className="relative mb-4 overflow-hidden rounded-2xl"
+          style={{ backgroundColor: product.bgColor, aspectRatio: "3/4" }}
+        >
+          {/* Category badge */}
+          <div className="absolute left-3 top-3 z-10">
+            <span
+              className="inline-block border-2 border-[#173D22] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#173D22] bg-white"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              {product.badgeLabel || (product.isComingSoon ? "COMING SOON" : product.isNew ? "NEW" : product.isBestSeller ? "BESTSELLER" : "")}
+            </span>
+          </div>
 
-        {/* Rating */}
-        <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
-          <Star size={10} fill="#E0961A" stroke="none" aria-hidden="true" />
-          <span className="text-[10px] font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
-            {product.rating} ({product.reviewCount})
-          </span>
-        </div>
+          {/* Rating */}
+          <div className="absolute right-3 top-3 z-10 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5">
+            <Star size={10} fill="#E0961A" stroke="none" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+              {product.rating} ({product.reviewCount})
+            </span>
+          </div>
 
-        {/* Wishlist heart */}
-        <div className="absolute right-3 top-14 z-10 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
-            <WishlistButton product={product} size={14} />
+          {/* Wishlist heart */}
+          <div className="absolute right-3 top-14 z-10 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
+              <WishlistButton product={product} size={14} />
+            </div>
+          </div>
+
+          {/* Product image */}
+          <Image
+            src={product.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
+            alt={product.name}
+            fill
+            sizes="260px"
+            className="object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+
+          {/* Add button — appears on hover */}
+          <div className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
+            {product.isComingSoon ? (
+              <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm"
+                style={{ fontFamily: "var(--font-body)" }}>
+                Coming Soon
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); requireAuth(() => { addItem(product); useUIStore.getState().showToast("Added to cart!"); }); }}
+                aria-label={`Add ${product.name} to cart`}
+                className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
+                Add
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Product image */}
-        <Image
-          src={product.images[0] || "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/placeholder.svg"}
-          alt={product.name}
-          fill
-          sizes="260px"
-          className="object-contain transition-transform duration-500 group-hover:scale-105"
-        />
-
-        {/* Add button — appears on hover */}
-        <div className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
-          {product.isComingSoon ? (
-            <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm"
-              style={{ fontFamily: "var(--font-body)" }}>
-              Coming Soon
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => requireAuth(() => { addItem(product); useUIStore.getState().showToast("Added to cart!"); })}
-              aria-label={`Add ${product.name} to cart`}
-              className="flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#173D22] shadow-lg backdrop-blur-sm"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              <Plus size={12} strokeWidth={2.5} aria-hidden="true" />
-              Add
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Text */}
-      <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-        ₹{product.price}
-        {(product.comparePrice && product.comparePrice > 0) ? (
-          <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.comparePrice}</span>
-        ) : (product.originalPrice && product.originalPrice > 0) ? (
-          <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.originalPrice}</span>
-        ) : null}
-      </p>
-      <p className="mb-1.5 text-base font-medium leading-snug text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-        {product.name}
-      </p>
-      <p className="text-xs leading-relaxed text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-        {product.description}
-      </p>
-    </motion.div>
+        {/* Text */}
+        <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          ₹{product.price}
+          {(product.comparePrice && product.comparePrice > 0) ? (
+            <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.comparePrice}</span>
+          ) : (product.originalPrice && product.originalPrice > 0) ? (
+            <span className="ml-1.5 text-[10px] text-[#4C5A48]/50 line-through font-normal">₹{product.originalPrice}</span>
+          ) : null}
+        </p>
+        <p className="mb-1.5 text-base font-medium leading-snug text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+          {product.name}
+        </p>
+        <p className="text-xs leading-relaxed text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          {product.description}
+        </p>
+      </motion.div>
+    </Link>
   );
 }
 
