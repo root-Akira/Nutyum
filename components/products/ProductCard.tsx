@@ -74,7 +74,7 @@ export function ProductCard({
             className="absolute bottom-3 right-3 z-10 opacity-0 translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
             onClick={(e) => e.stopPropagation()}
           >
-            {product.isComingSoon ? (
+            {(product.isComingSoon || product.badgeLabel === "COMING SOON") ? (
               <span className="inline-flex rounded-full bg-[#4C5A48]/80 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm"
                 style={{ fontFamily: "var(--font-body)" }}>
                 Coming Soon
