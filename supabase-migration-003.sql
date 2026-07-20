@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS badges (
   slug text NOT NULL UNIQUE,
   color text DEFAULT '#173D22',
   is_active boolean DEFAULT true,
-  created_at timestamp DEFAULT now()
+  created_at timestamp DEFAULT now(),
+  updated_at timestamp DEFAULT now()
 );
 
 -- Seed default badges
