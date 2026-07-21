@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Package, MapPin } from "lucide-react";
+import { ArrowLeft, Package, MapPin, X } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
 
 
+const CANCELLABLE_STATUSES = ["placed", "confirmed"];
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const STATUS_STEPS = ["placed", "packed", "shipped", "delivered"];
@@ -26,9 +27,10 @@ type OrderDetail = {
   shipping: number;
   discountAmount: number;
   total: number;
-  items: { id: string; productId: string; productName?: string; variantName?: string; productImage?: string; quantity: number; price: number }[];
+  items: { id: string; productId: string; productName?: string; variantName?: string; quantity: number; price: number }[];
   createdAt: string;
   email?: string;
+  name?: string;
   phone?: string;
   shippingAddress?: { line1: string; line2?: string; city: string; state: string; pincode: string; phone: string };
 };
@@ -48,6 +50,9 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     fetch(`/api/orders/${id}`)
@@ -114,11 +119,22 @@ export default function OrderDetailPage() {
               Placed on {formatDate(order.createdAt)}
             </p>
           </div>
-          <span className={`rounded-full px-4 py-1.5 text-sm font-medium ${
-            isCancelled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          }`}>
-            {STATUS_LABELS[order.status] || order.status}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+              isCancelled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+            }`}>
+              {STATUS_LABELS[order.status] || order.status}
+            </span>
+            {CANCELLABLE_STATUSES.includes(order.status) && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="rounded-full border border-red-300 px-4 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Cancel Order
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -159,6 +175,18 @@ export default function OrderDetailPage() {
         )}
       </div>
 
+      {/* Customer Info */}
+      <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
+        <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+          Customer Details
+        </h3>
+        <div className="space-y-2 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          {order.name && <p><span className="font-medium text-[#173D22]">Name:</span> {order.name}</p>}
+          {order.email && <p><span className="font-medium text-[#173D22]">Email:</span> {order.email}</p>}
+          {order.phone && <p><span className="font-medium text-[#173D22]">Phone:</span> {order.phone}</p>}
+        </div>
+      </div>
+
       {/* Items */}
       <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
         <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
@@ -169,11 +197,7 @@ export default function OrderDetailPage() {
             <div key={item.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-[#FAF7EE]">
-                  {item.productImage ? (
-                    <img src={item.productImage} alt={item.productName || ""} className="h-full w-full object-contain" />
-                  ) : (
-                    <Package className="h-5 w-5 text-[#4C5A48]" />
-                  )}
+                  <Package className="h-5 w-5 text-[#4C5A48]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
@@ -234,6 +258,77 @@ export default function OrderDetailPage() {
               <p>Phone: {order.shippingAddress.phone}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Cancel Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                Cancel Order
+              </h3>
+              <button onClick={() => setShowCancelModal(false)} className="text-[#4C5A48] hover:text-[#173D22]">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+              Are you sure you want to cancel this order? This action cannot be undone.
+            </p>
+            <label className="mb-4 block text-sm font-medium text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
+              Reason (optional)
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows={3}
+                className="mt-1 w-full rounded-xl border border-[rgba(23,61,34,0.15)] bg-[#FAF7EE] px-3 py-2 text-sm text-[#173D22] outline-none focus:border-[#173D22]"
+                placeholder="Tell us why you're cancelling..."
+              />
+            </label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="flex-1 rounded-xl border border-[rgba(23,61,34,0.15)] py-2.5 text-sm font-medium text-[#4C5A48] transition-colors hover:bg-[#FAF7EE]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Keep Order
+              </button>
+              <button
+                onClick={async () => {
+                  setCancelling(true);
+                  try {
+                    const res = await fetch(`/api/orders/${order.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ action: "cancel", reason: cancelReason }),
+                    });
+                    const data = await res.json();
+                    if (data.error) {
+                      alert(data.error);
+                    } else {
+                      setOrder({ ...order, status: "cancelled" });
+                      setShowCancelModal(false);
+                      setCancelReason("");
+                    }
+                  } catch {
+                    alert("Failed to cancel order. Please try again.");
+                  } finally {
+                    setCancelling(false);
+                  }
+                }}
+                disabled={cancelling}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {cancelling ? "Cancelling..." : "Yes, Cancel Order"}
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>

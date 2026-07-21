@@ -27,10 +27,8 @@ export async function GET() {
     items: (o.order_items as Record<string, unknown>[])?.map((i: Record<string, unknown>) => ({
       id: i.id,
       productId: i.product_id,
-      variantId: i.variant_id,
       variantName: i.variant_name,
       productName: i.product_name,
-      productImage: i.product_image,
       quantity: i.quantity,
       price: i.price,
     })) || [],
@@ -156,10 +154,8 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           order_id: orderId,
           product_id: item.productId,
-          variant_id: item.variantId,
           variant_name: item.variantName,
           product_name: item.productName,
-          product_image: item.productImage,
           quantity: item.quantity,
           price: item.price,
         }),
