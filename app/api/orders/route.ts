@@ -126,7 +126,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         id: orderId,
         user_id: session.user.id,
-        status: "pending",
+        status: "placed",
         payment_method: isCOD ? "cod" : "razorpay",
         subtotal,
         shipping,
@@ -175,7 +175,7 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         order_id: orderId,
-        status: "pending",
+        status: "placed",
         note: isCOD ? "Order placed (COD)" : "Order placed",
       }),
     });
