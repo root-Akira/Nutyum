@@ -32,7 +32,7 @@ export default function CareersPage() {
             <a href="mailto:info.nutyum@gmail.com" className="text-[#173D22] underline hover:opacity-60">
               info.nutyum@gmail.com
             </a>{" "}
-            and we will keep you in mind for future opportunities.
+            and we will review your resume and reach out to you as soon as possible.
           </p>
         </div>
       </div>
