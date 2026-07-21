@@ -88,7 +88,6 @@ const LEFT_NAV: LeftNavItem[] = [
 const RIGHT_NAV = [
   { label: "My Account", href: "/account" },
   { label: "Bulk Order", href: "/wholesale" },
-  { label: "Snack Journal", href: "/journal" },
 ];
 
 // Flat list used by mobile drawer
@@ -342,14 +341,6 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
               >
                 Learn
               </Link>
-              <Link
-                href="/journal"
-                onClick={onClose}
-                className="block border-b border-[rgba(23,61,34,0.06)] py-3.5 text-base font-medium text-[#173D22]"
-                style={{ fontFamily: "var(--font-body)" }}
-              >
-                Journal
-              </Link>
               {session?.user ? (
                 <Link
                   href="/account"
@@ -535,18 +526,6 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
                 }}
               >
                 Bulk Order
-              </Link>
-              <Link
-                href="/journal"
-                className="text-[#173D22] transition-opacity hover:opacity-50"
-                style={{
-                  fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)",
-                  fontSize: "19px",
-                  fontWeight: 500,
-                  lineHeight: 1,
-                }}
-              >
-                Journal
               </Link>
               {session?.user ? (
                 <Link
