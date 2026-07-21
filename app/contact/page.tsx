@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { supabaseFetch } from "@/lib/supabase-fetch";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +17,27 @@ interface SiteSettings {
 }
 
 async function getSiteSettings(): Promise<SiteSettings | null> {
-  const { data } = await supabaseFetch("site_settings?select=store_name,store_email,store_phone,store_address,gst_number&limit=1");
-  if (data && Array.isArray(data) && data.length > 0) {
-    return data[0] as SiteSettings;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) return null;
+
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/site_settings?select=store_name,store_email,store_phone,store_address,gst_number&limit=1`,
+      {
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) return null;
+    const data: SiteSettings[] = await res.json();
+    return data?.[0] ?? null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export default async function ContactPage() {
