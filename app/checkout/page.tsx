@@ -114,9 +114,10 @@ export default function CheckoutPage() {
   }, [cartItems, session, router]);
 
   const FREE_SHIPPING_THRESHOLD = 999
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
+  const isPaidCOD = paymentMethod === "cod" && codCharge > 0;
+  const shipping = isPaidCOD ? codCharge : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49);
   const codFee = paymentMethod === "cod" ? codCharge : 0;
-  const orderTotal = total + shipping + codFee;
+  const orderTotal = total + shipping;
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
 
   const handleAddAddress = useCallback(async () => {
@@ -482,18 +483,18 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between text-[#5C665E]">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+                  <span>
+                    {isPaidCOD
+                      ? formatPrice(codCharge) + " (COD)"
+                      : shipping === 0
+                        ? "FREE"
+                        : formatPrice(shipping)}
+                  </span>
                 </div>
-                {shipping > 0 && subtotal < FREE_SHIPPING_THRESHOLD && (
+                {shipping > 0 && subtotal < FREE_SHIPPING_THRESHOLD && !isPaidCOD && (
                   <p className="text-xs text-amber-600">
                     Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping
                   </p>
-                )}
-                {codFee > 0 && (
-                  <div className="flex justify-between text-[#5C665E]">
-                    <span>COD Charge</span>
-                    <span>{formatPrice(codFee)}</span>
-                  </div>
                 )}
                 <div className="flex justify-between border-t border-[rgba(23,61,34,0.1)] pt-2 text-base font-bold text-[#173D22]">
                   <span>Total</span>

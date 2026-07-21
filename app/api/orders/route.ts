@@ -100,9 +100,8 @@ export async function POST(req: Request) {
     }
 
     const FREE_SHIPPING_THRESHOLD = 999
-    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
+    let shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
     const discount = discountAmount || 0;
-    let total = Math.max(0, subtotal + shipping - discount);
     let codCharge = 0;
     if (isCOD) {
       const { data: settingsArr } = await supabaseFetch(
@@ -110,8 +109,11 @@ export async function POST(req: Request) {
       );
       const settings = (Array.isArray(settingsArr) ? settingsArr[0] : null) as Record<string, unknown> | null;
       codCharge = Number(settings?.cod_charge) || 0;
-      total += codCharge;
+      if (codCharge > 0) {
+        shipping = codCharge;
+      }
     }
+    const total = Math.max(0, subtotal + shipping - discount);
 
     // Create order via REST API
     const orderId = crypto.randomUUID();
