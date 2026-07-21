@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch, getErrorMessage } from "@/lib/supabase-fetch";
+import { orderConfirmationEmail, sendEmail } from "@/lib/email";
 
 export async function GET() {
   const session = await auth();
@@ -47,7 +48,8 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { addressId, couponCode, discountAmount } = body;
+    const { addressId, couponCode, discountAmount, paymentMethod } = body;
+    const isCOD = paymentMethod === "cod";
 
     // Validate address
     const { data: addresses, error: addrErr } = await supabaseFetch(
@@ -100,7 +102,16 @@ export async function POST(req: Request) {
     const FREE_SHIPPING_THRESHOLD = 999
     const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
     const discount = discountAmount || 0;
-    const total = Math.max(0, subtotal + shipping - discount);
+    let total = Math.max(0, subtotal + shipping - discount);
+    let codCharge = 0;
+    if (isCOD) {
+      const { data: settingsArr } = await supabaseFetch(
+        "site_settings?select=cod_charge&limit=1&order=updated_at.desc"
+      );
+      const settings = (Array.isArray(settingsArr) ? settingsArr[0] : null) as Record<string, unknown> | null;
+      codCharge = Number(settings?.cod_charge) || 0;
+      total += codCharge;
+    }
 
     // Create order via REST API
     const orderId = crypto.randomUUID();
@@ -163,9 +174,42 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         order_id: orderId,
         status: "pending",
-        note: "Order placed",
+        note: isCOD ? "Order placed (COD)" : "Order placed",
       }),
     });
+
+    if (isCOD) {
+      // Confirm order immediately
+      await supabaseFetch(`orders?id=eq.${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "confirmed", total }),
+      });
+      await supabaseFetch("order_status_logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: orderId,
+          status: "confirmed",
+          note: "Order placed (COD)",
+        }),
+      });
+
+      // Send confirmation email
+      const emailItems = items.map((i) => ({
+        name: i.productName,
+        qty: i.quantity,
+        price: i.price,
+        variant: i.variantName || undefined,
+      }));
+      const { to, subject, html } = orderConfirmationEmail(orderId, session.user.email || "", emailItems, total);
+      await sendEmail(to, subject, html);
+
+      // Clear cart
+      await supabaseFetch(`cart_items?user_id=eq.${session.user.id}`, { method: "DELETE" });
+
+      return NextResponse.json({ orderId, paymentMethod: "cod" });
+    }
 
     // Create Razorpay order
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID;

@@ -9,7 +9,7 @@ export async function GET() {
 
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/site_settings?select=store_name,store_email,store_phone,store_address,gst_number&limit=1&order=updated_at.desc`,
+      `${supabaseUrl}/rest/v1/site_settings?select=store_name,store_email,store_phone,store_address,gst_number,cod_enabled,cod_charge&limit=1&order=updated_at.desc`,
       {
         headers: {
           apikey: serviceRoleKey,

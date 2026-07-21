@@ -57,6 +57,9 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [codEnabled, setCodEnabled] = useState(false);
+  const [codCharge, setCodCharge] = useState(0);
 
   // Address form
   const [addrLine1, setAddrLine1] = useState("");
@@ -70,6 +73,16 @@ export default function CheckoutPage() {
   useEffect(() => {
     loadRazorpayScript()
       .then(() => setRazorpayLoaded(true))
+      .catch(() => {});
+
+    fetch("/api/site-settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.cod_enabled) {
+          setCodEnabled(true);
+          setCodCharge(Number(data.cod_charge) || 0);
+        }
+      })
       .catch(() => {});
 
     if (session?.user?.id) {
@@ -102,7 +115,8 @@ export default function CheckoutPage() {
 
   const FREE_SHIPPING_THRESHOLD = 999
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 49;
-  const orderTotal = total + shipping;
+  const codFee = paymentMethod === "cod" ? codCharge : 0;
+  const orderTotal = total + shipping + codFee;
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
 
   const handleAddAddress = useCallback(async () => {
@@ -154,7 +168,7 @@ export default function CheckoutPage() {
       setError("Please select a delivery address");
       return;
     }
-    if (!razorpayLoaded) {
+    if (paymentMethod === "razorpay" && !razorpayLoaded) {
       setError("Payment system loading, please wait...");
       return;
     }
@@ -170,6 +184,7 @@ export default function CheckoutPage() {
           addressId: selectedAddressId,
           couponCode: couponCode || null,
           discountAmount: discount?.discountAmount || 0,
+          paymentMethod,
         }),
       });
 
@@ -177,6 +192,13 @@ export default function CheckoutPage() {
       if (!res.ok) {
         setError(data.error || "Failed to create order");
         setPlacing(false);
+        return;
+      }
+
+      // COD — order confirmed immediately
+      if (data.paymentMethod === "cod") {
+        useCartStore.getState().clearCart();
+        router.push(`/account/orders/${data.orderId}`);
         return;
       }
 
@@ -229,7 +251,7 @@ export default function CheckoutPage() {
       setError("Something went wrong. Please try again.");
       setPlacing(false);
     }
-  }, [selectedAddressId, razorpayLoaded, couponCode, discount, selectedAddress, session, router]);
+  }, [selectedAddressId, razorpayLoaded, paymentMethod, couponCode, discount, selectedAddress, session, router]);
 
   if (cartItems.length === 0 || session === null) {
     return (
@@ -368,6 +390,53 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+            {/* Payment Method */}
+            {codEnabled && (
+              <div className="mt-6 rounded-2xl bg-[#FFFEFB] p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}>
+                  Payment Method
+                </h2>
+                <div className="mt-4 space-y-3">
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors ${
+                    paymentMethod === "razorpay"
+                      ? "border-[#173D22] bg-[rgba(23,61,34,0.04)]"
+                      : "border-[rgba(23,61,34,0.12)]"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="razorpay"
+                      checked={paymentMethod === "razorpay"}
+                      onChange={() => setPaymentMethod("razorpay")}
+                      className="accent-[#173D22]"
+                    />
+                    <div>
+                      <p className="font-medium text-[#173D22]">Pay Online (Card / UPI / Net Banking)</p>
+                      <p className="text-sm text-[#5C665E]">Secure payment via Razorpay</p>
+                    </div>
+                  </label>
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors ${
+                    paymentMethod === "cod"
+                      ? "border-[#173D22] bg-[rgba(23,61,34,0.04)]"
+                      : "border-[rgba(23,61,34,0.12)]"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
+                      className="accent-[#173D22]"
+                    />
+                    <div>
+                      <p className="font-medium text-[#173D22]">Cash on Delivery</p>
+                      <p className="text-sm text-[#5C665E]">Pay when you receive</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
+
           {/* Right: Order Summary */}
           <div>
             <div className="rounded-2xl bg-[#FFFEFB] p-6 shadow-sm">
@@ -420,6 +489,12 @@ export default function CheckoutPage() {
                     Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping
                   </p>
                 )}
+                {codFee > 0 && (
+                  <div className="flex justify-between text-[#5C665E]">
+                    <span>COD Charge</span>
+                    <span>{formatPrice(codFee)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between border-t border-[rgba(23,61,34,0.1)] pt-2 text-base font-bold text-[#173D22]">
                   <span>Total</span>
                   <span>{formatPrice(orderTotal)}</span>
@@ -440,13 +515,17 @@ export default function CheckoutPage() {
                     <Loader2 size={18} className="animate-spin" />
                     Processing...
                   </>
+                ) : paymentMethod === "cod" ? (
+                  `Place Order — ${formatPrice(orderTotal)}`
                 ) : (
                   `Pay ${formatPrice(orderTotal)}`
                 )}
               </button>
 
               <p className="mt-3 text-center text-xs text-[#8A9A8C]">
-                Secure payment via Razorpay. You will be redirected to complete the payment.
+                {paymentMethod === "cod"
+                  ? "Pay when your order is delivered. No online payment needed."
+                  : "Secure payment via Razorpay. You will be redirected to complete the payment."}
               </p>
             </div>
           </div>
