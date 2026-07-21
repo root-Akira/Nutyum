@@ -2,16 +2,26 @@ import { NextResponse } from "next/server";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 import { sendEmail, orderOutForDeliveryEmail, orderShippedEmail } from "@/lib/email";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://admin.nutyum.in",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { orderId, status, apiKey } = body;
 
   if (apiKey !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
   }
 
   if (!orderId || !status) {
-    return NextResponse.json({ error: "Missing orderId or status" }, { status: 400 });
+    return NextResponse.json({ error: "Missing orderId or status" }, { status: 400, headers: corsHeaders });
   }
 
   const { data: orders } = await supabaseFetch(
@@ -20,16 +30,14 @@ export async function POST(req: Request) {
 
   const order = (Array.isArray(orders) ? orders[0] : null) as Record<string, unknown> | null;
   if (!order) {
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    return NextResponse.json({ error: "Order not found" }, { status: 404, headers: corsHeaders });
   }
 
-  // Get customer email from recipient_email in shipping_address, or from user_id
   const shippingAddr = order.shipping_address;
   const address = typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || {};
   let customerEmail = address.recipient_email || "";
 
   if (!customerEmail) {
-    // Fetch from auth.users via Supabase REST
     const userId = order.user_id as string;
     if (userId) {
       const { data: userData } = await supabaseFetch(
@@ -42,7 +50,7 @@ export async function POST(req: Request) {
   }
 
   if (!customerEmail) {
-    return NextResponse.json({ error: "No customer email found" }, { status: 400 });
+    return NextResponse.json({ error: "No customer email found" }, { status: 400, headers: corsHeaders });
   }
 
   const items = (order.order_items as Record<string, unknown>[]) || [];
@@ -67,8 +75,8 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     console.error("Failed to send status email:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to send email" }, { status: 500, headers: corsHeaders });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true }, { headers: corsHeaders });
 }
