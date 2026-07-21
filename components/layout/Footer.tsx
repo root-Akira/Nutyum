@@ -1,13 +1,18 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Mail, Phone, MapPin, FileText } from "lucide-react";
+
+interface SiteInfo {
+  store_name: string;
+  store_email: string;
+  store_phone: string;
+  store_address: string;
+  gst_number: string;
+}
 
 const COLUMNS = [
-  {
-    label: "Shop",
-    links: [
-      { name: "All Products", href: "/shop" },
-      { name: "Flavors", href: "/shop" },
-    ],
-  },
   {
     label: "Support",
     links: [
@@ -29,12 +34,19 @@ const COLUMNS = [
 ];
 
 export function Footer() {
+  const [info, setInfo] = useState<SiteInfo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then((r) => r.json())
+      .then((d) => setInfo(d))
+      .catch(() => {});
+  }, []);
+
   return (
     <footer className="relative overflow-hidden bg-[#173D22]">
-      {/* ── Top Section ── */}
       <div className="mx-auto max-w-[1400px] px-6 pt-12 pb-10 sm:pt-16 sm:pb-12 lg:pt-20">
         <div className="flex flex-col gap-10 lg:flex-row lg:gap-16">
-          {/* Tagline */}
           <div className="lg:w-[35%]">
             <h2 className="text-3xl font-semibold leading-tight text-[#FAF7EE] sm:text-4xl">
               Premium makhana,
@@ -46,7 +58,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* 4-column grid */}
           <div className="flex flex-1 flex-wrap gap-x-12 gap-y-10 sm:grid-cols-2 lg:flex lg:gap-14 xl:gap-20">
             {COLUMNS.map((col) => (
               <div key={col.label} className="min-w-[120px]">
@@ -69,11 +80,13 @@ export function Footer() {
             ))}
 
             {/* Connect column */}
-            <div className="min-w-[120px]">
+            <div className="min-w-[200px]">
               <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C4D0BC]">
                 Connect
               </p>
-              <div className="flex gap-3">
+
+              {/* Social icons */}
+              <div className="mb-4 flex gap-3">
                 <a
                   href="https://instagram.com"
                   target="_blank"
@@ -111,11 +124,46 @@ export function Footer() {
                   </svg>
                 </a>
               </div>
+
+              {/* Store info */}
+              <ul className="space-y-2">
+                {info?.store_email && (
+                  <li>
+                    <a href={`mailto:${info.store_email}`} className="flex items-start gap-2 text-sm text-[#FAF7EE] transition-colors hover:text-[#E0961A]">
+                      <Mail size={14} className="mt-0.5 shrink-0 text-[#C4D0BC]" />
+                      <span>{info.store_email}</span>
+                    </a>
+                  </li>
+                )}
+                {info?.store_phone && (
+                  <li>
+                    <a href={`tel:${info.store_phone}`} className="flex items-start gap-2 text-sm text-[#FAF7EE] transition-colors hover:text-[#E0961A]">
+                      <Phone size={14} className="mt-0.5 shrink-0 text-[#C4D0BC]" />
+                      <span>{info.store_phone}</span>
+                    </a>
+                  </li>
+                )}
+                {info?.store_address && (
+                  <li>
+                    <span className="flex items-start gap-2 text-sm text-[#FAF7EE]">
+                      <MapPin size={14} className="mt-0.5 shrink-0 text-[#C4D0BC]" />
+                      <span>{info.store_address}</span>
+                    </span>
+                  </li>
+                )}
+                {info?.gst_number && (
+                  <li>
+                    <span className="flex items-start gap-2 text-sm text-[#FAF7EE]">
+                      <FileText size={14} className="mt-0.5 shrink-0 text-[#C4D0BC]" />
+                      <span>GST: {info.gst_number}</span>
+                    </span>
+                  </li>
+                )}
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* Copyright */}
         <p className="mt-10 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#9DB896]">
           &copy; 2026 &middot; NUTYUM &middot; ALL RIGHTS RESERVED
         </p>
