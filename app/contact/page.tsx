@@ -14,10 +14,11 @@ interface SiteSettings {
   store_email: string;
   store_phone: string;
   store_address: string;
+  gst_number: string;
 }
 
 async function getSiteSettings(): Promise<SiteSettings | null> {
-  const { data } = await supabaseFetch("site_settings?select=store_name,store_email,store_phone,store_address&limit=1");
+  const { data } = await supabaseFetch("site_settings?select=store_name,store_email,store_phone,store_address,gst_number&limit=1");
   if (data && Array.isArray(data) && data.length > 0) {
     return data[0] as SiteSettings;
   }
@@ -71,6 +72,17 @@ export default async function ContactPage() {
               </h2>
               <p className="whitespace-pre-line text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
                 {settings.store_address}
+              </p>
+            </div>
+          )}
+
+          {settings?.gst_number && (
+            <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
+              <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                GST Number
+              </h2>
+              <p className="whitespace-pre-line text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                {settings.gst_number}
               </p>
             </div>
           )}
