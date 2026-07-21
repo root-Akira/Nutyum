@@ -12,6 +12,14 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
+function getEmail(order: Record<string, unknown>): string {
+  const shippingAddr = order.shipping_address;
+  const address = typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || {};
+  if (address.recipient_email) return address.recipient_email;
+  if (address.recipientEmail) return address.recipientEmail;
+  return "";
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { orderId, status, apiKey } = body;
@@ -33,24 +41,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Order not found" }, { status: 404, headers: corsHeaders });
   }
 
-  const shippingAddr = order.shipping_address;
-  const address = typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || {};
-  let customerEmail = address.recipient_email || "";
+  const customerEmail = getEmail(order);
 
   if (!customerEmail) {
-    const userId = order.user_id as string;
-    if (userId) {
-      const { data: userData } = await supabaseFetch(
-        `users?id=eq.${userId}&select=email`
-      );
-      if (Array.isArray(userData) && userData.length > 0) {
-        customerEmail = (userData[0] as Record<string, unknown>).email as string;
-      }
-    }
-  }
-
-  if (!customerEmail) {
-    return NextResponse.json({ error: "No customer email found" }, { status: 400, headers: corsHeaders });
+    return NextResponse.json({ error: "No customer email found in order" }, { status: 400, headers: corsHeaders });
   }
 
   const items = (order.order_items as Record<string, unknown>[]) || [];
@@ -72,11 +66,13 @@ export async function POST(req: Request) {
       const trackingId = (order.tracking_number as string) || "";
       const { to, subject, html } = orderShippedEmail(orderNumber, customerEmail, emailItems, total, courier, trackingId);
       await sendEmail(to, subject, html);
+    } else {
+      return NextResponse.json({ error: "Unsupported status: " + status }, { status: 400, headers: corsHeaders });
     }
   } catch (err) {
     console.error("Failed to send status email:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ error: "Failed to send email: " + String(err) }, { status: 500, headers: corsHeaders });
   }
 
-  return NextResponse.json({ success: true }, { headers: corsHeaders });
+  return NextResponse.json({ success: true, emailed: customerEmail }, { headers: corsHeaders });
 }
