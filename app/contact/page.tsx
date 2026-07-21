@@ -1,12 +1,32 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { supabaseFetch } from "@/lib/supabase-fetch";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact Us | Nutyum",
   description: "Get in touch with the Nutyum team — we'd love to hear from you.",
 };
 
-export default function ContactPage() {
+interface SiteSettings {
+  store_name: string;
+  store_email: string;
+  store_phone: string;
+  store_address: string;
+}
+
+async function getSiteSettings(): Promise<SiteSettings | null> {
+  const { data } = await supabaseFetch("site_settings?select=store_name,store_email,store_phone,store_address&limit=1");
+  if (data && Array.isArray(data) && data.length > 0) {
+    return data[0] as SiteSettings;
+  }
+  return null;
+}
+
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+
   return (
     <main className="min-h-screen bg-[#FAF7EE] px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
@@ -21,15 +41,39 @@ export default function ContactPage() {
         </p>
 
         <div className="space-y-10">
-          <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
-            <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-              Email
-            </h2>
-            <p className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-              For general inquiries, orders, or feedback:<br />
-              <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline hover:opacity-60">hello@nutyum.in</a>
-            </p>
-          </div>
+          {settings?.store_email && (
+            <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
+              <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                Email
+              </h2>
+              <p className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                For general inquiries, orders, or feedback:<br />
+                <a href={`mailto:${settings.store_email}`} className="text-[#173D22] underline hover:opacity-60">{settings.store_email}</a>
+              </p>
+            </div>
+          )}
+
+          {settings?.store_phone && (
+            <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
+              <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                Phone
+              </h2>
+              <p className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                <a href={`tel:${settings.store_phone}`} className="text-[#173D22] underline hover:opacity-60">{settings.store_phone}</a>
+              </p>
+            </div>
+          )}
+
+          {settings?.store_address && (
+            <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
+              <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                Address
+              </h2>
+              <p className="whitespace-pre-line text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                {settings.store_address}
+              </p>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
             <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
