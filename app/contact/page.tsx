@@ -102,25 +102,7 @@ export default async function ContactPage() {
             </div>
           )}
 
-          <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
-            <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-              Wholesale & Bulk Orders
-            </h2>
-            <p className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-              Interested in stocking Nutyum or placing a bulk order?<br />
-              <a href="mailto:wholesale@nutyum.in" className="text-[#173D22] underline hover:opacity-60">wholesale@nutyum.in</a>
-            </p>
-          </div>
 
-          <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-8">
-            <h2 className="mb-4 text-xl font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-              Social
-            </h2>
-            <p className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-              Follow us for updates, recipes, and more:<br />
-              <span className="text-[#4C5A48]">@nutyumindia (Instagram, Twitter)</span>
-            </p>
-          </div>
         </div>
 
         <p className="mt-10 text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
