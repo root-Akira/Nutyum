@@ -199,6 +199,8 @@ export default function CheckoutPage() {
       // COD — order confirmed immediately
       if (data.paymentMethod === "cod") {
         useCartStore.getState().clearCart();
+        localStorage.removeItem("nutyum-cart");
+        localStorage.removeItem("nutyum-coupon");
         router.push(`/account/orders/${data.orderId}`);
         return;
       }
@@ -232,6 +234,8 @@ export default function CheckoutPage() {
 
           if (verifyRes.ok) {
             useCartStore.getState().clearCart();
+            localStorage.removeItem("nutyum-cart");
+            localStorage.removeItem("nutyum-coupon");
             router.push(`/account/orders/${data.orderId}`);
           } else {
             const verifyData = await verifyRes.json();
