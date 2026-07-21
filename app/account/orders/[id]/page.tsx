@@ -235,25 +235,25 @@ export default function OrderDetailPage() {
             This order has been cancelled.
           </div>
         ) : (
-          <div className="space-y-0">
+          <div className="flex items-center">
             {STATUS_STEPS.map((step, idx) => {
               const done = idx <= currentStep;
               const isLast = idx === STATUS_STEPS.length - 1;
               return (
-                <div key={step} className="flex gap-4">
+                <div key={step} className="flex items-center">
                   <div className="flex flex-col items-center">
-                    <div className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold ${
                       done ? "border-[#173D22] bg-[#173D22] text-white" : "border-[rgba(23,61,34,0.2)] bg-white text-[#4C5A48]"
                     }`}>
                       {done ? "✓" : idx + 1}
                     </div>
-                    {!isLast && (
-                      <div className={`h-8 w-0.5 ${done ? "bg-[#173D22]" : "bg-[rgba(23,61,34,0.15)]"}`} />
-                    )}
+                    <span className={`mt-2 whitespace-nowrap text-xs font-medium ${done ? "text-[#173D22]" : "text-[#4C5A48]"}`} style={{ fontFamily: "var(--font-body)" }}>
+                      {STATUS_LABELS[step]}
+                    </span>
                   </div>
-                  <div className={`pb-6 text-sm font-medium ${done ? "text-[#173D22]" : "text-[#4C5A48]"}`} style={{ fontFamily: "var(--font-body)" }}>
-                    {STATUS_LABELS[step]}
-                  </div>
+                  {!isLast && (
+                    <div className={`mx-3 h-0.5 w-12 sm:w-20 ${done ? "bg-[#173D22]" : "bg-[rgba(23,61,34,0.15)]"}`} />
+                  )}
                 </div>
               );
             })}
