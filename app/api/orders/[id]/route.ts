@@ -32,10 +32,8 @@ export async function GET(
     status: o.status,
     subtotal: o.subtotal,
     shipping: o.shipping,
-    discountAmount: o.discount_amount || 0,
+    discountAmount: o.discount || 0,
     total: o.total,
-    email: o.email,
-    phone: o.phone,
     shippingAddress: typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || null,
     items: ((o.order_items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({
       id: i.id,

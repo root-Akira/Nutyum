@@ -36,8 +36,8 @@ export async function POST(req: Request) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: "confirmed",
-          razorpay_payment_id: razorpayPaymentId,
-          razorpay_signature: razorpaySignature,
+          payment_status: "paid",
+          notes: `RzpPayId:${razorpayPaymentId}|RzpSig:${razorpaySignature}`,
         }),
       }
     );

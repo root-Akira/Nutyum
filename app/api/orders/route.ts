@@ -22,7 +22,7 @@ export async function GET() {
     status: o.status,
     subtotal: o.subtotal,
     shipping: o.shipping,
-    discountAmount: o.discount_amount,
+    discountAmount: o.discount,
     total: o.total,
     items: (o.order_items as Record<string, unknown>[])?.map((i: Record<string, unknown>) => ({
       id: i.id,
@@ -119,20 +119,20 @@ export async function POST(req: Request) {
     const orderId = crypto.randomUUID();
     const now = new Date().toISOString();
 
+    const notes = couponCode ? `Coupon: ${couponCode}` : null;
     const { data: order, error: orderErr } = await supabaseFetch("orders", {
       method: "POST",
       headers: { "Content-Type": "application/json", Prefer: "return=representation" },
       body: JSON.stringify({
         id: orderId,
         user_id: session.user.id,
-        email: session.user.email || "",
-        phone: (address.phone as string) || "",
         status: "pending",
+        payment_method: isCOD ? "cod" : "razorpay",
         subtotal,
         shipping,
+        discount: discount,
         total,
-        discount_amount: discount,
-        coupon_code: couponCode || null,
+        notes,
         shipping_address: JSON.stringify({
           line1: address.line1,
           line2: address.line2,
@@ -242,16 +242,16 @@ export async function POST(req: Request) {
 
     const razorpayOrder = await razorpayRes.json();
 
-    // Save razorpay_order_id on the order
+    // Save razorpay_order_id in tracking_number and update payment_status
     const { error: updateErr } = await supabaseFetch(
       `orders?id=eq.${orderId}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ razorpay_order_id: razorpayOrder.id }),
+        body: JSON.stringify({ tracking_number: razorpayOrder.id, payment_status: "pending" }),
       }
     );
-    if (updateErr) console.error("Failed to save razorpay order ID:", updateErr);
+    if (updateErr) console.error("Failed to save razorpay order info:", updateErr);
 
     // Clear cart
     await supabaseFetch(
