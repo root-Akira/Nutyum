@@ -221,6 +221,28 @@ export function orderShippedEmail(
   };
 }
 
+export function orderOutForDeliveryEmail(
+  orderNumber: string,
+  email: string,
+  items: { name: string; qty: number; price: number; variant?: string }[],
+  total: number,
+) {
+  return {
+    to: email,
+    subject: `Out for Delivery — #${orderNumber}`,
+    html: baseHtml(`
+      ${heroHtml("Your Order is Out for Delivery!", "It's almost at your doorstep.")}
+      ${bodyHtml(
+        "Your order is on its way!",
+        `Your order <strong>#${orderNumber}</strong> is out for delivery and will reach you shortly. Get ready!`,
+        btnHtml(`${BASE_URL}/account/orders/${orderNumber}`, "Track Order"),
+      )}
+      ${orderItemsHtml(items, total)}
+      ${footerHtml()}
+    `),
+  };
+}
+
 export function orderCancelledEmail(
   orderNumber: string,
   email: string,

@@ -11,11 +11,12 @@ import { formatPrice } from "@/lib/formatters";
 const CANCELLABLE_STATUSES = ["placed", "confirmed"];
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const STATUS_STEPS = ["placed", "packed", "shipped", "delivered"];
+const STATUS_STEPS = ["placed", "packed", "shipped", "out_for_delivery", "delivered"];
 const STATUS_LABELS: Record<string, string> = {
   placed: "Placed",
   packed: "Packed",
   shipped: "Shipped",
+  out_for_delivery: "Out for Delivery",
   delivered: "Delivered",
   cancelled: "Cancelled",
 };
