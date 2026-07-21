@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Package, MapPin } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
-import { useUIStore } from "@/hooks/use-ui-store";
+
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -88,14 +88,6 @@ export default function OrderDetailPage() {
 
   const currentStep = STATUS_STEPS.indexOf(order.status);
   const isCancelled = order.status === "cancelled";
-
-  const toastShown = useRef(false);
-  useEffect(() => {
-    if (!toastShown.current && Date.now() - new Date(order.createdAt).getTime() < 120000) {
-      toastShown.current = true;
-      useUIStore.getState().showToast("Order placed successfully!");
-    }
-  }, [order.createdAt]);
 
   return (
     <motion.div

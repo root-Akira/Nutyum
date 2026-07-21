@@ -14,6 +14,7 @@ import {
   selectTotal,
 } from "@/hooks/use-cart-store";
 import { formatPrice } from "@/lib/formatters";
+import { useUIStore } from "@/hooks/use-ui-store";
 
 declare global {
   interface Window {
@@ -201,7 +202,8 @@ export default function CheckoutPage() {
         useCartStore.getState().clearCart();
         localStorage.removeItem("nutyum-cart");
         localStorage.removeItem("nutyum-coupon");
-        router.push(`/account/orders/${data.orderId}`);
+        useUIStore.getState().showToast("Order placed successfully!");
+        setTimeout(() => router.push(`/account/orders/${data.orderId}`), 800);
         return;
       }
 
@@ -236,7 +238,8 @@ export default function CheckoutPage() {
             useCartStore.getState().clearCart();
             localStorage.removeItem("nutyum-cart");
             localStorage.removeItem("nutyum-coupon");
-            router.push(`/account/orders/${data.orderId}`);
+            useUIStore.getState().showToast("Order placed successfully!");
+            setTimeout(() => router.push(`/account/orders/${data.orderId}`), 800);
           } else {
             const verifyData = await verifyRes.json();
             setError(verifyData.error || "Payment verification failed");
