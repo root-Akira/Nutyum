@@ -138,43 +138,6 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Tracking Timeline */}
-      <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
-        <h3 className="mb-6 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-          Tracking
-        </h3>
-
-        {isCancelled ? (
-          <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            This order has been cancelled.
-          </div>
-        ) : (
-          <div className="space-y-0">
-            {STATUS_STEPS.map((step, idx) => {
-              const done = idx <= currentStep;
-              const isLast = idx === STATUS_STEPS.length - 1;
-              return (
-                <div key={step} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-bold ${
-                      done ? "border-[#173D22] bg-[#173D22] text-white" : "border-[rgba(23,61,34,0.2)] bg-white text-[#4C5A48]"
-                    }`}>
-                      {done ? "✓" : idx + 1}
-                    </div>
-                    {!isLast && (
-                      <div className={`h-8 w-0.5 ${done ? "bg-[#173D22]" : "bg-[rgba(23,61,34,0.15)]"}`} />
-                    )}
-                  </div>
-                  <div className={`pb-6 text-sm font-medium ${done ? "text-[#173D22]" : "text-[#4C5A48]"}`} style={{ fontFamily: "var(--font-body)" }}>
-                    {STATUS_LABELS[step]}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
       {/* Customer Info */}
       <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
         <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
@@ -186,6 +149,23 @@ export default function OrderDetailPage() {
           {order.phone && <p><span className="font-medium text-[#173D22]">Phone:</span> {order.phone}</p>}
         </div>
       </div>
+
+      {/* Shipping Address */}
+      {order.shippingAddress && (
+        <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
+          <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+            Shipping Address
+          </h3>
+          <div className="flex items-start gap-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#173D22]" />
+            <div>
+              <p>{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}</p>
+              <p>{order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}</p>
+              <p>Phone: {order.shippingAddress.phone}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Items */}
       <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
@@ -244,22 +224,42 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Shipping Address */}
-      {order.shippingAddress && (
-        <div className="mt-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
-          <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
-            Shipping Address
-          </h3>
-          <div className="flex items-start gap-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#173D22]" />
-            <div>
-              <p>{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}</p>
-              <p>{order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}</p>
-              <p>Phone: {order.shippingAddress.phone}</p>
-            </div>
+      {/* Tracking Timeline */}
+      <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
+        <h3 className="mb-6 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+          Tracking
+        </h3>
+
+        {isCancelled ? (
+          <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            This order has been cancelled.
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-0">
+            {STATUS_STEPS.map((step, idx) => {
+              const done = idx <= currentStep;
+              const isLast = idx === STATUS_STEPS.length - 1;
+              return (
+                <div key={step} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                      done ? "border-[#173D22] bg-[#173D22] text-white" : "border-[rgba(23,61,34,0.2)] bg-white text-[#4C5A48]"
+                    }`}>
+                      {done ? "✓" : idx + 1}
+                    </div>
+                    {!isLast && (
+                      <div className={`h-8 w-0.5 ${done ? "bg-[#173D22]" : "bg-[rgba(23,61,34,0.15)]"}`} />
+                    )}
+                  </div>
+                  <div className={`pb-6 text-sm font-medium ${done ? "text-[#173D22]" : "text-[#4C5A48]"}`} style={{ fontFamily: "var(--font-body)" }}>
+                    {STATUS_LABELS[step]}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Cancel Modal */}
       {showCancelModal && (
