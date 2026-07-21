@@ -58,7 +58,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-1 flex-wrap gap-x-12 gap-y-10 sm:grid-cols-2 lg:flex lg:gap-14 xl:gap-20">
+          <div className="flex flex-1 flex-wrap gap-x-12 gap-y-10 lg:flex-nowrap lg:gap-14 xl:gap-20">
             {COLUMNS.map((col) => (
               <div key={col.label} className="min-w-[120px]">
                 <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#C4D0BC]">
