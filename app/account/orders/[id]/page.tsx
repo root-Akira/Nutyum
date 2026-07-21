@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Package, MapPin } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
+import { useUIStore } from "@/hooks/use-ui-store";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -88,6 +89,14 @@ export default function OrderDetailPage() {
   const currentStep = STATUS_STEPS.indexOf(order.status);
   const isCancelled = order.status === "cancelled";
 
+  const toastShown = useRef(false);
+  useEffect(() => {
+    if (!toastShown.current && Date.now() - new Date(order.createdAt).getTime() < 120000) {
+      toastShown.current = true;
+      useUIStore.getState().showToast("Order placed successfully!");
+    }
+  }, [order.createdAt]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -101,23 +110,6 @@ export default function OrderDetailPage() {
       >
         <ArrowLeft className="h-4 w-4" /> Back to Orders
       </Link>
-
-      {/* Success banner for recently placed orders */}
-      {Date.now() - new Date(order.createdAt).getTime() < 120000 && (
-        <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
-            <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-green-800" style={{ fontFamily: "var(--font-heading)" }}>
-            Order Placed Successfully!
-          </h2>
-          <p className="mt-1 text-sm text-green-700">
-            Your order has been confirmed. You will receive a confirmation email shortly.
-          </p>
-        </div>
-      )}
 
       {/* Order Header */}
       <div className="mb-6 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
