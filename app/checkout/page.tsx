@@ -55,6 +55,9 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
@@ -87,6 +90,8 @@ export default function CheckoutPage() {
       .catch(() => {});
 
     if (session?.user?.id) {
+      if (session.user.name) setRecipientName(session.user.name);
+      if (session.user.email) setRecipientEmail(session.user.email);
       fetch("/api/addresses")
         .then((r) => r.json())
         .then((data: Address[]) => {
@@ -120,6 +125,12 @@ export default function CheckoutPage() {
   const codFee = paymentMethod === "cod" ? codCharge : 0;
   const orderTotal = total + shipping;
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+
+  useEffect(() => {
+    if (selectedAddress?.phone && !recipientPhone) {
+      setRecipientPhone(selectedAddress.phone);
+    }
+  }, [selectedAddress]);
 
   const handleAddAddress = useCallback(async () => {
     if (!addrLine1 || !addrCity || !addrState || !addrPincode || !addrPhone) {
@@ -170,6 +181,10 @@ export default function CheckoutPage() {
       setError("Please select a delivery address");
       return;
     }
+    if (!recipientName.trim() || !recipientEmail.trim() || !recipientPhone.trim()) {
+      setError("Please fill in customer details (name, email, phone)");
+      return;
+    }
     if (paymentMethod === "razorpay" && !razorpayLoaded) {
       setError("Payment system loading, please wait...");
       return;
@@ -187,6 +202,9 @@ export default function CheckoutPage() {
           couponCode: couponCode || null,
           discountAmount: discount?.discountAmount || 0,
           paymentMethod,
+          recipientName: recipientName.trim(),
+          recipientEmail: recipientEmail.trim(),
+          recipientPhone: recipientPhone.trim(),
         }),
       });
 
@@ -397,6 +415,37 @@ export default function CheckoutPage() {
               )}
             </div>
           </div>
+
+            {/* Customer Details */}
+            <div className="mt-6 rounded-2xl bg-[#FFFEFB] p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}>
+                Customer Details
+              </h2>
+              <p className="mt-1 text-xs text-[#5C665E]">Who is this order for?</p>
+              <div className="mt-4 space-y-3">
+                <input
+                  type="text"
+                  placeholder="Full Name *"
+                  value={recipientName}
+                  onChange={(e) => setRecipientName(e.target.value)}
+                  className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-[#FAF7EE] px-4 py-3 text-sm text-[#173D22] placeholder:text-[#8A9A8C] focus:border-[#173D22] focus:outline-none"
+                />
+                <input
+                  type="email"
+                  placeholder="Email *"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-[#FAF7EE] px-4 py-3 text-sm text-[#173D22] placeholder:text-[#8A9A8C] focus:border-[#173D22] focus:outline-none"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone *"
+                  value={recipientPhone}
+                  onChange={(e) => setRecipientPhone(e.target.value)}
+                  className="w-full rounded-xl border border-[rgba(23,61,34,0.2)] bg-[#FAF7EE] px-4 py-3 text-sm text-[#173D22] placeholder:text-[#8A9A8C] focus:border-[#173D22] focus:outline-none"
+                />
+              </div>
+            </div>
 
             {/* Payment Method */}
             {codEnabled && (

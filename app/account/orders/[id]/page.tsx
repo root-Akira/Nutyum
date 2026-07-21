@@ -32,6 +32,9 @@ type OrderDetail = {
   email?: string;
   name?: string;
   phone?: string;
+  recipientName?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
   shippingAddress?: { line1: string; line2?: string; city: string; state: string; pincode: string; phone: string };
 };
 
@@ -144,9 +147,10 @@ export default function OrderDetailPage() {
           Customer Details
         </h3>
         <div className="space-y-2 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-          {order.name && <p><span className="font-medium text-[#173D22]">Name:</span> {order.name}</p>}
-          {order.email && <p><span className="font-medium text-[#173D22]">Email:</span> {order.email}</p>}
-          {order.phone && <p><span className="font-medium text-[#173D22]">Phone:</span> {order.phone}</p>}
+          <p><span className="font-medium text-[#173D22]">Delivered to:</span></p>
+          <p>{order.recipientName || order.name || "—"}</p>
+          <p>{order.recipientEmail || order.email || "—"}</p>
+          <p>{order.recipientPhone || order.phone || "—"}</p>
         </div>
       </div>
 

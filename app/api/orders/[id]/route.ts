@@ -37,6 +37,9 @@ export async function GET(
     email: session.user.email || "",
     name: session.user.name || "",
     phone: "",
+    recipientName: "",
+    recipientEmail: "",
+    recipientPhone: "",
     shippingAddress: typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || null,
     items: ((o.order_items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({
       id: i.id,
@@ -51,6 +54,11 @@ export async function GET(
 
   if (order.shippingAddress?.phone) {
     order.phone = order.shippingAddress.phone;
+  }
+  if (order.shippingAddress?.recipient_name) {
+    order.recipientName = order.shippingAddress.recipient_name;
+    order.recipientEmail = order.shippingAddress.recipient_email;
+    order.recipientPhone = order.shippingAddress.recipient_phone;
   }
 
   return NextResponse.json(order);

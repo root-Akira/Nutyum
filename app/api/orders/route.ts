@@ -138,6 +138,9 @@ export async function POST(req: Request) {
           state: address.state,
           pincode: address.pincode,
           phone: address.phone,
+          recipient_name: body.recipientName || "",
+          recipient_email: body.recipientEmail || "",
+          recipient_phone: body.recipientPhone || "",
         }),
       }),
     });
