@@ -1,275 +1,28 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
-import React from "react";
-import { Document, Page, View, Text, StyleSheet, renderToStream } from "@react-pdf/renderer";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
-const HSN = "20081999";
+const GREEN = rgb(0.09, 0.24, 0.13);      // #173D22
+const TEXT = rgb(0.30, 0.35, 0.28);         // #4C5A48
+const LABEL = rgb(0.54, 0.60, 0.55);        // #8A9A8C
+const CREAM = rgb(0.98, 0.97, 0.94);        // #FAF7EE
+const WHITE = rgb(1, 1, 1);
+const RED = rgb(0.75, 0.22, 0.17);          // #C0392B
+const BORDER = rgb(0.9, 0.89, 0.85);        // #E5E3D8
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    backgroundColor: "#FFFEFB",
-    fontFamily: "Helvetica",
-    fontSize: 10,
-    color: "#4C5A48",
-  },
-  title: {
-    fontFamily: "Times-Roman",
-    fontSize: 24,
-    color: "#173D22",
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#173D22",
-  },
-  sellerName: { fontSize: 13, fontWeight: 700, color: "#173D22", marginBottom: 2 },
-  sellerDetail: { fontSize: 10, color: "#4C5A48", lineHeight: 1.6 },
-  metaRow: { flexDirection: "row" },
-  metaLabel: {
-    fontSize: 9, textTransform: "uppercase", letterSpacing: 0.5,
-    color: "#8A9A8C", width: 90, paddingRight: 8,
-    paddingTop: 1, paddingBottom: 1,
-  },
-  metaValue: { fontSize: 11, color: "#173D22", textAlign: "right", paddingTop: 1, paddingBottom: 1 },
-  addrGrid: { flexDirection: "row", gap: 12, marginBottom: 24 },
-  addrBlock: {
-    flex: 1, backgroundColor: "#FAF7EE", padding: 12, borderRadius: 8,
-    fontSize: 10, lineHeight: 1.6, color: "#4C5A48",
-  },
-  addrLabel: { fontSize: 9, textTransform: "uppercase", letterSpacing: 0.5, color: "#8A9A8C", marginBottom: 2 },
-  tableHeader: {
-    flexDirection: "row", borderBottomWidth: 2, borderBottomColor: "#173D22",
-    paddingBottom: 6, marginBottom: 4,
-  },
-  th: { fontSize: 9, textTransform: "uppercase", letterSpacing: 0.5, color: "#8A9A8C" },
-  row: {
-    flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#E5E3D8",
-    paddingVertical: 8, alignItems: "center",
-  },
-  cellDesc: { width: "24%" },
-  cellHsn: { width: "10%", textAlign: "center" },
-  cellQty: { width: "6%", textAlign: "center" },
-  cellRight: { width: "13%", textAlign: "right" },
-  cellGst: { width: "9%", textAlign: "right" },
-  cellTotal: { width: "11%", textAlign: "right", fontWeight: 700 },
-  variantText: { fontSize: 9, color: "#7A7A7A", marginTop: 1 },
-  totalsSection: {
-    marginTop: 4, paddingTop: 10, borderTopWidth: 2,
-    borderTopColor: "#173D22", alignItems: "flex-end",
-  },
-  gstRow: { flexDirection: "row", gap: 16, marginBottom: 8 },
-  gstText: { fontSize: 11, color: "#4C5A48" },
-  grandTotal: { fontSize: 14, fontWeight: 700, color: "#173D22", flexDirection: "row" },
-  grandTotalLabel: { marginRight: 12 },
-  footer: {
-    marginTop: 28, paddingTop: 14, borderTopWidth: 1, borderTopColor: "#E5E3D8",
-    fontSize: 9, color: "#8A9A8C", textAlign: "center", lineHeight: 1.7,
-  },
-  footerStrong: { color: "#4C5A48", fontWeight: 700 },
-  discountText: { color: "#C0392B" },
-  headerLeft: { maxWidth: "55%" },
-});
+const MARGIN = 50;
+const PAGE_WIDTH = 595.28; // A4
+const PAGE_HEIGHT = 841.89;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+const FONT_SIZE = 9;
+const HEADER_FONT_SIZE = 22;
 
-const fmt = (n: number) => "₹" + n.toFixed(2);
+const fmt = (n: number) => "Rs. " + n.toFixed(2);
 
-function InvoiceDocument({ id, order, settings, session }: any) {
-  const items: any[] = order.order_items || [];
-  const addr = order.shipping_address;
-  const address = typeof addr === "string" ? JSON.parse(addr) : addr || {};
-
-  const subtotal = Number(order.subtotal) || 0;
-  const discount = Number(order.discount) || 0;
-  const shipping = Number(order.shipping) || 0;
-
-  const sellerLegalName = "Nutyum Foods Private Limited";
-  const sellerTradeName = (settings.store_name as string) || "Nutyum";
-  const sellerGSTIN = (settings.gst_number as string) || "";
-  const sellerAddr = (settings.store_address as string) || "Nutyum Foods Pvt. Ltd., Mumbai, Maharashtra";
-  const sellerState = "Maharashtra";
-  const sellerEmail = (settings.store_email as string) || "support@nutyum.in";
-  const sellerPhone = (settings.store_phone as string) || "";
-
-  const deliveryState = ((address.state as string) || "").trim().toLowerCase();
-  const isIntraState = deliveryState === sellerState.toLowerCase();
-
-  const createdDate = new Date(order.created_at as string);
-  const invoiceNo = `NUT/${createdDate.getFullYear()}/${(id as string).slice(0, 6).toUpperCase()}`;
-  const dateStr = createdDate.toLocaleDateString("en-IN", {
-    day: "numeric", month: "long", year: "numeric",
-  });
-
-  const itemsWithCalc = items.map((i: any) => {
-    const qty = Number(i.quantity) || 1;
-    const price = Number(i.price) || 0;
-    const gross = qty * price;
-    const propDiscount = subtotal > 0 ? (gross / subtotal) * discount : 0;
-    const netAmount = Math.max(0, gross - propDiscount);
-    const taxableValue = Math.round((netAmount / 1.18) * 100) / 100;
-    const gstAmount = Math.round((netAmount - taxableValue) * 100) / 100;
-    const lineTotal = taxableValue + gstAmount;
-    return { ...i, qty, price, gross, propDiscount, taxableValue, gstAmount, lineTotal };
-  });
-
-  const totalTaxable = itemsWithCalc.reduce((s: number, i: any) => s + i.taxableValue, 0);
-  const totalGst = itemsWithCalc.reduce((s: number, i: any) => s + i.gstAmount, 0);
-
-  let shippingTaxable = 0;
-  let shippingGst = 0;
-  if (shipping > 0) {
-    shippingTaxable = Math.round((shipping / 1.18) * 100) / 100;
-    shippingGst = Math.round((shipping - shippingTaxable) * 100) / 100;
-  }
-
-  const grandTotal = totalTaxable + totalGst + shippingTaxable + shippingGst;
-  const supportContact = [sellerPhone, sellerEmail].filter(Boolean).join(" | ");
-  const recipientName = address.recipient_name || address.name || session.user.name || "Customer";
-
-  const addrLine2 = [
-    address.line1 || "",
-    address.line2 ? `, ${address.line2}` : "",
-  ].join("");
-  const addrCityState = [
-    address.city || "",
-    address.state ? `, ${address.state}` : "",
-    address.pincode ? ` — ${address.pincode}` : "",
-  ].join("");
-
-  const metaData = [
-    { label: "Invoice No.", value: invoiceNo },
-    { label: "Invoice Date", value: dateStr },
-    { label: "Order ID", value: `#${(id as string).slice(0, 8).toUpperCase()}` },
-    { label: "Order Date", value: dateStr },
-  ];
-
-  return React.createElement(Document, null,
-    React.createElement(Page, { size: "A4", style: styles.page },
-
-      // Header
-      React.createElement(View, { style: styles.headerRow },
-        React.createElement(View, { style: styles.headerLeft },
-          React.createElement(Text, { style: styles.title }, "Tax Invoice"),
-          React.createElement(Text, { style: styles.sellerName }, sellerLegalName),
-          React.createElement(Text, { style: styles.sellerDetail }, `GSTIN: ${sellerGSTIN || "N/A"}`),
-          React.createElement(Text, { style: styles.sellerDetail }, sellerAddr),
-        ),
-        React.createElement(View, null,
-          metaData.map((m, i) =>
-            React.createElement(View, { key: i, style: styles.metaRow },
-              React.createElement(Text, { style: styles.metaLabel }, m.label),
-              React.createElement(Text, { style: styles.metaValue }, m.value),
-            )
-          ),
-        ),
-      ),
-
-      // Addresses
-      React.createElement(View, { style: styles.addrGrid },
-        React.createElement(View, { style: styles.addrBlock },
-          React.createElement(Text, { style: styles.addrLabel }, "Bill To"),
-          React.createElement(Text, null, recipientName),
-          React.createElement(Text, null, addrLine2),
-          React.createElement(Text, null, addrCityState),
-          React.createElement(Text, null, address.recipient_phone || address.phone || ""),
-          React.createElement(Text, null, address.recipient_email || session.user.email || ""),
-        ),
-        React.createElement(View, { style: styles.addrBlock },
-          React.createElement(Text, { style: styles.addrLabel }, "Ship To"),
-          React.createElement(Text, null, recipientName),
-          React.createElement(Text, null, addrLine2),
-          React.createElement(Text, null, addrCityState),
-          React.createElement(Text, null, address.recipient_phone || address.phone || ""),
-        ),
-      ),
-
-      // Table header
-      React.createElement(View, { style: styles.tableHeader },
-        React.createElement(Text, { style: [styles.th, styles.cellDesc] }, "Description"),
-        React.createElement(Text, { style: [styles.th, styles.cellHsn] }, "HSN/SAC"),
-        React.createElement(Text, { style: [styles.th, styles.cellQty] }, "Qty"),
-        React.createElement(Text, { style: [styles.th, styles.cellRight] }, "Gross Amt"),
-        React.createElement(Text, { style: [styles.th, styles.cellRight] }, "Discount"),
-        React.createElement(Text, { style: [styles.th, styles.cellRight] }, "Taxable Val"),
-        React.createElement(Text, { style: [styles.th, styles.cellGst] }, "GST"),
-        React.createElement(Text, { style: [styles.th, styles.cellTotal] }, "Total"),
-      ),
-
-      // Item rows
-      ...itemsWithCalc.map((i: any, idx: number) =>
-        React.createElement(View, { key: idx, style: styles.row },
-          React.createElement(View, { style: styles.cellDesc },
-            React.createElement(Text, null, i.product_name || "Product"),
-            i.variant_name ? React.createElement(Text, { style: styles.variantText }, i.variant_name) : null,
-          ),
-          React.createElement(Text, { style: styles.cellHsn }, HSN),
-          React.createElement(Text, { style: styles.cellQty }, String(i.qty)),
-          React.createElement(Text, { style: styles.cellRight }, fmt(i.gross)),
-          React.createElement(Text, { style: [styles.cellRight, i.propDiscount > 0 ? styles.discountText : {}] },
-            i.propDiscount > 0 ? `(${fmt(i.propDiscount)})` : "—"
-          ),
-          React.createElement(Text, { style: styles.cellRight }, fmt(i.taxableValue)),
-          React.createElement(Text, { style: styles.cellGst }, fmt(i.gstAmount)),
-          React.createElement(Text, { style: styles.cellTotal }, fmt(i.lineTotal)),
-        )
-      ),
-
-      // Shipping row
-      ...(shipping > 0
-        ? [React.createElement(View, { key: "shipping", style: styles.row },
-            React.createElement(View, { style: styles.cellDesc },
-              React.createElement(Text, null, "Shipping Charges"),
-            ),
-            React.createElement(Text, { style: styles.cellHsn }, "9965"),
-            React.createElement(Text, { style: styles.cellQty }, "1"),
-            React.createElement(Text, { style: styles.cellRight }, fmt(shipping)),
-            React.createElement(Text, { style: styles.cellRight }, "—"),
-            React.createElement(Text, { style: styles.cellRight }, fmt(shippingTaxable)),
-            React.createElement(Text, { style: styles.cellGst }, fmt(shippingGst)),
-            React.createElement(Text, { style: styles.cellTotal }, fmt(shipping)),
-          )]
-        : []
-      ),
-
-      // Totals
-      React.createElement(View, { style: styles.totalsSection },
-        React.createElement(View, { style: styles.gstRow },
-          isIntraState
-            ? [
-                React.createElement(Text, { key: "cgst", style: styles.gstText },
-                  `CGST 9%: ${fmt(totalGst / 2 + shippingGst / 2)}`
-                ),
-                React.createElement(Text, { key: "sgst", style: styles.gstText },
-                  `SGST 9%: ${fmt(totalGst / 2 + shippingGst / 2)}`
-                ),
-              ]
-            : React.createElement(Text, { style: styles.gstText },
-                `IGST 18%: ${fmt(totalGst + shippingGst)}`
-              ),
-        ),
-        React.createElement(View, { style: styles.grandTotal },
-          React.createElement(Text, { style: styles.grandTotalLabel }, "Grand Total:"),
-          React.createElement(Text, null, fmt(grandTotal)),
-        ),
-      ),
-
-      // Footer
-      React.createElement(View, { style: styles.footer },
-        React.createElement(Text, null, "This is a computer-generated invoice; no signature required."),
-        React.createElement(Text, null,
-          React.createElement(Text, { style: styles.footerStrong }, sellerTradeName),
-          ` — ${sellerAddr}`,
-        ),
-        supportContact ? React.createElement(Text, null, `Contact: ${supportContact}`) : null,
-        React.createElement(Text, null, "Nutyum — Premium Roasted Makhana \u2022 Thank you for your order!"),
-      ),
-    ),
-  );
+function parseAddr(addr: unknown) {
+  if (typeof addr === "string") { try { return JSON.parse(addr); } catch { return {}; } }
+  return (addr as Record<string, unknown>) || {};
 }
 
 export async function GET(
@@ -295,23 +48,322 @@ export async function GET(
   const { data: settingsArr } = await supabaseFetch("site_settings?limit=1");
   const settings: any = (Array.isArray(settingsArr) ? settingsArr[0] : {});
 
+  const items: any[] = order.order_items || [];
+  const address = parseAddr(order.shipping_address);
+
+  const subtotal = Number(order.subtotal) || 0;
+  const discount = Number(order.discount) || 0;
+  const shipping = Number(order.shipping) || 0;
+
+  const sellerLegalName = "Nutyum Foods Private Limited";
+  const sellerTradeName = (settings.store_name as string) || "Nutyum";
+  const sellerGSTIN = (settings.gst_number as string) || "";
+  const sellerAddr = (settings.store_address as string) || "Nutyum Foods Pvt. Ltd., Mumbai, Maharashtra";
+  const sellerEmail = (settings.store_email as string) || "support@nutyum.in";
+  const sellerPhone = (settings.store_phone as string) || "";
+
+  const deliveryState = ((address.state as string) || "").trim().toLowerCase();
+  const isIntraState = deliveryState === "maharashtra";
+
+  const createdDate = new Date(order.created_at as string);
+  const invoiceNo = `NUT/${createdDate.getFullYear()}/${id.slice(0, 6).toUpperCase()}`;
+  const dateStr = createdDate.toLocaleDateString("en-IN", {
+    day: "numeric", month: "long", year: "numeric",
+  });
+
+  const itemsWithCalc = items.map((i: any) => {
+    const qty = Number(i.quantity) || 1;
+    const price = Number(i.price) || 0;
+    const gross = qty * price;
+    const propDiscount = subtotal > 0 ? (gross / subtotal) * discount : 0;
+    const netAmount = Math.max(0, gross - propDiscount);
+    const taxableValue = Number((netAmount / 1.18).toFixed(2));
+    const gstAmount = Number((netAmount - taxableValue).toFixed(2));
+    const lineTotal = taxableValue + gstAmount;
+    return { ...i, qty, price, gross, propDiscount, taxableValue, gstAmount, lineTotal };
+  });
+
+  const totalTaxable = itemsWithCalc.reduce((s: number, i: any) => s + i.taxableValue, 0);
+  const totalGst = itemsWithCalc.reduce((s: number, i: any) => s + i.gstAmount, 0);
+
+  let shippingTaxable = 0, shippingGst = 0;
+  if (shipping > 0) {
+    shippingTaxable = Number((shipping / 1.18).toFixed(2));
+    shippingGst = Number((shipping - shippingTaxable).toFixed(2));
+  }
+
+  const grandTotal = totalTaxable + totalGst + shippingTaxable + shippingGst;
+  const supportContact = [sellerPhone, sellerEmail].filter(Boolean).join(" | ");
+  const recipientName = address.recipient_name || address.name || session.user.name || "Customer";
+
+  const HSN = "20081999";
+
   try {
-    const pdfStream = await renderToStream(
-      React.createElement(InvoiceDocument, { id, order, settings, session })
-    );
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const serif = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
-    const chunks: Buffer[] = [];
-    for await (const chunk of pdfStream as any) {
-      chunks.push(Buffer.from(chunk));
+    const colWidth = (pct: number) => (CONTENT_WIDTH * pct) / 100;
+    const drawText = (page: any, text: string, x: number, y: number, opts: any = {}) => {
+      const f = opts.bold ? bold : opts.serif ? serif : font;
+      const size = opts.size || FONT_SIZE;
+      const color = opts.color || TEXT;
+      page.drawText(text, { x, y, size, font: f, color });
+    };
+
+    const drawWrapped = (page: any, text: string, x: number, y: number, maxW: number, opts: any = {}) => {
+      const f = opts.bold ? bold : opts.serif ? serif : font;
+      const size = opts.size || FONT_SIZE;
+      const lines: string[] = [];
+      let cur = "";
+      for (const word of text.split(" ")) {
+        const test = cur ? cur + " " + word : word;
+        if (f.widthOfTextAtSize(test, size) > maxW) {
+          lines.push(cur);
+          cur = word;
+        } else {
+          cur = test;
+        }
+      }
+      if (cur) lines.push(cur);
+      let ly = y;
+      for (const line of lines) {
+        page.drawText(line, { x, y: ly, size, font: f, color: opts.color || TEXT });
+        ly -= size * 1.4;
+      }
+      return lines.length * size * 1.4;
+    };
+
+    const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    let y = PAGE_HEIGHT - MARGIN;
+
+    // ── Header ──
+    drawText(page, "Tax Invoice", MARGIN, y, { serif: true, size: HEADER_FONT_SIZE, color: GREEN });
+    y -= 28;
+    drawText(page, sellerLegalName, MARGIN, y, { bold: true, size: 11, color: GREEN });
+    y -= 14;
+    drawText(page, `GSTIN: ${sellerGSTIN || "N/A"}`, MARGIN, y, { size: 9 });
+    y -= 12;
+    drawText(page, sellerAddr, MARGIN, y, { size: 9 });
+
+    // Right-side metadata
+    const metaX = MARGIN + CONTENT_WIDTH - 180;
+    const meta = [
+      ["Invoice No.", invoiceNo],
+      ["Invoice Date", dateStr],
+      ["Order ID", `#${id.slice(0, 8).toUpperCase()}`],
+      ["Order Date", dateStr],
+    ];
+    let my = PAGE_HEIGHT - MARGIN - 4;
+    for (const [lbl, val] of meta) {
+      drawText(page, lbl, metaX, my, { size: 8, color: LABEL });
+      drawText(page, val, metaX + 85, my, { size: 10, color: GREEN });
+      my -= 15;
     }
-    const pdfBuffer = Buffer.concat(chunks);
 
-    return new NextResponse(pdfBuffer, {
+    // Header underline
+    y = Math.max(y, my) - 8;
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: MARGIN + CONTENT_WIDTH, y },
+      thickness: 2, color: GREEN,
+    });
+    y -= 16;
+
+    // ── Addresses ──
+    const addrW = (CONTENT_WIDTH - 16) / 2;
+    for (const label of ["Bill To", "Ship To"]) {
+      const ax = MARGIN + (label === "Ship To" ? addrW + 16 : 0);
+      page.drawRectangle({
+        x: ax, y: y - 50, width: addrW, height: 52,
+        color: CREAM,
+      });
+      drawText(page, label, ax + 8, y - 12, { size: 8, color: LABEL, bold: true });
+      drawText(page, recipientName, ax + 8, y - 24, { size: 9 });
+      drawText(page, [
+        address.line1 || "", address.line2 ? `, ${address.line2}` : "",
+      ].join(""), ax + 8, y - 36, { size: 8 });
+      drawText(page, [
+        address.city || "", address.state ? `, ${address.state}` : "",
+        address.pincode ? ` — ${address.pincode}` : "",
+      ].join(""), ax + 8, y - 46, { size: 8 });
+    }
+    y -= 64;
+
+    // ── Item Table ──
+    // Table header
+    const thY = y;
+    const cols = [
+      { label: "Description", w: 24 },
+      { label: "HSN/SAC", w: 10, align: "center" as const },
+      { label: "Qty", w: 6, align: "center" as const },
+      { label: "Gross Amt", w: 13, align: "right" as const },
+      { label: "Discount", w: 12, align: "right" as const },
+      { label: "Taxable Val", w: 13, align: "right" as const },
+      { label: "GST", w: 9, align: "right" as const },
+      { label: "Total", w: 11, align: "right" as const },
+    ];
+    let cx = MARGIN;
+    for (const col of cols) {
+      const cw = colWidth(col.w);
+      const tx = col.align === "right" ? cx + cw : cx;
+      drawText(page, col.label, tx + (col.align === "center" ? cw / 2 - 14 : 0), thY, {
+        size: 7.5, color: LABEL, bold: true,
+      });
+      cx += cw;
+    }
+
+    page.drawLine({
+      start: { x: MARGIN, y: thY - 4 },
+      end: { x: MARGIN + CONTENT_WIDTH, y: thY - 4 },
+      thickness: 2, color: GREEN,
+    });
+    y = thY - 14;
+
+    // Table rows
+    function drawRow(rowItems: any, rowIdx: number) {
+      let rowY = y;
+      const isShipping = rowIdx === itemsWithCalc.length && shipping > 0;
+
+      // Draw row line
+      page.drawLine({
+        start: { x: MARGIN, y: rowY },
+        end: { x: MARGIN + CONTENT_WIDTH, y: rowY },
+        thickness: 0.5, color: BORDER,
+      });
+
+      const values: any[] = isShipping
+        ? [
+            { text: "Shipping Charges" },
+            { text: "9965", center: true },
+            { text: "1", center: true },
+            { text: fmt(shipping), right: true },
+            { text: "—", right: true },
+            { text: fmt(shippingTaxable), right: true },
+            { text: fmt(shippingGst), right: true },
+            { text: fmt(shipping), right: true },
+          ]
+        : [
+            { text: rowItems.product_name || "Product", wrap: true, variant: rowItems.variant_name },
+            { text: HSN, center: true },
+            { text: String(rowItems.qty), center: true },
+            { text: fmt(rowItems.gross), right: true },
+            { text: rowItems.propDiscount > 0 ? `(${fmt(rowItems.propDiscount)})` : "—", right: true, color: rowItems.propDiscount > 0 ? RED : undefined },
+            { text: fmt(rowItems.taxableValue), right: true },
+            { text: fmt(rowItems.gstAmount), right: true },
+            { text: fmt(rowItems.lineTotal), right: true },
+          ];
+
+      // Find max height needed for this row
+      let lineH = FONT_SIZE + 2;
+      const firstVal = values[0];
+      if (isShipping) {
+        lineH = FONT_SIZE * 1.4 + 4;
+      } else if (firstVal.variant) {
+        lineH = FONT_SIZE * 2.6;
+      }
+
+      if (rowY - lineH < MARGIN + 40) {
+        // Add new page
+        return { overflow: true, rowY };
+      }
+
+      cx = MARGIN;
+      for (let ci = 0; ci < values.length; ci++) {
+        const v = values[ci];
+        const cw = colWidth(cols[ci].w);
+        const tx = v.right ? cx + cw : v.center ? cx + cw / 2 - 14 : cx;
+
+        if (ci === 0 && !isShipping && v.variant) {
+          drawText(page, v.text, tx, rowY - FONT_SIZE, { size: FONT_SIZE, color: v.color || TEXT });
+          drawText(page, v.variant, tx, rowY - FONT_SIZE * 2, { size: 7.5, color: LABEL });
+        } else {
+          drawText(page, v.text, tx, rowY - FONT_SIZE, { size: FONT_SIZE, color: v.color || TEXT });
+        }
+        cx += cw;
+      }
+
+      return { overflow: false, rowY: rowY - lineH };
+    }
+
+    for (let i = 0; i < itemsWithCalc.length; i++) {
+      const result = drawRow(itemsWithCalc[i], i);
+      if (result.overflow) {
+        const newPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+        y = PAGE_HEIGHT - MARGIN;
+        // Re-draw header row on new page
+        cx = MARGIN;
+        for (const col of cols) {
+          const cw = colWidth(col.w);
+          drawText(newPage, col.label, cx + (col.align === "center" ? cw / 2 - 14 : 0), y, {
+            size: 7.5, color: LABEL, bold: true,
+          });
+          cx += cw;
+        }
+        newPage.drawLine({
+          start: { x: MARGIN, y: y - 4 },
+          end: { x: MARGIN + CONTENT_WIDTH, y: y - 4 },
+          thickness: 2, color: GREEN,
+        });
+        y -= 14;
+        drawRow(itemsWithCalc[i], i);
+      }
+      y = result.rowY;
+    }
+
+    // Shipping row
+    if (shipping > 0) {
+      const result = drawRow([], itemsWithCalc.length);
+      y = result.rowY;
+    }
+
+    // ── Totals ──
+    y -= 8;
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: MARGIN + CONTENT_WIDTH, y },
+      thickness: 2, color: GREEN,
+    });
+    y -= 14;
+
+    const totalX = MARGIN + 280;
+    if (isIntraState) {
+      drawText(page, `CGST 9%: ${fmt(totalGst / 2 + shippingGst / 2)}`, totalX, y, { size: 10 });
+      y -= 14;
+      drawText(page, `SGST 9%: ${fmt(totalGst / 2 + shippingGst / 2)}`, totalX, y, { size: 10 });
+    } else {
+      drawText(page, `IGST 18%: ${fmt(totalGst + shippingGst)}`, totalX, y, { size: 10 });
+    }
+    y -= 18;
+    drawText(page, `Grand Total: ${fmt(grandTotal)}`, totalX, y, { bold: true, size: 14, color: GREEN });
+
+    // ── Footer ──
+    y = 60;
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: MARGIN + CONTENT_WIDTH, y },
+      thickness: 0.5, color: BORDER,
+    });
+    y -= 12;
+    drawText(page, "This is a computer-generated invoice; no signature required.", MARGIN, y, { size: 8, color: LABEL });
+    y -= 10;
+    drawText(page, `${sellerTradeName} — ${sellerAddr}`, MARGIN, y, { size: 8, color: LABEL });
+    if (supportContact) {
+      y -= 10;
+      drawText(page, `Contact: ${supportContact}`, MARGIN, y, { size: 8, color: LABEL });
+    }
+    y -= 10;
+    drawText(page, "Nutyum — Premium Roasted Makhana • Thank you for your order!", MARGIN, y, { size: 8, color: LABEL });
+
+    const pdfBytes = await pdfDoc.save();
+
+    return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="nutyum-invoice-${id.slice(0, 8)}.pdf"`,
-        "Content-Length": String(pdfBuffer.length),
+        "Content-Length": String(pdfBytes.length),
       },
     });
   } catch (err: any) {
