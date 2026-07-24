@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Package, MapPin, User, Download, Star, CheckCircle, X,
+  ArrowLeft, Package, MapPin, User, Download, Star, CheckCircle, X, Loader2,
 } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
 
@@ -75,6 +75,10 @@ export default function OrderDetailPage() {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelling, setCancelling] = useState(false);
   const [rating, setRating] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewDone, setReviewDone] = useState(false);
 
   useEffect(() => {
     fetch(`/api/orders/${id}`)
@@ -241,7 +245,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Rate & Review for delivered orders */}
-          {isDelivered && (
+          {isDelivered && !reviewDone && (
             <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
               <h3 className="mb-3 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
                 Rate your experience
@@ -251,14 +255,60 @@ export default function OrderDetailPage() {
               </p>
               <StarRating value={rating} onChange={setRating} />
               {rating > 0 && (
-                <Link
-                  href={`/account/orders/${order.id}/review`}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#173D22] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0e2616]"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  Write a Review
-                </Link>
+                <div className="mt-4 space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Review title"
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                    className="w-full rounded-xl border border-[rgba(23,61,34,0.15)] bg-[#FAF7EE] px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#8A9A8C] outline-none focus:border-[#173D22]"
+                  />
+                  <textarea
+                    placeholder="Write your review..."
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    rows={3}
+                    className="w-full rounded-xl border border-[rgba(23,61,34,0.15)] bg-[#FAF7EE] px-4 py-2.5 text-sm text-[#173D22] placeholder:text-[#8A9A8C] outline-none focus:border-[#173D22]"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!reviewTitle.trim() || !reviewComment.trim()) return;
+                      setSubmittingReview(true);
+                      try {
+                        const firstItem = order.items[0];
+                        await fetch("/api/reviews", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: order.recipientName || order.name || "Customer",
+                            email: order.recipientEmail || order.email,
+                            rating,
+                            title: reviewTitle,
+                            comment: reviewComment,
+                            product: firstItem?.productId || order.id,
+                          }),
+                        });
+                        setReviewDone(true);
+                      } catch {
+                        // ignore
+                      } finally {
+                        setSubmittingReview(false);
+                      }
+                    }}
+                    disabled={submittingReview || !reviewTitle.trim() || !reviewComment.trim()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#173D22] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0e2616] disabled:opacity-50"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    {submittingReview ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Submit Review
+                  </button>
+                </div>
               )}
+            </div>
+          )}
+          {reviewDone && (
+            <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center text-sm font-medium text-green-800">
+              Thank you for your review!
             </div>
           )}
         </div>
