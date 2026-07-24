@@ -14,6 +14,7 @@ export interface Review {
   title: string;
   comment: string;
   product: string;
+  product_name?: string;
   admin_reply?: string;
 }
 
@@ -69,7 +70,7 @@ export function ReviewCard({ review, index = 0 }: { review: Review; index?: numb
           </p>
         </div>
         <span className="rounded-full bg-[rgba(23,61,34,0.06)] px-3 py-1 text-[10px] font-medium text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-          {review.product}
+          {review.product_name || review.product}
         </span>
       </div>
     </motion.div>

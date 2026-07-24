@@ -286,6 +286,8 @@ export default function OrderDetailPage() {
                             title: reviewTitle,
                             comment: reviewComment,
                             product: firstItem?.productId || order.id,
+                            city: order.shippingAddress?.city || "",
+                            state: order.shippingAddress?.state || "",
                           }),
                         });
                         setReviewDone(true);

@@ -16,8 +16,41 @@ export async function GET() {
     );
 
     if (!res.ok) return NextResponse.json([], { status: 200 });
-    const data = await res.json();
-    return NextResponse.json(data);
+    const reviews = await res.json();
+    if (!Array.isArray(reviews)) return NextResponse.json(reviews);
+
+    // Fetch product names
+    const productIds = [...new Set(reviews.map((r: Record<string, unknown>) => r.product as string).filter(Boolean))];
+    const nameMap: Record<string, string> = {};
+    if (productIds.length > 0) {
+      for (let i = 0; i < productIds.length; i += 50) {
+        const chunk = productIds.slice(i, i + 50);
+        const pRes = await fetch(
+          `${supabaseUrl}/rest/v1/products?id=in.(${chunk.join(",")})&select=id,name`,
+          {
+            headers: {
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`,
+            },
+          }
+        );
+        if (pRes.ok) {
+          const products = await pRes.json();
+          if (Array.isArray(products)) {
+            for (const p of products) {
+              nameMap[p.id] = p.name;
+            }
+          }
+        }
+      }
+    }
+
+    const enriched = reviews.map((r: Record<string, unknown>) => ({
+      ...r,
+      product_name: nameMap[r.product as string] || "",
+    }));
+
+    return NextResponse.json(enriched);
   } catch {
     return NextResponse.json([], { status: 200 });
   }
