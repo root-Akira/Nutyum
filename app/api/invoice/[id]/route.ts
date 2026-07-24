@@ -191,7 +191,7 @@ export async function GET(
       ${address.line1 || ""}${address.line2 ? `, ${address.line2}` : ""}<br>
       ${address.city || ""}, ${address.state || ""} — ${address.pincode || ""}<br>
       ${address.recipient_phone || address.phone || ""}<br>
-      ${address.recipient_email || session.user.email || ""}
+      ${session.user.email || address.recipient_email || ""}
     </div>
     <div class="addr-block">
       <strong>Ship To</strong>
