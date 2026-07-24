@@ -134,6 +134,10 @@ export async function GET(
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #173D22; }
   .header-left { max-width: 55%; }
   .header-right { text-align: right; }
+  .inv-table { display: inline-table; border-collapse: collapse; }
+  .inv-table td { padding: 2px 0; white-space: nowrap; }
+  .inv-table td.il { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #8A9A8C; padding-right: 14px; text-align: left; }
+  .inv-table td.iv { font-size: 14px; color: #173D22; text-align: right; font-weight: 600; }
   .seller-name { font-size: 15px; font-weight: 700; color: #173D22; margin-bottom: 2px; }
   .seller-detail { font-size: 12px; color: #4C5A48; line-height: 1.6; }
   .inv-meta { font-size: 13px; color: #173D22; line-height: 1.8; }
@@ -171,16 +175,12 @@ export async function GET(
       </div>
     </div>
     <div class="header-right">
-      <div class="inv-meta">
-        <div class="inv-label">Invoice No.</div>
-        <strong style="font-size:15px;">${invoiceNo}</strong><br>
-        <div class="inv-label" style="margin-top:6px;">Invoice Date</div>
-        ${invoiceDate}<br>
-        <div class="inv-label" style="margin-top:6px;">Order ID</div>
-        #${(id as string).slice(0, 8).toUpperCase()}<br>
-        <div class="inv-label">Order Date</div>
-        ${orderDate}
-      </div>
+      <table class="inv-table">
+        <tr><td class="il">Invoice No.</td><td class="iv">${invoiceNo}</td></tr>
+        <tr><td class="il">Invoice Date</td><td class="iv">${invoiceDate}</td></tr>
+        <tr><td class="il">Order ID</td><td class="iv">#${(id as string).slice(0, 8).toUpperCase()}</td></tr>
+        <tr><td class="il">Order Date</td><td class="iv">${orderDate}</td></tr>
+      </table>
     </div>
   </div>
 
