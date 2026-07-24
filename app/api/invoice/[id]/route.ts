@@ -137,7 +137,7 @@ export async function GET(
   .inv-table { display: inline-table; border-collapse: collapse; }
   .inv-table td { padding: 2px 0; white-space: nowrap; }
   .inv-table td.il { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #8A9A8C; padding-right: 14px; text-align: left; }
-  .inv-table td.iv { font-size: 14px; color: #173D22; text-align: right; font-weight: 600; }
+  .inv-table td.iv { font-size: 14px; color: #173D22; text-align: right; }
   .seller-name { font-size: 15px; font-weight: 700; color: #173D22; margin-bottom: 2px; }
   .seller-detail { font-size: 12px; color: #4C5A48; line-height: 1.6; }
   .inv-meta { font-size: 13px; color: #173D22; line-height: 1.8; }
