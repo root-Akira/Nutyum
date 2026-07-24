@@ -81,6 +81,13 @@ export default function OrderDetailPage() {
   const [reviewDone, setReviewDone] = useState(false);
 
   useEffect(() => {
+    const reviewed = JSON.parse(localStorage.getItem("nutyum-reviewed-orders") || "[]");
+    if (Array.isArray(reviewed) && reviewed.includes(id)) {
+      setReviewDone(true);
+    }
+  }, [id]);
+
+  useEffect(() => {
     fetch(`/api/orders/${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -291,6 +298,11 @@ export default function OrderDetailPage() {
                           }),
                         });
                         setReviewDone(true);
+                        const reviewed = JSON.parse(localStorage.getItem("nutyum-reviewed-orders") || "[]");
+                        if (!reviewed.includes(order.id)) {
+                          reviewed.push(order.id);
+                          localStorage.setItem("nutyum-reviewed-orders", JSON.stringify(reviewed));
+                        }
                       } catch {
                         // ignore
                       } finally {
