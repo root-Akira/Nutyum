@@ -41,9 +41,8 @@ export async function GET(
   if (productIds.length > 0) {
     for (let i = 0; i < productIds.length; i += 50) {
       const chunk = productIds.slice(i, i + 50);
-      const orClause = chunk.map((pid) => `id.eq.${pid}`).join(",");
       const { data: products } = await supabaseFetch(
-        `products?or=(${orClause})&select=id,images`
+        `products?id=in.(${chunk.join(",")})&select=id,images`
       );
       if (Array.isArray(products)) {
         for (const p of products as Record<string, unknown>[]) {

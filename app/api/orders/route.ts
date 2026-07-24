@@ -31,12 +31,10 @@ export async function GET() {
   const imageMap: Record<string, string> = {};
   if (allProductIds.size > 0) {
     const ids = Array.from(allProductIds);
-    // Fetch in chunks of 50 to avoid URL length limits
     for (let i = 0; i < ids.length; i += 50) {
       const chunk = ids.slice(i, i + 50);
-      const orClause = chunk.map((id) => `id.eq.${id}`).join(",");
       const { data: products } = await supabaseFetch(
-        `products?or=(${orClause})&select=id,images`
+        `products?id=in.(${chunk.join(",")})&select=id,images`
       );
       if (Array.isArray(products)) {
         for (const p of products as Record<string, unknown>[]) {
