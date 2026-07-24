@@ -27,6 +27,35 @@ export async function GET(
 
   const o = orders[0] as Record<string, unknown>;
   const shippingAddr = o.shipping_address;
+
+  // Fetch status logs for tracking dates
+  const { data: logs } = await supabaseFetch(
+    `order_status_logs?order_id=eq.${id}&order=changed_at.asc`
+  );
+  const statusLogs = (Array.isArray(logs) ? logs : []) as Record<string, unknown>[];
+
+  // Fetch product images for items
+  const itemsRaw = (o.order_items as Record<string, unknown>[]) || [];
+  const productIds = [...new Set(itemsRaw.map((i) => i.product_id as string).filter(Boolean))];
+  const imageMap: Record<string, string> = {};
+  if (productIds.length > 0) {
+    for (let i = 0; i < productIds.length; i += 50) {
+      const chunk = productIds.slice(i, i + 50);
+      const orClause = chunk.map((pid) => `id.eq.${pid}`).join(",");
+      const { data: products } = await supabaseFetch(
+        `products?or=(${orClause})&select=id,images`
+      );
+      if (Array.isArray(products)) {
+        for (const p of products as Record<string, unknown>[]) {
+          const imgs = p.images as string[] | undefined;
+          if (imgs && imgs.length > 0) {
+            imageMap[p.id as string] = imgs[0];
+          }
+        }
+      }
+    }
+  }
+
   const order = {
     id: o.id,
     status: o.status,
@@ -34,6 +63,8 @@ export async function GET(
     shipping: o.shipping,
     discountAmount: o.discount || 0,
     total: o.total,
+    paymentMethod: o.payment_method || "",
+    notes: o.notes || "",
     email: session.user.email || "",
     name: session.user.name || "",
     phone: "",
@@ -41,13 +72,19 @@ export async function GET(
     recipientEmail: "",
     recipientPhone: "",
     shippingAddress: typeof shippingAddr === "string" ? JSON.parse(shippingAddr) : shippingAddr || null,
-    items: ((o.order_items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({
+    items: itemsRaw.map((i: Record<string, unknown>) => ({
       id: i.id,
       productId: i.product_id,
       productName: i.product_name,
       variantName: i.variant_name,
+      productImage: imageMap[i.product_id as string] || "",
       quantity: i.quantity,
       price: i.price,
+    })),
+    statusLogs: statusLogs.map((l: Record<string, unknown>) => ({
+      status: l.to_status || l.status,
+      changedAt: l.changed_at || l.created_at,
+      note: l.note || "",
     })),
     createdAt: o.created_at,
   };
@@ -110,7 +147,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to cancel order" }, { status: 500 });
   }
 
-  // Log status change
   await supabaseFetch("order_status_logs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -123,10 +159,8 @@ export async function PATCH(
     }),
   });
 
-  // Send cancellation email
   try {
-    const { sendEmail } = await import("@/lib/email");
-    const { orderCancelledEmail } = await import("@/lib/email");
+    const { sendEmail, orderCancelledEmail } = await import("@/lib/email");
     const items = (order.order_items as Record<string, unknown>[]) || [];
     const emailData = orderCancelledEmail(
       id.slice(0, 8),
