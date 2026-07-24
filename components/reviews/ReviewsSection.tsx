@@ -37,6 +37,7 @@ export function ReviewsSection() {
             title: r.title,
             comment: r.comment,
             product: r.product,
+            product_name: r.product_name,
             admin_reply: r.admin_reply || undefined,
           }));
           setApiReviews(mapped);
