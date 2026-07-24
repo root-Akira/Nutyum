@@ -17,6 +17,38 @@ export async function GET() {
     return NextResponse.json({ error: error ? getErrorMessage(error) : "Orders not found" }, { status: error ? 500 : 404 });
   }
 
+  // Collect all product IDs to fetch images in one batch
+  const allProductIds = new Set<string>();
+  for (const o of orders as Record<string, unknown>[]) {
+    const items = (o.order_items as Record<string, unknown>[]) || [];
+    for (const i of items) {
+      const pid = i.product_id as string;
+      if (pid) allProductIds.add(pid);
+    }
+  }
+
+  // Fetch product images
+  const imageMap: Record<string, string> = {};
+  if (allProductIds.size > 0) {
+    const ids = Array.from(allProductIds);
+    // Fetch in chunks of 50 to avoid URL length limits
+    for (let i = 0; i < ids.length; i += 50) {
+      const chunk = ids.slice(i, i + 50);
+      const orClause = chunk.map((id) => `id.eq.${id}`).join(",");
+      const { data: products } = await supabaseFetch(
+        `products?or=(${orClause})&select=id,images`
+      );
+      if (Array.isArray(products)) {
+        for (const p of products as Record<string, unknown>[]) {
+          const imgs = p.images as string[] | undefined;
+          if (imgs && imgs.length > 0) {
+            imageMap[p.id as string] = imgs[0];
+          }
+        }
+      }
+    }
+  }
+
   const mapped = orders.map((o: Record<string, unknown>) => ({
     id: o.id,
     status: o.status,
@@ -29,6 +61,7 @@ export async function GET() {
       productId: i.product_id,
       variantName: i.variant_name,
       productName: i.product_name,
+      productImage: imageMap[i.product_id as string] || "",
       quantity: i.quantity,
       price: i.price,
     })) || [],
