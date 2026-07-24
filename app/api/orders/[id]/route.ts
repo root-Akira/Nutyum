@@ -55,6 +55,19 @@ export async function GET(
     }
   }
 
+  // Check if user already reviewed any product in this order
+  let reviewed = false;
+  const userEmail = session.user.email || "";
+  if (userEmail && productIds.length > 0) {
+    const { data: existingReviews } = await supabaseFetch(
+      `reviews?email=eq.${userEmail}&select=product&limit=20`
+    );
+    if (Array.isArray(existingReviews)) {
+      const reviewedProductIds = new Set((existingReviews as Record<string, unknown>[]).map((r) => r.product as string));
+      reviewed = productIds.some((pid) => reviewedProductIds.has(pid));
+    }
+  }
+
   const order = {
     id: o.id,
     status: o.status,
@@ -62,6 +75,7 @@ export async function GET(
     shipping: o.shipping,
     discountAmount: o.discount || 0,
     total: o.total,
+    reviewed,
     paymentMethod: o.payment_method || "",
     notes: o.notes || "",
     email: session.user.email || "",

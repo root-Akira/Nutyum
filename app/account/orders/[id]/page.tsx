@@ -37,6 +37,7 @@ type StatusLog = { status: string; changedAt: string; note: string };
 type OrderItem = { id: string; productId: string; productName?: string; variantName?: string; productImage?: string; quantity: number; price: number };
 type OrderDetail = {
   id: string; status: string; subtotal: number; shipping: number; discountAmount: number; total: number;
+  reviewed: boolean;
   paymentMethod: string; notes: string;
   email?: string; name?: string; phone?: string;
   recipientName?: string; recipientEmail?: string; recipientPhone?: string;
@@ -81,17 +82,13 @@ export default function OrderDetailPage() {
   const [reviewDone, setReviewDone] = useState(false);
 
   useEffect(() => {
-    const reviewed = JSON.parse(localStorage.getItem("nutyum-reviewed-orders") || "[]");
-    if (Array.isArray(reviewed) && reviewed.includes(id)) {
-      setReviewDone(true);
-    }
-  }, [id]);
-
-  useEffect(() => {
     fetch(`/api/orders/${id}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) { setError(data.error); } else { setOrder(data); }
+        if (data.error) { setError(data.error); } else {
+          setOrder(data);
+          if (data.reviewed) setReviewDone(true);
+        }
       })
       .catch(() => setError("Failed to load order"))
       .finally(() => setLoading(false));
@@ -298,11 +295,6 @@ export default function OrderDetailPage() {
                           }),
                         });
                         setReviewDone(true);
-                        const reviewed = JSON.parse(localStorage.getItem("nutyum-reviewed-orders") || "[]");
-                        if (!reviewed.includes(order.id)) {
-                          reviewed.push(order.id);
-                          localStorage.setItem("nutyum-reviewed-orders", JSON.stringify(reviewed));
-                        }
                       } catch {
                         // ignore
                       } finally {
