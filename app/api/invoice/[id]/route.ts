@@ -187,18 +187,18 @@ export async function GET(
   <div class="addr-grid">
     <div class="addr-block">
       <strong>Bill To</strong>
-      ${address.recipient_name || address.name || "Customer"}<br>
+      ${address.recipient_name || address.name || session.user.name || "Customer"}<br>
       ${address.line1 || ""}${address.line2 ? `, ${address.line2}` : ""}<br>
       ${address.city || ""}, ${address.state || ""} — ${address.pincode || ""}<br>
-      ${address.phone || ""}<br>
-      ${address.recipient_email ? address.recipient_email : ""}
+      ${address.recipient_phone || address.phone || ""}<br>
+      ${address.recipient_email || session.user.email || ""}
     </div>
     <div class="addr-block">
       <strong>Ship To</strong>
-      ${address.recipient_name || address.name || "Customer"}<br>
+      ${address.recipient_name || address.name || session.user.name || "Customer"}<br>
       ${address.line1 || ""}${address.line2 ? `, ${address.line2}` : ""}<br>
       ${address.city || ""}, ${address.state || ""} — ${address.pincode || ""}<br>
-      ${address.phone || ""}
+      ${address.recipient_phone || address.phone || ""}
     </div>
   </div>
 
