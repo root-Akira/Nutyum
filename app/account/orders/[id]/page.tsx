@@ -389,12 +389,21 @@ export default function OrderDetailPage() {
 
           {/* Download Invoice */}
           <Link
-            href={`/api/invoice/${order.id}`}
-            target="_blank"
+            href={`/api/invoice/${order.id}/download`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-[rgba(23,61,34,0.2)] bg-white px-6 py-3 text-sm font-semibold text-[#173D22] transition-colors hover:border-[#173D22] hover:bg-[#FAF7EE]"
             style={{ fontFamily: "var(--font-body)" }}
           >
             <Download className="h-4 w-4" /> Download Invoice
+          </Link>
+
+          {/* View Invoice */}
+          <Link
+            href={`/api/invoice/${order.id}`}
+            target="_blank"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white px-6 py-3 text-sm font-medium text-[#4C5A48] transition-colors hover:border-[#173D22] hover:text-[#173D22]"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            View Invoice in Browser
           </Link>
 
           {/* Payment method info */}
