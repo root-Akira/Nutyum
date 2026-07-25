@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 
+function format(n: number) {
+  return "₹" + n.toFixed(2);
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -77,189 +81,255 @@ export async function GET(
   }
 
   const grandTotal = totalTaxable + totalGst + shippingTaxable + shippingGst;
-  const format = (n: number) => "₹" + n.toFixed(2);
+  const discountAmt = itemsWithCalc.reduce((s: number, i: any) => s + i.propDiscount, 0);
 
-  const gstSummary = isIntraState
-    ? `<span style="display:inline-block;margin-right:20px;font-size:13px;color:#4C5A48;">CGST 9%: ${format(totalGst / 2 + shippingGst / 2)}</span><span style="display:inline-block;font-size:13px;color:#4C5A48;">SGST 9%: ${format(totalGst / 2 + shippingGst / 2)}</span>`
-    : `<span style="display:inline-block;font-size:13px;color:#4C5A48;">IGST 18%: ${format(totalGst + shippingGst)}</span>`;
+  const recipientName = address.recipient_name || address.name || session.user.name || "Customer";
+  const recipientPhone = address.recipient_phone || address.phone || "";
+  const recipientEmail = session.user.email || address.recipient_email || "";
+
+  const gstText = isIntraState
+    ? `CGST 9%: ${format(totalGst / 2 + shippingGst / 2)}    SGST 9%: ${format(totalGst / 2 + shippingGst / 2)}`
+    : `IGST 18%: ${format(totalGst + shippingGst)}`;
 
   const supportContact = [sellerPhone, sellerEmail].filter(Boolean).join(" | ");
-  const recipientName = address.recipient_name || address.name || session.user.name || "Customer";
 
-  const itemRows = itemsWithCalc.map((i: any) => ` 
-    <tr>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;font-size:13px;color:#173D22;">${i.product_name || "Product"}${i.variant_name ? `<br><span style="font-size:11px;color:#7A7A7A;">${i.variant_name}</span>` : ""}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:center;font-size:12px;color:#4C5A48;font-family:monospace;">${HSN}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:center;font-size:13px;color:#4C5A48;">${i.qty}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;">${format(i.gross)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#C0392B;">${i.propDiscount > 0 ? `(${format(i.propDiscount)})` : "—"}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;">${format(i.taxableValue)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:12px;color:#4C5A48;">${format(i.gstAmount)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;font-weight:600;">${format(i.lineTotal)}</td>
-    </tr>
-  `).join("");
+  const itemRows = itemsWithCalc.map((i: any) => [
+    { text: i.product_name || "Product", style: "itemDesc", margin: [0, 4, 0, 0] },
+    { text: HSN, alignment: "center", fontSize: 9, color: "#4C5A48", font: "Helvetica" },
+    { text: String(i.qty), alignment: "center", fontSize: 11, color: "#4C5A48" },
+    { text: format(i.gross), alignment: "right", fontSize: 11, color: "#173D22" },
+    {
+      text: i.propDiscount > 0 ? `(${format(i.propDiscount)})` : "—",
+      alignment: "right",
+      fontSize: 11,
+      color: i.propDiscount > 0 ? "#C0392B" : "#4C5A48",
+    },
+    { text: format(i.taxableValue), alignment: "right", fontSize: 11, color: "#173D22" },
+    { text: format(i.gstAmount), alignment: "right", fontSize: 9, color: "#4C5A48" },
+    { text: format(i.lineTotal), alignment: "right", fontSize: 11, bold: true, color: "#173D22" },
+  ]);
 
-  const shippingRow = shipping > 0 ? ` 
-    <tr>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;font-size:13px;color:#173D22;">Shipping Charges</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:center;font-size:12px;color:#4C5A48;font-family:monospace;">9965</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:center;font-size:13px;color:#4C5A48;">1</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;">${format(shipping)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#4C5A48;">—</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;">${format(shippingTaxable)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:12px;color:#4C5A48;">${format(shippingGst)}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;text-align:right;font-size:13px;color:#173D22;font-weight:600;">${format(shipping)}</td>
-    </tr>
-  ` : "";
+  const shippingRow = shipping > 0 ? [
+    { text: "Shipping Charges", style: "itemDesc" },
+    { text: "9965", alignment: "center", fontSize: 9, color: "#4C5A48" },
+    { text: "1", alignment: "center", fontSize: 11, color: "#4C5A48" },
+    { text: format(shipping), alignment: "right", fontSize: 11, color: "#173D22" },
+    { text: "—", alignment: "right", fontSize: 11, color: "#4C5A48" },
+    { text: format(shippingTaxable), alignment: "right", fontSize: 11, color: "#173D22" },
+    { text: format(shippingGst), alignment: "right", fontSize: 9, color: "#4C5A48" },
+    { text: format(shipping), alignment: "right", fontSize: 11, bold: true, color: "#173D22" },
+  ] : null;
 
-  // Build the exact same HTML as the view route
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Tax Invoice #${(id as string).slice(0, 8)}</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 30px; background: #F6F5F0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .invoice { max-width: 794px; margin: 0 auto; background: #FFFEFB; border-radius: 20px; padding: 44px 48px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
-  h1 { font-family: Georgia, 'Times New Roman', serif; color: #173D22; font-size: 26px; margin: 0; letter-spacing: 0.5px; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #173D22; }
-  .header-left { max-width: 55%; }
-  .header-right { text-align: right; }
-  .inv-table { display: inline-table; border-collapse: collapse; }
-  .inv-table td { padding: 2px 0; white-space: nowrap; }
-  .inv-table td.il { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #8A9A8C; padding-right: 14px; text-align: left; }
-  .inv-table td.iv { font-size: 14px; color: #173D22; text-align: right; }
-  .seller-name { font-size: 15px; font-weight: 700; color: #173D22; margin-bottom: 2px; }
-  .seller-detail { font-size: 12px; color: #4C5A48; line-height: 1.6; }
-  .addr-grid { display: flex; gap: 16px; margin-bottom: 28px; }
-  .addr-block { flex: 1; background: #FAF7EE; border-radius: 12px; padding: 14px 18px; font-size: 13px; color: #4C5A48; line-height: 1.6; }
-  .addr-block strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8A9A8C; margin-bottom: 4px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #8A9A8C; padding: 8px 0 6px; border-bottom: 2px solid #173D22; white-space: nowrap; }
-  th.right { text-align: right; }
-  th.center { text-align: center; }
-  .total-section { text-align: right; margin-top: 8px; padding-top: 12px; border-top: 2px solid #173D22; }
-  .total-row { font-size: 15px; font-weight: 700; color: #173D22; }
-  .total-row span { margin-left: 16px; }
-  .gst-breakup { margin-top: 16px; }
-  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #E5E3D8; font-size: 11px; color: #8A9A8C; text-align: center; line-height: 1.7; }
-  .footer strong { color: #4C5A48; font-weight: 600; }
-  @media print {
-    body { background: #fff; padding: 0; }
-    .invoice { box-shadow: none; border-radius: 0; padding: 32px; }
-  }
-</style>
-</head>
-<body>
-<div class="invoice">
+  const addressLines = [
+    recipientName,
+    [address.line1, address.line2].filter(Boolean).join(", "),
+    [address.city, address.state, `— ${address.pincode || ""}`].filter(Boolean).join(", "),
+  ].filter((l) => l);
 
-  <div class="header">
-    <div class="header-left">
-      <h1>Tax Invoice</h1>
-      <div class="seller-name">${sellerLegalName}</div>
-      <div class="seller-detail">
-        GSTIN: ${sellerGSTIN || "<span style='color:#C0392B;'>Not available</span>"}<br>
-        ${sellerAddr}
-      </div>
-    </div>
-    <div class="header-right">
-      <table class="inv-table">
-        <tr><td class="il">Invoice No.</td><td class="iv">${invoiceNo}</td></tr>
-        <tr><td class="il">Invoice Date</td><td class="iv">${invoiceDate}</td></tr>
-        <tr><td class="il">Order ID</td><td class="iv">#${(id as string).slice(0, 8).toUpperCase()}</td></tr>
-        <tr><td class="il">Order Date</td><td class="iv">${orderDate}</td></tr>
-      </table>
-    </div>
-  </div>
+  const addressLinesWithPhone = recipientPhone
+    ? [...addressLines, recipientPhone]
+    : addressLines;
 
-  <div class="addr-grid">
-    <div class="addr-block">
-      <strong>Bill To</strong>
-      ${recipientName}<br>
-      ${address.line1 || ""}${address.line2 ? `, ${address.line2}` : ""}<br>
-      ${address.city || ""}, ${address.state || ""} — ${address.pincode || ""}<br>
-      ${address.recipient_phone || address.phone || ""}<br>
-      ${session.user.email || address.recipient_email || ""}
-    </div>
-    <div class="addr-block">
-      <strong>Ship To</strong>
-      ${recipientName}<br>
-      ${address.line1 || ""}${address.line2 ? `, ${address.line2}` : ""}<br>
-      ${address.city || ""}, ${address.state || ""} — ${address.pincode || ""}<br>
-      ${address.recipient_phone || address.phone || ""}
-    </div>
-  </div>
+  const pdfmakeFonts = {
+    Helvetica: {
+      normal: "Helvetica",
+      bold: "Helvetica-Bold",
+      italics: "Helvetica-Oblique",
+      bolditalics: "Helvetica-BoldOblique",
+    },
+    Times: {
+      normal: "Times-Roman",
+      bold: "Times-Bold",
+      italics: "Times-Italic",
+      bolditalics: "Times-BoldItalic",
+    },
+  };
 
-  <table>
-    <tr>
-      <th style="width:26%;">Description</th>
-      <th style="width:10%;" class="center">HSN/SAC</th>
-      <th style="width:6%;" class="center">Qty</th>
-      <th style="width:13%;" class="right">Gross Amt</th>
-      <th style="width:12%;" class="right">Discount</th>
-      <th style="width:13%;" class="right">Taxable Value</th>
-      <th style="width:9%;" class="right">GST</th>
-      <th style="width:11%;" class="right">Total</th>
-    </tr>
-    ${itemRows}
-    ${shippingRow}
-  </table>
+  const pdfmake = require("pdfmake");
+  pdfmake.fonts = pdfmakeFonts;
 
-  <div class="total-section">
-    <div class="gst-breakup">${gstSummary}</div>
-    <div class="total-row" style="margin-top:10px;">
-      Grand Total: <span>${format(grandTotal)}</span>
-    </div>
-  </div>
-
-  <div class="footer">
-    This is a computer-generated invoice; no signature required.<br>
-    <strong>${sellerTradeName}</strong> — ${sellerAddr}<br>
-    ${supportContact ? `Contact: ${supportContact}<br>` : ""}
-    Nutyum — Premium Roasted Makhana &bull; Thank you for your order!
-  </div>
-
-</div>
-</body>
-</html>`;
-
-  try {
-    const Chromium = (await import("@sparticuz/chromium")).default;
-    const puppeteer = await import("puppeteer-core");
-
-    const browser = await puppeteer.launch({
-      args: Chromium.args,
-      executablePath: await Chromium.executablePath(),
-      headless: true,
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "load", timeout: 30000 });
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0px", right: "0px", bottom: "0px", left: "0px" },
-    });
-    await browser.close();
-
-    return new NextResponse(Buffer.from(pdfBuffer), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="nutyum-invoice-${(id as string).slice(0, 8)}.pdf"`,
-        "Content-Length": String(pdfBuffer.length),
+  const docDefinition: any = {
+    pageSize: "A4",
+    pageMargins: [48, 40, 48, 40],
+    defaultStyle: { font: "Helvetica", fontSize: 11, color: "#4C5A48" },
+    content: [
+      { text: "Tax Invoice", style: "title" },
+      { text: sellerLegalName, style: "sellerName", margin: [0, 2, 0, 0] },
+      { text: `GSTIN: ${sellerGSTIN || "Not available"}`, style: "small" },
+      { text: sellerAddr, style: "small", margin: [0, 0, 0, 20] },
+      {
+        columns: [
+          {
+            width: "48%",
+            stack: [
+              { text: "BILL TO", style: "label" },
+              { text: recipientName, margin: [0, 4, 0, 0] },
+              ...addressLines.slice(1).map((l: string) => ({ text: l, margin: [0, 0, 0, 0] })),
+              recipientPhone ? { text: recipientPhone, margin: [0, 0, 0, 0] } : null,
+              recipientEmail ? { text: recipientEmail, color: "#173D22", margin: [0, 0, 0, 0] } : null,
+            ].filter(Boolean),
+          },
+          { width: "3%", text: "" },
+          {
+            width: "49%",
+            alignment: "right",
+            stack: [
+              { text: "INVOICE NO.", style: "metaLabel" },
+              { text: invoiceNo, style: "metaValue", margin: [0, 0, 0, 10] },
+              { text: "INVOICE DATE", style: "metaLabel" },
+              { text: invoiceDate, style: "metaValue", margin: [0, 0, 0, 10] },
+              { text: "ORDER ID", style: "metaLabel" },
+              { text: `#${(id as string).slice(0, 8).toUpperCase()}`, style: "metaValue" },
+              { text: "ORDER DATE", style: "metaLabel", margin: [0, 10, 0, 0] },
+              { text: orderDate, style: "metaValue" },
+            ],
+          },
+        ],
+        margin: [0, 0, 0, 24],
       },
-    });
-  } catch (err: any) {
-    console.error("PDF generation error:", err);
-    // Fallback: serve HTML with download headers
-    return new NextResponse(html, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Content-Disposition": `attachment; filename="nutyum-invoice-${(id as string).slice(0, 8)}.html"`,
+      {
+        columns: [
+          {
+            width: "48%",
+            stack: [
+              { text: "SHIP TO", style: "label" },
+              { text: recipientName, margin: [0, 4, 0, 0] },
+              ...addressLines.slice(1).map((l: string) => ({ text: l, margin: [0, 0, 0, 0] })),
+              recipientPhone ? { text: recipientPhone, margin: [0, 0, 0, 0] } : null,
+            ].filter(Boolean),
+          },
+        ],
+        margin: [0, 0, 0, 24],
       },
-    });
-  }
+      {
+        table: {
+          headerRows: 1,
+          widths: ["26%", "10%", "6%", "13%", "12%", "13%", "9%", "11%"],
+          body: [
+            [
+              { text: "Description", style: "th" },
+              { text: "HSN/SAC", style: "th", alignment: "center" },
+              { text: "Qty", style: "th", alignment: "center" },
+              { text: "Gross Amt", style: "th", alignment: "right" },
+              { text: "Discount", style: "th", alignment: "right" },
+              { text: "Taxable Value", style: "th", alignment: "right" },
+              { text: "GST", style: "th", alignment: "right" },
+              { text: "Total", style: "th", alignment: "right" },
+            ],
+            ...itemRows,
+            ...(shippingRow ? [shippingRow] : []),
+          ],
+        },
+        layout: {
+          hLineWidth: (_i: number, node: any) =>
+            _i === 0 || _i === node.table.body.length ? 2 : 1,
+          vLineWidth: () => 0,
+          hLineColor: (_i: number) => (_i === 0 ? "#173D22" : "#E5E3D8"),
+          paddingLeft: () => 4,
+          paddingRight: () => 4,
+          paddingTop: () => 8,
+          paddingBottom: () => 8,
+        },
+      },
+      {
+        columns: [
+          { width: "*", text: "" },
+          {
+            width: "auto",
+            stack: [
+              discountAmt > 0
+                ? { text: `Total Discount: ${format(discountAmt)}`, style: "discountLine" }
+                : null,
+              { text: gstText, style: "gstLine" },
+              {
+                columns: [
+                  { width: "*", text: "" },
+                  {
+                    width: "auto",
+                    text: `Grand Total: ${format(grandTotal)}`,
+                    style: "grandTotal",
+                  },
+                ],
+                margin: [0, 10, 0, 0],
+              },
+            ].filter(Boolean),
+          },
+        ],
+        margin: [0, 0, 0, 0],
+      },
+      {
+        text: [
+          { text: "This is a computer-generated invoice; no signature required.\n", style: "footerText" },
+          { text: sellerTradeName, bold: true, fontSize: 10, color: "#4C5A48" },
+          { text: ` — ${sellerAddr}\n`, style: "footerText" },
+          supportContact ? { text: `Contact: ${supportContact}\n`, style: "footerText" } : null,
+          { text: "Nutyum — Premium Roasted Makhana • Thank you for your order!", style: "footerText" },
+        ].filter(Boolean),
+        alignment: "center",
+        margin: [0, 28, 0, 0],
+      },
+    ],
+    styles: {
+      title: {
+        fontSize: 26,
+        font: "Times",
+        bold: true,
+        color: "#173D22",
+        margin: [0, 0, 0, 2],
+      },
+      sellerName: { fontSize: 15, bold: true, color: "#173D22" },
+      small: { fontSize: 11, color: "#4C5A48" },
+      label: { fontSize: 10, bold: true, color: "#8A9A8C", margin: [0, 0, 0, 4] },
+      metaLabel: {
+        fontSize: 9,
+        bold: true,
+        color: "#8A9A8C",
+        margin: [0, 0, 0, 2],
+      },
+      metaValue: { fontSize: 13, color: "#173D22" },
+      th: {
+        fontSize: 10,
+        bold: true,
+        color: "#8A9A8C",
+      },
+      itemDesc: {
+        fontSize: 12,
+        color: "#173D22",
+        margin: [0, 4, 0, 0],
+      },
+      gstLine: {
+        fontSize: 11,
+        color: "#4C5A48",
+        margin: [0, 12, 0, 0],
+        alignment: "right",
+      },
+      discountLine: {
+        fontSize: 11,
+        color: "#C0392B",
+        margin: [0, 8, 0, 0],
+        alignment: "right",
+      },
+      grandTotal: {
+        fontSize: 15,
+        bold: true,
+        color: "#173D22",
+      },
+      footerText: {
+        fontSize: 10,
+        color: "#8A9A8C",
+      },
+    },
+  } as any;
+
+  const doc = pdfmake.createPdf(docDefinition);
+  const pdfBuffer: Buffer = await doc.getBuffer();
+
+  return new NextResponse(new Blob([pdfBuffer as unknown as BlobPart]), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="nutyum-invoice-${(id as string).slice(0, 8)}.pdf"`,
+      "Content-Length": String(pdfBuffer.length),
+    },
+  });
 }
