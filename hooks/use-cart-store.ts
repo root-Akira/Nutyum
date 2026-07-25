@@ -35,6 +35,7 @@ interface DiscountInfo {
 interface CartStore {
   items: CartItem[];
   loaded: boolean;
+  serverMode: boolean;
   couponCode: string;
   discount: DiscountInfo | null;
   couponError: string;
@@ -42,34 +43,47 @@ interface CartStore {
   setCouponCode: (code: string) => void;
   applyCoupon: (subtotal: number) => Promise<void>;
   removeCoupon: () => void;
-  addItem: (product: Product, quantity?: number, variant?: { variantId: string; variantName: string }) => void;
-  removeItem: (key: string) => void;
-  updateQuantity: (key: string, quantity: number) => void;
-  clearCart: () => void;
+  addItem: (product: Product, quantity?: number, variant?: { variantId: string; variantName: string }) => Promise<void>;
+  removeItem: (key: string) => Promise<void>;
+  updateQuantity: (key: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   loadItems: (items: CartItem[]) => void;
+  setServerMode: (on: boolean) => void;
+  mergeGuestCart: () => Promise<void>;
 }
 
 function itemKey(item: { productId: string; variantId?: string }) {
   return `${item.productId}_${item.variantId || ''}`;
 }
 
-let _syncing = false;
-function syncCartToServer(items: CartItem[]) {
-  if (_syncing) return;
-  _syncing = true;
-  queueMicrotask(() => {
-    _syncing = false;
+// Serialized mutation queue — ensures DB writes happen in order
+let _mutating: Promise<void> = Promise.resolve();
+
+function queueApiSync(items: CartItem[]): Promise<boolean> {
+  const result = _mutating.then(() =>
     fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items }),
-    }).catch(() => {});
-  });
+    })
+  );
+  _mutating = result.then(() => {}).catch(() => {});
+  return result.then((r) => r.ok).catch(() => false);
+}
+
+function saveToLocal(items: CartItem[]) {
+  try { localStorage.setItem("nutyum-cart", JSON.stringify(items)); } catch { /* ignore */ }
+}
+
+function removeFromLocal() {
+  try { localStorage.removeItem("nutyum-cart"); } catch { /* ignore */ }
+  try { localStorage.removeItem("nutyum-coupon"); } catch { /* ignore */ }
 }
 
 export const useCartStore = create<CartStore>()((set, get) => ({
   items: [],
   loaded: false,
+  serverMode: false,
   couponCode: '',
   discount: null,
   couponError: '',
@@ -107,74 +121,104 @@ export const useCartStore = create<CartStore>()((set, get) => ({
 
   removeCoupon: () => set({ couponCode: '', discount: null, couponError: '' }),
 
-  addItem: (product, quantity = 1, variant) =>
-    set((state) => {
-      const key = `${product.id}_${variant?.variantId || ''}`;
-      const existing = state.items.find((item) => itemKey(item) === key);
-      if (existing) {
-        return {
-          items: state.items.map((item) =>
-            itemKey(item) === key
-              ? { ...item, quantity: Math.min(item.quantity + quantity, 99) }
-              : item
-          ),
-        };
-      }
-      return {
-        items: [
-          ...state.items,
-          {
-            productId: product.id,
-            variantId: variant?.variantId,
-            variantName: variant?.variantName,
-            quantity: Math.min(quantity, 99),
-            product,
-          },
-        ],
-      };
-    }),
+  setServerMode: (on) => set({ serverMode: on }),
 
-  removeItem: (key) => {
+  addItem: async (product, quantity = 1, variant) => {
     const state = get();
-    console.log("[CART] removeItem called with key:", key, "current items:", state.items.length);
-    const updated = state.items.filter((item) => itemKey(item) !== key);
-    console.log("[CART] removeItem filtered items:", updated.length, "removed?", updated.length !== state.items.length);
-    set({ items: updated });
-    // Persist to localStorage immediately so refresh doesn't lose the removal
-    try {
-      localStorage.setItem("nutyum-cart", JSON.stringify(updated));
-      console.log("[CART] removeItem saved to localStorage, key nutyum-cart");
-    } catch (e) {
-      console.error("[CART] removeItem localStorage.setItem FAILED:", e);
+    const key = `${product.id}_${variant?.variantId || ''}`;
+    const existing = state.items.find((item) => itemKey(item) === key);
+    let updated: CartItem[];
+    if (existing) {
+      updated = state.items.map((item) =>
+        itemKey(item) === key
+          ? { ...item, quantity: Math.min(item.quantity + quantity, 99) }
+          : item
+      );
+    } else {
+      updated = [
+        ...state.items,
+        {
+          productId: product.id,
+          variantId: variant?.variantId,
+          variantName: variant?.variantName,
+          quantity: Math.min(quantity, 99),
+          product,
+        },
+      ];
     }
-    syncCartToServer(updated);
+    set({ items: updated });
+    saveToLocal(updated);
+    if (state.serverMode) {
+      const ok = await queueApiSync(updated);
+      if (!ok) {
+        // Server rejected — refetch authoritative state from DB
+        const data = await (await fetch("/api/cart")).json();
+        set({ items: data.items || [], loaded: true });
+      }
+    }
   },
 
-  updateQuantity: (key, quantity) => {
+  removeItem: async (key) => {
+    const state = get();
+    const updated = state.items.filter((item) => itemKey(item) !== key);
+    set({ items: updated });
+    saveToLocal(updated);
+    if (state.serverMode) {
+      const ok = await queueApiSync(updated);
+      if (!ok) {
+        const data = await (await fetch("/api/cart")).json();
+        set({ items: data.items || [], loaded: true });
+      }
+    }
+  },
+
+  updateQuantity: async (key, quantity) => {
     const state = get();
     if (quantity <= 0) {
       const updated = state.items.filter((item) => itemKey(item) !== key);
       set({ items: updated });
-      try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
-      syncCartToServer(updated);
+      saveToLocal(updated);
+      if (state.serverMode) {
+        const ok = await queueApiSync(updated);
+        if (!ok) {
+          const data = await (await fetch("/api/cart")).json();
+          set({ items: data.items || [], loaded: true });
+        }
+      }
       return;
     }
     const updated = state.items.map((item) =>
       itemKey(item) === key ? { ...item, quantity: Math.min(quantity, 99) } : item
     );
     set({ items: updated });
-    try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
-    syncCartToServer(updated);
+    saveToLocal(updated);
+    if (state.serverMode) {
+      const ok = await queueApiSync(updated);
+      if (!ok) {
+        const data = await (await fetch("/api/cart")).json();
+        set({ items: data.items || [], loaded: true });
+      }
+    }
   },
 
-  clearCart: () => {
+  clearCart: async () => {
     set({ items: [], couponCode: '', discount: null, couponError: '' });
-    try { localStorage.removeItem("nutyum-cart"); } catch {/* ignore */ }
-    try { localStorage.removeItem("nutyum-coupon"); } catch {/* ignore */ }
-    syncCartToServer([]);
+    removeFromLocal();
+    if (get().serverMode) {
+      await queueApiSync([]);
+    }
   },
 
   loadItems: (items) => set({ items, loaded: true }),
+
+  mergeGuestCart: async () => {
+    const state = get();
+    if (!state.items.length) return;
+    await queueApiSync(state.items);
+    // After merge, fetch authoritative state from DB
+    const data = await (await fetch("/api/cart")).json();
+    set({ items: data.items || [], loaded: true, serverMode: true });
+  },
 }));
 
 export function getCartItemKey(item: { productId: string; variantId?: string }) {
