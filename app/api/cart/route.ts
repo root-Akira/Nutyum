@@ -78,18 +78,22 @@ export async function POST(req: Request) {
     }
   }
 
-  // Remove items no longer in the cart
-  const activeIds = items.map((i) => encodeProductId(i));
-  let delPath: string;
-  if (activeIds.length > 0) {
-    delPath = `cart_items?user_id=eq.${userId}&product_id=not.in.(${activeIds.join(",")})`;
-  } else {
-    delPath = `cart_items?user_id=eq.${userId}`;
+  // Remove items no longer in the cart (fetch current DB items, diff, delete individually)
+  const activeSet = new Set(items.map((i) => encodeProductId(i)));
+  const { data: currentRows } = await supabaseFetch(
+    `cart_items?user_id=eq.${userId}&select=product_id`
+  );
+  if (Array.isArray(currentRows)) {
+    for (const row of currentRows) {
+      if (!activeSet.has(row.product_id as string)) {
+        const pid = encodeURIComponent(String(row.product_id));
+        await supabaseFetch(
+          `cart_items?user_id=eq.${userId}&product_id=eq.${pid}`,
+          { method: "DELETE", headers: { "Prefer": "return=minimal" } }
+        );
+      }
+    }
   }
-  await supabaseFetch(delPath, {
-    method: "DELETE",
-    headers: { "Prefer": "return=minimal" },
-  });
 
   return NextResponse.json({ ok: true });
 }

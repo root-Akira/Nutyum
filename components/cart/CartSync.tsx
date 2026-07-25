@@ -81,7 +81,7 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [couponCode, discount]);
 
-  // 4. Load cart from API when user signs in
+  // 4. Load cart from API when user signs in (prefer localStorage over API to avoid stale server data)
   useEffect(() => {
     const uid = session?.user?.id ?? null;
     if (uid && !hasFetchedApi.current) {
@@ -90,7 +90,13 @@ export function CartSync() {
         .then((r) => r.json())
         .then((data) => {
           if (data.items?.length) {
-            loadItems(data.items);
+            // Only load from API if local cart is empty — prefer local to avoid
+            // stale server data overwriting a recently-removed item
+            if (!items.length) {
+              loadItems(data.items);
+            } else {
+              useCartStore.setState({ loaded: true });
+            }
           } else if (!items.length) {
             loadItems([]);
           } else {
