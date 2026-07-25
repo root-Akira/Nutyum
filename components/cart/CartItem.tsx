@@ -81,7 +81,7 @@ export function CartItem({ item }: CartItemProps) {
       <button
         type="button"
         onClick={() => removeItem(key)}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 hover:bg-red-50 hover:text-red-500 transition-colors"
         aria-label={`Remove ${item.product.name} from cart`}
       >
         <Trash2 size={15} />

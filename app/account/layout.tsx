@@ -40,6 +40,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
                   {item.label}
                 </Link>
               ))}
+              <SidebarSignOut pill />
             </div>
           </div>
 
