@@ -16,7 +16,7 @@ const COLUMNS = [
   {
     label: "Support",
     links: [
-      { name: "Track Order", href: "/support" },
+      { name: "Track Order", href: "/account/orders" },
       { name: "Returns", href: "/returns" },
       { name: "FAQs", href: "/faq" },
       { name: "Contact", href: "/contact" },
