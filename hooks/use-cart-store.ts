@@ -120,24 +120,34 @@ export const useCartStore = create<CartStore>()((set, get) => ({
       };
     }),
 
-  removeItem: (key) =>
-    set((state) => ({
-      items: state.items.filter((item) => itemKey(item) !== key),
-    })),
+  removeItem: (key) => {
+    const state = get();
+    const updated = state.items.filter((item) => itemKey(item) !== key);
+    set({ items: updated });
+    // Persist to localStorage immediately so refresh doesn't lose the removal
+    try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */}
+  },
 
-  updateQuantity: (key, quantity) =>
-    set((state) => {
-      if (quantity <= 0) {
-        return { items: state.items.filter((item) => itemKey(item) !== key) };
-      }
-      return {
-        items: state.items.map((item) =>
-          itemKey(item) === key ? { ...item, quantity: Math.min(quantity, 99) } : item
-        ),
-      };
-    }),
+  updateQuantity: (key, quantity) => {
+    const state = get();
+    if (quantity <= 0) {
+      const updated = state.items.filter((item) => itemKey(item) !== key);
+      set({ items: updated });
+      try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
+      return;
+    }
+    const updated = state.items.map((item) =>
+      itemKey(item) === key ? { ...item, quantity: Math.min(quantity, 99) } : item
+    );
+    set({ items: updated });
+    try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
+  },
 
-  clearCart: () => set({ items: [], couponCode: '', discount: null, couponError: '' }),
+  clearCart: () => {
+    set({ items: [], couponCode: '', discount: null, couponError: '' });
+    try { localStorage.removeItem("nutyum-cart"); } catch {/* ignore */ }
+    try { localStorage.removeItem("nutyum-coupon"); } catch {/* ignore */ }
+  },
 
   loadItems: (items) => set({ items, loaded: true }),
 }));
