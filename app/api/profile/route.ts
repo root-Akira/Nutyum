@@ -28,21 +28,38 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, phone } = await req.json();
+  const body = await req.json();
+  const admin = getSupabaseAdmin();
 
-  const { data, error } = await getSupabaseAdmin().auth.admin.updateUserById(session.user.id, {
-    user_metadata: { name, phone },
-  });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (body.email) {
+    const { error } = await admin.auth.admin.updateUserById(session.user.id, {
+      email: body.email,
+    });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   }
 
-  const meta = data.user.user_metadata || {};
-  return NextResponse.json({
-    id: data.user.id,
-    email: data.user.email,
-    name: meta.name || "",
-    phone: meta.phone || "",
-  });
+  const { name, phone } = body;
+  const updateData: Record<string, unknown> = {};
+  if (name !== undefined) updateData.name = name;
+  if (phone !== undefined) updateData.phone = phone;
+
+  if (Object.keys(updateData).length > 0) {
+    const { data, error } = await admin.auth.admin.updateUserById(session.user.id, {
+      user_metadata: updateData,
+    });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    const meta = data.user.user_metadata || {};
+    return NextResponse.json({
+      id: data.user.id,
+      email: data.user.email,
+      name: meta.name || "",
+      phone: meta.phone || "",
+    });
+  }
+
+  return NextResponse.json({ success: true });
 }
