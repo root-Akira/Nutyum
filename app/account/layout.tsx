@@ -55,11 +55,11 @@ export default async function AccountLayout({ children }: { children: React.Reac
               </Link>
 
               <Link
-                href="/account/account-settings"
+                href="/account/wishlist"
                 className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[#4C5A48] transition-colors hover:bg-[#FAF7EE] hover:text-[#173D22]"
               >
-                <Settings className="h-4 w-4" />
-                Account Settings
+                <Heart className="h-4 w-4" />
+                Wishlist
               </Link>
 
               <hr className="my-2 border-[rgba(23,61,34,0.08)]" />
@@ -105,11 +105,11 @@ export default async function AccountLayout({ children }: { children: React.Reac
               <hr className="my-2 border-[rgba(23,61,34,0.08)]" />
 
               <Link
-                href="/account/wishlist"
+                href="/account/account-settings"
                 className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[#4C5A48] transition-colors hover:bg-[#FAF7EE] hover:text-[#173D22]"
               >
-                <Heart className="h-4 w-4" />
-                Wishlist
+                <Settings className="h-4 w-4" />
+                Account Settings
               </Link>
 
               <hr className="my-2 border-[rgba(23,61,34,0.08)]" />
