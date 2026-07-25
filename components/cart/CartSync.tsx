@@ -15,7 +15,6 @@ export function CartSync() {
   const loadItems = useCartStore((s) => s.loadItems);
   const loaded = useCartStore((s) => s.loaded);
   const hasFetchedApi = useRef(false);
-  const syncing = useRef(false);
   const lastSaved = useRef("");
   const lastCoupon = useRef("");
 
@@ -45,20 +44,16 @@ export function CartSync() {
     }
   }, []);
 
-  // 2. Save cart to localStorage whenever items change
+  // 2. Save cart to localStorage whenever items change (synchronous, no debounce)
   useEffect(() => {
     const json = JSON.stringify(items);
     if (json === lastSaved.current) return;
     lastSaved.current = json;
-
-    const timeout = setTimeout(() => {
-      try {
-        localStorage.setItem(STORAGE_KEY, json);
-      } catch {
-        // quota exceeded
-      }
-    }, 200);
-    return () => clearTimeout(timeout);
+    try {
+      localStorage.setItem(STORAGE_KEY, json);
+    } catch {
+      // quota exceeded
+    }
   }, [items]);
 
   // 3. Save coupon to localStorage whenever it changes
@@ -81,7 +76,7 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [couponCode, discount]);
 
-  // 4. Load cart from API when user signs in (prefer localStorage over API to avoid stale server data)
+  // 4. Load cart from API once when user signs in (prefer localStorage over API to avoid stale server data)
   useEffect(() => {
     const uid = session?.user?.id ?? null;
     if (uid && !hasFetchedApi.current) {
@@ -89,16 +84,18 @@ export function CartSync() {
       fetch("/api/cart")
         .then((r) => r.json())
         .then((data) => {
+          // Use current store state at response time (not stale closure)
+          const current = useCartStore.getState();
           if (data.items?.length) {
             // Only load from API if local cart is empty — prefer local to avoid
             // stale server data overwriting a recently-removed item
-            if (!items.length) {
-              loadItems(data.items);
+            if (!current.items.length) {
+              current.loadItems(data.items);
             } else {
               useCartStore.setState({ loaded: true });
             }
-          } else if (!items.length) {
-            loadItems([]);
+          } else if (!current.items.length) {
+            current.loadItems([]);
           } else {
             // API empty but we have cached items — keep cache
             useCartStore.setState({ loaded: true });
@@ -117,25 +114,41 @@ export function CartSync() {
       localStorage.removeItem(COUPON_KEY);
       useCartStore.setState({ loaded: false, couponCode: '', discount: null, couponError: '' });
     }
-  }, [session?.user?.id, status, loadItems, items]);
+  }, [session?.user?.id, status]);
 
   // 5. Sync cart to API when items change (only when signed in)
+  const latestRef = useRef(items);
+  latestRef.current = items;
+
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
-    if (!loaded || syncing.current) return;
+    if (!loaded) return;
 
-    syncing.current = true;
-    const timeout = setTimeout(() => {
-      fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
-      })
-        .catch((err) => console.error("Cart sync failed:", err))
-        .finally(() => { syncing.current = false; });
-    }, 500);
+    const timer = setTimeout(async () => {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const snapshot = latestRef.current;
+        let ok = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const res = await fetch("/api/cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ items: snapshot }),
+            });
+            if (res.ok) { ok = true; break; }
+          } catch {
+            // network error, retry
+          }
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
+        if (!ok) break;
+        // If items changed while we were syncing, loop and send again
+        if (latestRef.current === snapshot) break;
+      }
+    }, 300);
 
-    return () => { clearTimeout(timeout); syncing.current = false; };
+    return () => clearTimeout(timer);
   }, [items, session?.user?.id, loaded, status]);
 
   return null;
