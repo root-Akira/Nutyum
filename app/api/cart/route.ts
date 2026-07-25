@@ -52,46 +52,35 @@ export async function POST(req: Request) {
     items: { productId: string; variantId?: string; variantName?: string; quantity: number; product: Record<string, unknown> }[];
   };
 
-  // Upsert current items (insert or update on conflict)
-  if (items.length > 0) {
-    const { error: upsertError } = await supabaseFetch(
-      "cart_items?on_conflict=user_id,product_id",
-      {
-        method: "POST",
-        headers: { "Prefer": "resolution=merge-duplicates" },
-        body: JSON.stringify(
-          items.map((item) => ({
-            user_id: userId,
-            product_id: encodeProductId(item),
-            product_data: item.variantId
-              ? { ...item.product, variantName: item.variantName }
-              : item.product,
-            quantity: item.quantity,
-          }))
-        ),
-      }
-    );
-
-    if (upsertError) {
-      console.error("Cart UPSERT error:", upsertError);
-      return NextResponse.json({ error: getErrorMessage(upsertError) || "Cart sync failed" }, { status: 500 });
-    }
+  // Delete ALL then INSERT fresh — simple, atomic, no diff/encoding issues
+  const { error: delError } = await supabaseFetch(
+    `cart_items?user_id=eq.${userId}`,
+    { method: "DELETE", headers: { "Prefer": "return=minimal" } }
+  );
+  if (delError) {
+    console.error("Cart DELETE ALL error:", delError);
+    return NextResponse.json({ error: getErrorMessage(delError) || "Cart clear failed" }, { status: 500 });
   }
 
-  // Remove items no longer in the cart (fetch current DB items, diff, delete individually)
-  const activeSet = new Set(items.map((i) => encodeProductId(i)));
-  const { data: currentRows } = await supabaseFetch(
-    `cart_items?user_id=eq.${userId}&select=product_id`
-  );
-  if (Array.isArray(currentRows)) {
-    for (const row of currentRows) {
-      if (!activeSet.has(row.product_id as string)) {
-        const pid = encodeURIComponent(String(row.product_id));
-        await supabaseFetch(
-          `cart_items?user_id=eq.${userId}&product_id=eq.${pid}`,
-          { method: "DELETE", headers: { "Prefer": "return=minimal" } }
-        );
-      }
+  if (items.length > 0) {
+    const { error: insError } = await supabaseFetch("cart_items", {
+      method: "POST",
+      headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify(
+        items.map((item) => ({
+          user_id: userId,
+          product_id: encodeProductId(item),
+          product_data: item.variantId
+            ? { ...item.product, variantName: item.variantName }
+            : item.product,
+          quantity: item.quantity,
+        }))
+      ),
+    });
+
+    if (insError) {
+      console.error("Cart INSERT error:", insError);
+      return NextResponse.json({ error: getErrorMessage(insError) || "Cart sync failed" }, { status: 500 });
     }
   }
 
