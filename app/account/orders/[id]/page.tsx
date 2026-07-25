@@ -387,24 +387,16 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Download Invoice */}
-          <button
-            onClick={() => window.open(`/api/invoice/${order.id}?print=1`, "_blank")}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-[rgba(23,61,34,0.2)] bg-white px-6 py-3 text-sm font-semibold text-[#173D22] transition-colors hover:border-[#173D22] hover:bg-[#FAF7EE]"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            <Download className="h-4 w-4" /> Download Invoice
-          </button>
-
-          {/* View Invoice */}
-          <Link
-            href={`/api/invoice/${order.id}`}
-            target="_blank"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white px-6 py-3 text-sm font-medium text-[#4C5A48] transition-colors hover:border-[#173D22] hover:text-[#173D22]"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            View Invoice in Browser
-          </Link>
+          {/* Download Invoice (only for non-cancelled orders) */}
+          {!isCancelled && (
+            <button
+              onClick={() => window.open(`/api/invoice/${order.id}?print=1`, "_blank")}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-[rgba(23,61,34,0.2)] bg-white px-6 py-3 text-sm font-semibold text-[#173D22] transition-colors hover:border-[#173D22] hover:bg-[#FAF7EE]"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              <Download className="h-4 w-4" /> Download Invoice
+            </button>
+          )}
 
           {/* Payment method info */}
           {order.paymentMethod && (
