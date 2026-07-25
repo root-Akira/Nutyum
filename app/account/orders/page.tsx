@@ -240,17 +240,12 @@ export default function OrdersPage() {
 
       {/* Order list */}
       <div className="space-y-4">
-        {filteredOrders.map((order, i) => {
+        {filteredOrders.map((order) => {
           const reason = order.status === "cancelled" ? getCancelReason(order.notes) : "";
           const isExpanded = expandedId === order.id;
 
           return (
-            <motion.div
-              key={order.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.04, ease: EASE }}
-            >
+            <div key={order.id}>
               {reason ? (
                 <>
                   <button
@@ -281,7 +276,7 @@ export default function OrdersPage() {
                   </div>
                 </Link>
               )}
-            </motion.div>
+            </div>
           );
         })}
       </div>
