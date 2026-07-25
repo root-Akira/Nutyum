@@ -49,7 +49,6 @@ interface CartStore {
   clearCart: () => Promise<void>;
   loadItems: (items: CartItem[]) => void;
   setServerMode: (on: boolean) => void;
-  mergeGuestCart: () => Promise<void>;
 }
 
 function itemKey(item: { productId: string; variantId?: string }) {
@@ -211,29 +210,7 @@ export const useCartStore = create<CartStore>()((set, get) => ({
 
   loadItems: (items) => set({ items, loaded: true }),
 
-  mergeGuestCart: async () => {
-    const state = get();
-    if (!state.items.length) return;
-    // Fetch existing server cart first
-    const existing = await (await fetch("/api/cart")).json();
-    const serverItems: CartItem[] = existing.items || [];
-    // Merge guest items into server items (add quantities for duplicates)
-    const merged = [...serverItems];
-    for (const guest of state.items) {
-      const key = itemKey(guest);
-      const match = merged.find((i) => itemKey(i) === key);
-      if (match) {
-        match.quantity = Math.min(match.quantity + guest.quantity, 99);
-      } else {
-        merged.push(guest);
-      }
-    }
-    // POST merged cart to server
-    await queueApiSync(merged);
-    // Fetch authoritative state from DB
-    const confirmed = await (await fetch("/api/cart")).json();
-    set({ items: confirmed.items || [], loaded: true, serverMode: true });
-  },
+
 }));
 
 export function getCartItemKey(item: { productId: string; variantId?: string }) {

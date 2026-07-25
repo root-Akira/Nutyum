@@ -13,7 +13,6 @@ export function CartSync() {
   const serverMode = useCartStore((s) => s.serverMode);
   const couponCode = useCartStore((s) => s.couponCode);
   const discount = useCartStore((s) => s.discount);
-  const mergeGuestCart = useCartStore((s) => s.mergeGuestCart);
   const setServerMode = useCartStore((s) => s.setServerMode);
   const lastSaved = useRef("");
   const lastCoupon = useRef("");
@@ -65,14 +64,11 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [couponCode, discount]);
 
-  // 4. On login: merge guest cart → fetch authoritative state from DB → switch to server mode
+  // 4. On login: fetch authoritative state from DB → switch to server mode
   useEffect(() => {
     const uid = session?.user?.id ?? null;
     if (uid && !serverMode) {
       (async () => {
-        // Merge any local guest cart items into the DB
-        await mergeGuestCart();
-        // Fetch authoritative state from DB
         try {
           const res = await fetch("/api/cart");
           const data = await res.json();
@@ -88,7 +84,7 @@ export function CartSync() {
       try { localStorage.removeItem("nutyum-cart"); } catch { /* ignore */ }
       try { localStorage.removeItem("nutyum-coupon"); } catch { /* ignore */ }
     }
-  }, [session?.user?.id, status, serverMode, mergeGuestCart, setServerMode]);
+  }, [session?.user?.id, status, serverMode, setServerMode]);
 
   return null;
 }
