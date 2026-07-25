@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Star, ShoppingBag, Menu, X, User } from "lucide-react";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { useUIStore } from "@/hooks/use-ui-store";
 import { useSession } from "next-auth/react";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
@@ -435,8 +434,6 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
 
   return (
     <>
-      <AnnouncementBar />
-
       <motion.header
         className={`sticky z-40 bg-[#FFFEFB]/70 backdrop-blur-xl ${
           scrolled ? "mx-4 mb-2 rounded-2xl" : ""

@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: "What are your shipping details?",
-    a: "Free shipping on orders above ₹500. Orders are dispatched within 24–48 hours.",
+    a: "Orders are dispatched within 24–48 hours. A flat shipping fee of ₹49 applies.",
   },
   {
     q: "What is your return policy?",

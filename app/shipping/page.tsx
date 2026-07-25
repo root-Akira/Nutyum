@@ -30,8 +30,7 @@ export default function ShippingPage() {
 
           <Section title="2. Shipping Charges">
             <ul>
-              <li><strong>Free shipping</strong> on all orders of ₹999 or more.</li>
-              <li>Orders below ₹999 are charged a flat shipping fee of ₹49.</li>
+              <li>Orders are charged a flat shipping fee of ₹49.</li>
               <li>Additional charges may apply for remote areas (certain pin codes in North-East India, Jammu & Kashmir, Ladakh, and island territories). Any such charges will be displayed at checkout before payment.</li>
             </ul>
           </Section>

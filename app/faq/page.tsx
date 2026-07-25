@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "What is your shipping policy?",
-    a: "We offer free shipping on all orders above ₹999. Orders are processed within 1-2 business days and delivered within 3-7 business days across India. For full details, see our Shipping Policy.",
+    a: "Orders are processed within 1-2 business days and delivered within 3-7 business days across India. A flat shipping fee of ₹49 applies. For full details, see our Shipping Policy.",
   },
   {
     q: "Can I modify or cancel my order?",
