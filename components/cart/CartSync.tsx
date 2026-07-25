@@ -22,14 +22,16 @@ export function CartSync() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      console.log("[CART] Step 1 mount: STORAGE_KEY raw found?", !!raw);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length) {
+          console.log("[CART] Step 1 setting items from localStorage:", parsed.length);
           useCartStore.setState({ items: parsed, loaded: true });
         }
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("[CART] Step 1 localStorage load error:", e);
     }
     try {
       const raw = localStorage.getItem(COUPON_KEY);
@@ -44,15 +46,17 @@ export function CartSync() {
     }
   }, []);
 
-  // 2. Save cart to localStorage whenever items change (synchronous, no debounce)
+  // 2. Save cart to localStorage whenever items change
   useEffect(() => {
     const json = JSON.stringify(items);
+    console.log("[CART] Step 2 items changed, json length:", json.length, "lastSaved match:", json === lastSaved.current);
     if (json === lastSaved.current) return;
     lastSaved.current = json;
     try {
       localStorage.setItem(STORAGE_KEY, json);
-    } catch {
-      // quota exceeded
+      console.log("[CART] Step 2 saved to localStorage, key:", STORAGE_KEY);
+    } catch (e) {
+      console.error("[CART] Step 2 localStorage.setItem FAILED:", e);
     }
   }, [items]);
 
@@ -80,36 +84,45 @@ export function CartSync() {
   //    Otherwise trust localStorage — avoids race between API fetch and immediate remove.
   useEffect(() => {
     const uid = session?.user?.id ?? null;
+    console.log("[CART] Step 4 uid:", uid, "hasFetchedApi:", hasFetchedApi.current);
     if (uid && !hasFetchedApi.current) {
       hasFetchedApi.current = true;
 
-      // If localStorage has items, trust it — no need to fetch from API
+      // If localStorage has items, trust it — skip API
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
+        console.log("[CART] Step 4 localStorage has items?", !!stored);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length) {
+            console.log("[CART] Step 4 skipping API fetch, trusting localStorage, length:", parsed.length);
             useCartStore.setState({ loaded: true });
             return;
           }
         }
-      } catch { /* ignore */ }
+      } catch (e) {
+        console.error("[CART] Step 4 localStorage parse error:", e);
+      }
 
       // Only fetch from API when localStorage is empty
+      console.log("[CART] Step 4 fetching from API (localStorage empty)");
       fetch("/api/cart")
         .then((r) => r.json())
         .then((data) => {
+          console.log("[CART] Step 4 API returned items:", data.items?.length);
           if (data.items?.length) {
             useCartStore.setState({ items: data.items, loaded: true });
           } else {
             useCartStore.setState({ loaded: true });
           }
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error("[CART] Step 4 API fetch error:", e);
           useCartStore.setState({ loaded: true });
         });
     }
     if (!uid && status === "unauthenticated") {
+      console.log("[CART] Step 4 user signed out, clearing");
       hasFetchedApi.current = false;
       lastSaved.current = "";
       lastCoupon.current = "";

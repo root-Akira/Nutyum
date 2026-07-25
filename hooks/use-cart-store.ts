@@ -122,10 +122,17 @@ export const useCartStore = create<CartStore>()((set, get) => ({
 
   removeItem: (key) => {
     const state = get();
+    console.log("[CART] removeItem called with key:", key, "current items:", state.items.length);
     const updated = state.items.filter((item) => itemKey(item) !== key);
+    console.log("[CART] removeItem filtered items:", updated.length, "removed?", updated.length !== state.items.length);
     set({ items: updated });
     // Persist to localStorage immediately so refresh doesn't lose the removal
-    try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */}
+    try {
+      localStorage.setItem("nutyum-cart", JSON.stringify(updated));
+      console.log("[CART] removeItem saved to localStorage, key nutyum-cart");
+    } catch (e) {
+      console.error("[CART] removeItem localStorage.setItem FAILED:", e);
+    }
   },
 
   updateQuantity: (key, quantity) => {
