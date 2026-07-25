@@ -53,6 +53,20 @@ function itemKey(item: { productId: string; variantId?: string }) {
   return `${item.productId}_${item.variantId || ''}`;
 }
 
+let _syncing = false;
+function syncCartToServer(items: CartItem[]) {
+  if (_syncing) return;
+  _syncing = true;
+  queueMicrotask(() => {
+    _syncing = false;
+    fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items }),
+    }).catch(() => {});
+  });
+}
+
 export const useCartStore = create<CartStore>()((set, get) => ({
   items: [],
   loaded: false,
@@ -133,6 +147,7 @@ export const useCartStore = create<CartStore>()((set, get) => ({
     } catch (e) {
       console.error("[CART] removeItem localStorage.setItem FAILED:", e);
     }
+    syncCartToServer(updated);
   },
 
   updateQuantity: (key, quantity) => {
@@ -141,6 +156,7 @@ export const useCartStore = create<CartStore>()((set, get) => ({
       const updated = state.items.filter((item) => itemKey(item) !== key);
       set({ items: updated });
       try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
+      syncCartToServer(updated);
       return;
     }
     const updated = state.items.map((item) =>
@@ -148,12 +164,14 @@ export const useCartStore = create<CartStore>()((set, get) => ({
     );
     set({ items: updated });
     try { localStorage.setItem("nutyum-cart", JSON.stringify(updated)); } catch {/* ignore */ }
+    syncCartToServer(updated);
   },
 
   clearCart: () => {
     set({ items: [], couponCode: '', discount: null, couponError: '' });
     try { localStorage.removeItem("nutyum-cart"); } catch {/* ignore */ }
     try { localStorage.removeItem("nutyum-coupon"); } catch {/* ignore */ }
+    syncCartToServer([]);
   },
 
   loadItems: (items) => set({ items, loaded: true }),

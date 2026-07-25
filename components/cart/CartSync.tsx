@@ -48,6 +48,7 @@ export function CartSync() {
 
   // 2. Save cart to localStorage whenever items change
   useEffect(() => {
+    if (!loaded) return;
     const json = JSON.stringify(items);
     console.log("[CART] Step 2 items changed, json length:", json.length, "lastSaved match:", json === lastSaved.current);
     if (json === lastSaved.current) return;
