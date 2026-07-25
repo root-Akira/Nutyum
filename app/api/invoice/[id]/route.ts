@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { supabaseFetch } from "@/lib/supabase-fetch";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
@@ -89,6 +89,9 @@ export async function GET(
 
   const format = (n: number) => "₹" + n.toFixed(2);
 
+  const url = new URL(req.url);
+  const printMode = url.searchParams.get("print") === "1";
+
   const itemRows = itemsWithCalc.map((i: any) => ` 
     <tr>
       <td style="padding:10px 0;border-bottom:1px solid #E5E3D8;font-size:13px;color:#173D22;">${i.product_name || "Product"}${i.variant_name ? `<br><span style="font-size:11px;color:#7A7A7A;">${i.variant_name}</span>` : ""}</td>
@@ -128,8 +131,9 @@ export async function GET(
 <title>Tax Invoice #${(id as string).slice(0, 8)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 30px; background: #F6F5F0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .invoice { max-width: 794px; margin: 0 auto; background: #FFFEFB; border-radius: 20px; padding: 44px 48px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 30px; background: #F6F5F0; }
+  .invoice { max-width: 794px; margin: 0 auto; background: #FFFEFB; border-radius: 20px; padding: 44px 48px; box-shadow: 0 4px 24px rgba(0,0,0,.06); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .invoice, .addr-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   h1 { font-family: Georgia, 'Times New Roman', serif; color: #173D22; font-size: 26px; margin: 0; letter-spacing: 0.5px; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #173D22; }
   .header-left { max-width: 55%; }
@@ -156,9 +160,13 @@ export async function GET(
   .gst-breakup { margin-top: 16px; }
   .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #E5E3D8; font-size: 11px; color: #8A9A8C; text-align: center; line-height: 1.7; }
   .footer strong { color: #4C5A48; font-weight: 600; }
+  .no-print { display: block; }
+  @page { margin: 0; size: A4; }
   @media print {
+    .no-print { display: none !important; }
     body { background: #fff; padding: 0; }
     .invoice { box-shadow: none; border-radius: 0; padding: 32px; }
+    .addr-block { border-radius: 0; }
   }
 </style>
 </head>
@@ -235,7 +243,13 @@ export async function GET(
 </body>
 </html>`;
 
-  return new NextResponse(html, {
+  const printScript = printMode
+    ? `<script>window.onload=function(){setTimeout(function(){window.print()},500)}</script>`
+    : "";
+
+  const finalHtml = html.replace("</body>", printScript + "</body>");
+
+  return new NextResponse(finalHtml, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
     },
