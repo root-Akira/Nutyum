@@ -231,11 +231,11 @@ export async function GET(
     const browser = await puppeteer.launch({
       args: Chromium.args,
       executablePath: await Chromium.executablePath(),
-      headless: "shell",
+      headless: true,
     });
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "load" });
+    await page.setContent(html, { waitUntil: "load", timeout: 30000 });
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
