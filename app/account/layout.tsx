@@ -17,7 +17,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Sidebar */}
-          <nav className="w-full shrink-0 lg:w-56" aria-label="Account navigation">
+          <nav className="w-full shrink-0 lg:w-56 lg:sticky lg:top-24 lg:self-start" aria-label="Account navigation">
             <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-2">
               <Link
                 href="/account/profile"
