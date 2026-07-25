@@ -249,7 +249,7 @@ export default function AddressesPage() {
                   <p className="mt-1 text-xs text-[#4C5A48]">Phone: {addr.phone}</p>
                 )}
               </div>
-              <div className="absolute right-5 top-5 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="absolute right-5 top-5 flex gap-2 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
                 <button onClick={() => openEdit(addr)}
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(23,61,34,0.15)] bg-white text-[#4C5A48] transition-all hover:border-[#173D22] hover:text-[#173D22]">
                   <Pencil className="h-3.5 w-3.5" />
