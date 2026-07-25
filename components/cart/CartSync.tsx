@@ -76,33 +76,36 @@ export function CartSync() {
     return () => clearTimeout(timeout);
   }, [couponCode, discount]);
 
-  // 4. Load cart from API once when user signs in (prefer localStorage over API to avoid stale server data)
+  // 4. Load cart from API only when localStorage is empty (first visit / cleared cache)
+  //    Otherwise trust localStorage — avoids race between API fetch and immediate remove.
   useEffect(() => {
     const uid = session?.user?.id ?? null;
     if (uid && !hasFetchedApi.current) {
       hasFetchedApi.current = true;
+
+      // If localStorage has items, trust it — no need to fetch from API
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length) {
+            useCartStore.setState({ loaded: true });
+            return;
+          }
+        }
+      } catch { /* ignore */ }
+
+      // Only fetch from API when localStorage is empty
       fetch("/api/cart")
         .then((r) => r.json())
         .then((data) => {
-          // Use current store state at response time (not stale closure)
-          const current = useCartStore.getState();
           if (data.items?.length) {
-            // Only load from API if local cart is empty — prefer local to avoid
-            // stale server data overwriting a recently-removed item
-            if (!current.items.length) {
-              current.loadItems(data.items);
-            } else {
-              useCartStore.setState({ loaded: true });
-            }
-          } else if (!current.items.length) {
-            current.loadItems([]);
+            useCartStore.setState({ items: data.items, loaded: true });
           } else {
-            // API empty but we have cached items — keep cache
             useCartStore.setState({ loaded: true });
           }
         })
         .catch(() => {
-          // API failed — keep localStorage cache, don't wipe
           useCartStore.setState({ loaded: true });
         });
     }
