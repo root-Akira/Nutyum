@@ -214,10 +214,25 @@ export const useCartStore = create<CartStore>()((set, get) => ({
   mergeGuestCart: async () => {
     const state = get();
     if (!state.items.length) return;
-    await queueApiSync(state.items);
-    // After merge, fetch authoritative state from DB
-    const data = await (await fetch("/api/cart")).json();
-    set({ items: data.items || [], loaded: true, serverMode: true });
+    // Fetch existing server cart first
+    const existing = await (await fetch("/api/cart")).json();
+    const serverItems: CartItem[] = existing.items || [];
+    // Merge guest items into server items (add quantities for duplicates)
+    const merged = [...serverItems];
+    for (const guest of state.items) {
+      const key = itemKey(guest);
+      const match = merged.find((i) => itemKey(i) === key);
+      if (match) {
+        match.quantity = Math.min(match.quantity + guest.quantity, 99);
+      } else {
+        merged.push(guest);
+      }
+    }
+    // POST merged cart to server
+    await queueApiSync(merged);
+    // Fetch authoritative state from DB
+    const confirmed = await (await fetch("/api/cart")).json();
+    set({ items: confirmed.items || [], loaded: true, serverMode: true });
   },
 }));
 
