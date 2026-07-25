@@ -1,8 +1,18 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { User, Package, Heart, Settings, MapPin, Tag, Star } from "lucide-react";
+import { User, Package, Heart, Settings, MapPin, Tag, Star, LogOut } from "lucide-react";
 import { SidebarSignOut } from "@/components/auth/SidebarSignOut";
+
+const MOBILE_NAV = [
+  { label: "Profile", href: "/account/profile", icon: User },
+  { label: "Orders", href: "/account/orders", icon: Package },
+  { label: "Addresses", href: "/account/addresses", icon: MapPin },
+  { label: "Coupons", href: "/account/coupons", icon: Tag },
+  { label: "Reviews", href: "/account/reviews", icon: Star },
+  { label: "Wishlist", href: "/account/wishlist", icon: Heart },
+  { label: "Settings", href: "/account/account-settings", icon: Settings },
+];
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -10,14 +20,31 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   return (
     <main className="min-h-[70vh] bg-[#FAF7EE]">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <h1 className="mb-8 text-[clamp(1.8rem,3vw,2.8rem)] font-medium tracking-[-0.02em] text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <h1 className="mb-6 text-[clamp(1.5rem,3vw,2.8rem)] font-medium tracking-[-0.02em] text-[#173D22] lg:mb-8" style={{ fontFamily: "var(--font-heading)" }}>
           My Account
         </h1>
 
-        <div className="flex flex-col gap-8 lg:flex-row">
-          {/* Sidebar */}
-          <nav className="w-full shrink-0 lg:w-56 lg:sticky lg:top-24 lg:self-start" aria-label="Account navigation">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          {/* Mobile horizontal tabs */}
+          <div className="scrollbar-none -mx-4 overflow-x-auto px-4 lg:hidden">
+            <div className="flex gap-2 whitespace-nowrap">
+              {MOBILE_NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-1.5 rounded-full border border-[rgba(23,61,34,0.15)] bg-white px-4 py-2 text-sm font-medium text-[#4C5A48] transition-colors hover:border-[#173D22] hover:text-[#173D22]"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop sidebar */}
+          <nav className="hidden w-full shrink-0 lg:w-56 lg:sticky lg:top-24 lg:self-start lg:block" aria-label="Account navigation">
             <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-2">
               <Link
                 href="/account/profile"
