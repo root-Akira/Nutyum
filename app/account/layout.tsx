@@ -21,7 +21,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   return (
     <main className="min-h-[70vh] bg-[#FAF7EE]">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <h1 className="mb-6 text-[clamp(1.5rem,3vw,2.8rem)] font-medium tracking-[-0.02em] text-[#173D22] lg:mb-8" style={{ fontFamily: "var(--font-heading)" }}>
+        <h1 className="mb-6 text-[clamp(1.5rem,3vw,2.8rem)] font-medium tracking-[-0.02em] text-[#173D22] lg:mb-8 lg:sticky lg:top-0 lg:z-10 lg:bg-[#FAF7EE]" style={{ fontFamily: "var(--font-heading)" }}>
           My Account
         </h1>
 
