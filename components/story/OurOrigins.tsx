@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Leaf, Globe, Mountain } from "lucide-react";
 
@@ -114,21 +113,6 @@ export function OurOrigins() {
           })}
         </motion.div>
 
-        {/* "Our Story" CTA */}
-        <motion.div
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.42 }}
-          className="mt-10 will-change-transform"
-        >
-          <Link
-            href="/learn/process"
-            className="inline-flex items-center rounded-full border-2 border-white bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-[#173D22]"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            Our Story
-          </Link>
-        </motion.div>
       </div>
     </section>
   );
