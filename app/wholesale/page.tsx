@@ -9,6 +9,13 @@ export default function WholesalePage() {
   return (
     <main className="min-h-screen bg-[#FAF7EE] px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E0961A] bg-[#E0961A]/10 px-4 py-1.5 text-sm font-semibold text-[#E0961A]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E0961A] opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E0961A]" />
+          </span>
+          Coming Soon
+        </div>
         <h1 className="mb-4 text-4xl font-bold tracking-[-0.02em] text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
           Wholesale Partners
         </h1>
