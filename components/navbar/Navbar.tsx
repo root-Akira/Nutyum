@@ -290,10 +290,10 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
               <Image
                 src="/logo.png"
                 alt="Nutyum"
-                width={200}
-                height={70}
+                width={280}
+                height={100}
                 className="object-contain"
-                style={{ height: "70px", width: "auto" }}
+                style={{ height: "100px", width: "auto" }}
               />
               <button onClick={onClose} aria-label="Close menu" className="p-1 text-[#173D22]">
                 <X size={20} strokeWidth={1.6} />
@@ -447,7 +447,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       >
         <motion.div
           className="mx-auto flex items-center justify-between px-4 lg:grid lg:max-w-[1400px] lg:grid-cols-[1fr_auto_1fr] lg:px-8"
-          animate={{ height: 70 }}
+          animate={{ height: 100 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
           <div className="flex items-center">
@@ -481,13 +481,13 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             <Image
               src="/logo.png"
               alt="Nutyum — Real Food. Real Good."
-              width={200}
-              height={70}
+              width={280}
+              height={100}
               priority
               unoptimized
               className="object-contain"
               style={{
-                height: "70px",
+                height: "100px",
                 width: "auto",
                 transition: `height 0.8s ${SCROLL_EASE}`,
               }}
