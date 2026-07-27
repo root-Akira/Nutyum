@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   title: "Nutyum | Premium Makhana Snacks",
   description: "Discover Nutyum's premium makhana snacks — healthy, bold, and crafted with care.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
   },
 };
 

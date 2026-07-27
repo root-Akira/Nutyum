@@ -1,9 +1,7 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = "Nutyum <noreply@mail.nutyum.in>";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://nutyum.in";
-const LOGO_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/logo.png`
-  : "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png";
+const LOGO_URL = `${BASE_URL}/main%20logo.png`;
 
 function heroHtml(title: string, subtitle: string) {
   return `

@@ -231,7 +231,7 @@ export default function CheckoutPage() {
         currency: "INR",
         name: "Nutyum",
         description: `Order ${data.orderId.slice(0, 8).toUpperCase()}`,
-        image: "https://jemypvfnlazkrvrmzcaz.supabase.co/storage/v1/object/public/product-images/logo.png",
+        image: "/main%20logo.png",
         order_id: data.razorpayOrderId,
         prefill: {
           name: session?.user?.name || "",
