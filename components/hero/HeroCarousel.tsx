@@ -66,7 +66,7 @@ export function HeroCarousel() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: "calc(100svh - 70px)" }}
+      style={{ height: "calc(100svh - 120px)" }}
       aria-label="Hero product showcase"
       aria-roledescription="carousel"
     >
