@@ -290,10 +290,10 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
               <Image
                 src="/logo.png"
                 alt="Nutyum"
-                width={160}
-                height={60}
+                width={200}
+                height={80}
                 className="object-contain"
-                style={{ height: "60px", width: "auto" }}
+                style={{ height: "80px", width: "auto" }}
               />
               <button onClick={onClose} aria-label="Close menu" className="p-1 text-[#173D22]">
                 <X size={20} strokeWidth={1.6} />
