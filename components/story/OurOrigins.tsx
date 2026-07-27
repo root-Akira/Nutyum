@@ -52,14 +52,14 @@ export function OurOrigins() {
 
 
       {/* ── Content ── */}
-      <div className="relative z-10 flex min-h-[inherit] flex-col items-center justify-between px-6 py-20 sm:py-28">
+      <div className="relative z-10 flex min-h-[inherit] flex-col items-center justify-center gap-6 sm:gap-12 px-6 py-20 sm:py-28">
 
         {/* "OUR ORIGINS" label */}
         <motion.div
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="mb-auto will-change-transform"
+          className="will-change-transform"
         >
           <span
             id="origins-title"
@@ -75,7 +75,7 @@ export function OurOrigins() {
           initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-          className="my-8 text-center will-change-transform"
+          className="my-4 sm:my-8 text-center will-change-transform"
         >
           <h2
             className="font-extrabold uppercase leading-[0.88] tracking-[-0.02em] text-white"
