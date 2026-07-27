@@ -293,7 +293,7 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
                 width={120}
                 height={42}
                 className="object-contain"
-                style={{ height: "36px", width: "auto" }}
+                style={{ height: "48px", width: "auto" }}
               />
               <button onClick={onClose} aria-label="Close menu" className="p-1 text-[#173D22]">
                 <X size={20} strokeWidth={1.6} />
