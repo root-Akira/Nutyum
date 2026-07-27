@@ -288,7 +288,7 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
           >
             <div className="flex items-center justify-between border-b border-[rgba(23,61,34,0.1)] px-6 pb-4">
               <Image
-                src="/main%20logo.png"
+                src="/logo.png"
                 alt="Nutyum"
                 width={120}
                 height={42}
@@ -479,7 +479,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             className="justify-self-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#173D22] focus-visible:ring-offset-2 rounded-sm"
           >
             <Image
-              src="/main%20logo.png"
+              src="/logo.png"
               alt="Nutyum — Real Food. Real Good."
               width={160}
               height={56}

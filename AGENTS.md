@@ -27,6 +27,9 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - **Deployment:** Vercel
 
 ## Session: 2026-07-27
+- [x] **Logo & favicon update** — navbar, email, checkout, admin panel all updated to use `/main%20logo.png` (local `public/` folder) instead of deleted Supabase storage URL. Favicon resized to 192x192 square with white background. Admin login sidebar logo size increased.
+- [x] **Vercel deploy fix** — `vercel.json` cron `*/30 * * * *` blocked all builds on Hobby plan (limited to 1 cron/day). Changed to `0 0 * * *`. GitHub Vercel integration was also broken (missing webhook) — reinstalled Vercel GitHub App. Token-based deploy now working.
+- [x] **Admin panel TypeScript fix** — `toast('...', 'warning')` changed to `'info'` (not in union type).
 - [x] **Abandoned Razorpay order handling** — added `cancellation_reason` column to `orders` table, migration backfills from `notes` + `order_status_logs`. Customer cancellation now writes to `cancellation_reason` instead of stuffing into `notes`. Cron job (`/api/cron/abandoned-orders`) auto-cancels Razorpay orders stuck in `placed` for >2h. `vercel.json` configures `*/30 * * * *` cron schedule. Admin panel shows reason on order list + detail. Frontend order detail shows reason in cancelled banner. Requires `CRON_SECRET` env var on Vercel main site.
 
 ## Session: 2026-07-01
