@@ -481,13 +481,13 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             <Image
               src="/logo.png"
               alt="Nutyum — Real Food. Real Good."
-              width={160}
-              height={56}
+              width={500}
+              height={200}
               priority
               unoptimized
               className="object-contain"
               style={{
-                height: "70px",
+                height: "200px",
                 width: "auto",
                 transition: `height 0.8s ${SCROLL_EASE}`,
               }}
