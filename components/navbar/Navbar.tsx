@@ -447,7 +447,7 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
       >
         <motion.div
           className="mx-auto flex items-center justify-between px-4 lg:grid lg:max-w-[1400px] lg:grid-cols-[1fr_auto_1fr] lg:px-8"
-          animate={{ height: 100 }}
+          animate={{ height: 70 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 } as any}
         >
           <div className="flex items-center">
