@@ -290,10 +290,10 @@ function MobileDrawer({ isOpen, onClose, session }: { isOpen: boolean; onClose: 
               <Image
                 src="/logo.png"
                 alt="Nutyum"
-                width={200}
-                height={70}
+                width={220}
+                height={80}
                 className="object-contain"
-                style={{ height: "70px", width: "auto" }}
+                style={{ height: "80px", width: "auto" }}
               />
               <button onClick={onClose} aria-label="Close menu" className="p-1 text-[#173D22]">
                 <X size={20} strokeWidth={1.6} />
@@ -481,13 +481,13 @@ export function Navbar({ cartItemCount = 0 }: { cartItemCount?: number }) {
             <Image
               src="/logo.png"
               alt="Nutyum — Real Food. Real Good."
-              width={200}
-              height={70}
+              width={220}
+              height={80}
               priority
               unoptimized
               className="object-contain"
               style={{
-                height: "70px",
+                height: "80px",
                 width: "auto",
                 transition: `height 0.8s ${SCROLL_EASE}`,
               }}
