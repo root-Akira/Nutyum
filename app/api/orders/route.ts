@@ -54,6 +54,8 @@ export async function GET() {
     shipping: o.shipping,
     discountAmount: o.discount,
     total: o.total,
+    notes: o.notes || "",
+    cancellationReason: o.cancellation_reason || "",
     items: (o.order_items as Record<string, unknown>[])?.map((i: Record<string, unknown>) => ({
       id: i.id,
       productId: i.product_id,

@@ -78,6 +78,7 @@ export async function GET(
     reviewed,
     paymentMethod: o.payment_method || "",
     notes: o.notes || "",
+    cancellationReason: o.cancellation_reason || "",
     email: session.user.email || "",
     name: session.user.name || "",
     phone: "",
@@ -152,7 +153,7 @@ export async function PATCH(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       status: "cancelled",
-      notes: order.notes ? `${order.notes}\n[Cancellation reason: ${reason || "Not provided"}]` : `[Cancellation reason: ${reason || "Not provided"}]`,
+      cancellation_reason: "Cancelled by customer",
     }),
   });
 

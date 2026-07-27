@@ -38,7 +38,7 @@ type OrderItem = { id: string; productId: string; productName?: string; variantN
 type OrderDetail = {
   id: string; status: string; subtotal: number; shipping: number; discountAmount: number; total: number;
   reviewed: boolean;
-  paymentMethod: string; notes: string;
+  paymentMethod: string; notes: string; cancellationReason: string;
   email?: string; name?: string; phone?: string;
   recipientName?: string; recipientEmail?: string; recipientPhone?: string;
   shippingAddress?: { line1: string; line2?: string; city: string; state: string; pincode: string; phone: string; recipient_name?: string; recipient_email?: string; recipient_phone?: string };
@@ -183,7 +183,10 @@ export default function OrderDetailPage() {
             </h3>
             {isCancelled ? (
               <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                This order has been cancelled.
+                <p>This order has been cancelled.</p>
+                {order.cancellationReason && (
+                  <p className="mt-1 text-xs text-red-500 font-normal">{order.cancellationReason}</p>
+                )}
               </div>
             ) : (
               <div className="space-y-0">

@@ -51,6 +51,7 @@ type Order = {
   total: number;
   items: OrderItem[];
   notes?: string;
+  cancellationReason?: string;
   createdAt: string;
 };
 
@@ -60,12 +61,6 @@ function formatDate(dateStr: string) {
     month: "short",
     year: "numeric",
   });
-}
-
-function getCancelReason(notes?: string): string {
-  if (!notes) return "";
-  const match = notes.match(/\[Cancellation reason: ([^\]]+)\]/);
-  return match ? match[1] : "";
 }
 
 function ItemThumbnail({ item, itemsCount }: { item?: OrderItem; itemsCount: number }) {
@@ -241,7 +236,7 @@ export default function OrdersPage() {
       {/* Order list */}
       <div className="space-y-4">
         {filteredOrders.map((order) => {
-          const reason = order.status === "cancelled" ? getCancelReason(order.notes) : "";
+          const reason = order.status === "cancelled" ? (order.cancellationReason || "") : "";
           const isExpanded = expandedId === order.id;
 
           return (

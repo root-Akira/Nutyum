@@ -26,6 +26,9 @@ Do NOT commit, push, or take any action (including file edits, installations, et
 - **Payments:** Razorpay (Phase 3)
 - **Deployment:** Vercel
 
+## Session: 2026-07-27
+- [x] **Abandoned Razorpay order handling** — added `cancellation_reason` column to `orders` table, migration backfills from `notes` + `order_status_logs`. Customer cancellation now writes to `cancellation_reason` instead of stuffing into `notes`. Cron job (`/api/cron/abandoned-orders`) auto-cancels Razorpay orders stuck in `placed` for >2h. `vercel.json` configures `*/30 * * * *` cron schedule. Admin panel shows reason on order list + detail. Frontend order detail shows reason in cancelled banner. Requires `CRON_SECRET` env var on Vercel main site.
+
 ## Session: 2026-07-01
 
 ### Completed
