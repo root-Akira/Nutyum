@@ -93,12 +93,12 @@ export function OurOrigins() {
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
-          className="grid w-full max-w-2xl grid-cols-3 gap-6 text-center will-change-transform"
+          className="grid w-full max-w-2xl grid-cols-3 gap-4 sm:gap-6 place-items-center text-center will-change-transform"
         >
           {PILLARS.map((p) => {
             const Icon = ICON_MAP[p.icon as keyof typeof ICON_MAP];
             return (
-              <div key={p.title} className="flex flex-col items-center gap-3">
+              <div key={p.title} className="flex flex-col items-center gap-2 sm:gap-3 text-center w-full">
                 <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/25 shadow-lg">
                   <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" strokeWidth={1.5} />
                 </div>
