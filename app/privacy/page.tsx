@@ -105,7 +105,7 @@ export default function PrivacyPage() {
               <li><strong>Objection:</strong> Object to processing based on legitimate interests or direct marketing.</li>
               <li><strong>Withdraw consent:</strong> Withdraw consent at any time where processing is based on consent.</li>
             </ul>
-            <p className="mt-3">To exercise any of these rights, contact us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a>.</p>
+            <p className="mt-3">To exercise any of these rights, contact us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a>.</p>
           </Section>
 
           <Section title="9. Cookies">
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
           <Section title="13. Contact">
             <p>If you have any questions, concerns, or complaints regarding this Privacy Policy or our data practices, please contact us:</p>
             <ul>
-              <li>Email: <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a></li>
+              <li>Email: <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a></li>
             </ul>
           </Section>
         </div>

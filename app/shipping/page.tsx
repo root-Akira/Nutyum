@@ -53,7 +53,7 @@ export default function ShippingPage() {
           </Section>
 
           <Section title="5. Order Tracking">
-            <p>Once your order is shipped, you will receive a confirmation email and SMS with a tracking link. You can also track your order by contacting us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a> with your order number.</p>
+            <p>Once your order is shipped, you will receive a confirmation email and SMS with a tracking link. You can also track your order by contacting us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a> with your order number.</p>
           </Section>
 
           <Section title="6. Delivery Attempts">
@@ -76,7 +76,7 @@ export default function ShippingPage() {
           </Section>
 
           <Section title="9. Contact">
-            <p>For any shipping-related inquiries, please contact us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a> with your order number.</p>
+            <p>For any shipping-related inquiries, please contact us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a> with your order number.</p>
           </Section>
         </div>
       </div>

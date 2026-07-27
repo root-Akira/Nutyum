@@ -44,7 +44,7 @@ export default function ReturnsPage() {
 
           <Section title="3. How to Initiate a Return">
             <ol className="list-decimal pl-5 space-y-1">
-              <li>Contact us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a> within 7 days of delivery.</li>
+              <li>Contact us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a> within 7 days of delivery.</li>
               <li>Include your <strong>order number</strong>, a description of the issue, and clear photos showing the damage or defect.</li>
               <li>Our team will review your request and respond within 24–48 business hours.</li>
               <li>If approved, we will provide a return shipping label or arrange a pickup, depending on your location.</li>
@@ -84,7 +84,7 @@ export default function ReturnsPage() {
           </Section>
 
           <Section title="9. Contact">
-            <p>For any return or refund inquiries, please contact us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a> with your order number.</p>
+            <p>For any return or refund inquiries, please contact us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a> with your order number.</p>
           </Section>
         </div>
       </div>

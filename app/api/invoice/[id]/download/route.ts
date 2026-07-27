@@ -40,7 +40,7 @@ export async function GET(
   const sellerGSTIN = (settings.gst_number as string) || "";
   const sellerAddr = (settings.store_address as string) || "Nutyum Foods Pvt. Ltd., Mumbai, Maharashtra";
   const sellerState = "Maharashtra";
-  const sellerEmail = (settings.store_email as string) || "support@nutyum.in";
+  const sellerEmail = (settings.store_email as string) || "Info.nutyum@gmail.com";
   const sellerPhone = (settings.store_phone as string) || "";
 
   const deliveryState = ((address.state as string) || "").trim().toLowerCase();

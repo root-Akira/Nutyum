@@ -56,7 +56,7 @@ export default function AccessibilityPage() {
           <Section title="5. Feedback">
             <p>We welcome your feedback on the accessibility of our website. If you encounter any accessibility barriers or have suggestions for improvement, please let us know. We aim to respond within 2 business days.</p>
             <ul className="mt-3">
-              <li>Email: <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a></li>
+              <li>Email: <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a></li>
               <li>Please include the page URL and a description of the issue you encountered.</li>
             </ul>
           </Section>

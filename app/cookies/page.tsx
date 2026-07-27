@@ -79,7 +79,7 @@ export default function CookiesPage() {
           </Section>
 
           <Section title="7. Contact">
-            <p>If you have any questions about our use of cookies, please contact us at <a href="mailto:hello@nutyum.in" className="text-[#173D22] underline">hello@nutyum.in</a>.</p>
+            <p>If you have any questions about our use of cookies, please contact us at <a href="mailto:Info.nutyum@gmail.com" className="text-[#173D22] underline">Info.nutyum@gmail.com</a>.</p>
           </Section>
         </div>
       </div>
