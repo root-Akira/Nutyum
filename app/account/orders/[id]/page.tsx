@@ -126,22 +126,6 @@ export default function OrderDetailPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }}>
-      {/* Status Banner */}
-      {(STATUS_BANNER[order.status]) && (
-        <div className={`mb-6 rounded-2xl border px-5 py-3 text-sm font-medium ${STATUS_BANNER[order.status].bg}`}>
-          <div className="flex items-center gap-2">
-            {STATUS_BANNER[order.status].icon === "check" ? (
-              <CheckCircle className="h-5 w-5 shrink-0" />
-            ) : STATUS_BANNER[order.status].icon === "x" ? (
-              <X className="h-5 w-5 shrink-0" />
-            ) : (
-              <div className="h-5 w-5 shrink-0 rounded-full border-2 border-current" />
-            )}
-            <span style={{ fontFamily: "var(--font-body)" }}>{STATUS_BANNER[order.status].msg}</span>
-          </div>
-        </div>
-      )}
-
       <Link href="/account/orders" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#4C5A48] transition-colors hover:text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
         <ArrowLeft className="h-4 w-4" /> Back to Orders
       </Link>
