@@ -75,7 +75,7 @@ export function OurOrigins() {
           initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-          className="my-4 sm:my-8 text-center will-change-transform"
+          className="mb-4 sm:mb-8 mt-9 sm:mt-12 text-center will-change-transform"
         >
           <h2
             className="font-extrabold uppercase leading-[0.88] tracking-[-0.02em] text-white"
