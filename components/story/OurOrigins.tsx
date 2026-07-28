@@ -52,14 +52,14 @@ export function OurOrigins() {
 
 
       {/* ── Content ── */}
-      <div className="relative z-10 flex min-h-[inherit] flex-col items-center px-6 py-20 sm:py-28">
+      <div className="relative z-10 flex min-h-[inherit] flex-col items-center justify-center gap-6 sm:gap-12 px-6 py-20 sm:py-28">
 
-        {/* "OUR ORIGINS" label — pinned to top */}
+        {/* "OUR ORIGINS" label */}
         <motion.div
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="self-start will-change-transform"
+          className="will-change-transform"
         >
           <span
             id="origins-title"
@@ -70,15 +70,12 @@ export function OurOrigins() {
           </span>
         </motion.div>
 
-        {/* Centered content */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 sm:gap-12 w-full">
-
         {/* Main heading — large condensed (Two Leaves BORN IN COLORADO style) */}
         <motion.div
           initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-          className="text-center will-change-transform"
+          className="my-4 sm:my-8 text-center will-change-transform"
         >
           <h2
             className="font-extrabold uppercase leading-[0.88] tracking-[-0.02em] text-white"
@@ -115,8 +112,6 @@ export function OurOrigins() {
             );
           })}
         </motion.div>
-
-        </div>
 
       </div>
     </section>

@@ -187,14 +187,15 @@ export async function POST(req: Request) {
       const { error: itemErr } = await supabaseFetch("order_items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          order_id: orderId,
-          product_id: item.productId,
-          variant_name: item.variantName,
-          product_name: item.productName,
-          quantity: item.quantity,
-          price: item.price,
-        }),
+          body: JSON.stringify({
+            order_id: orderId,
+            product_id: item.productId,
+            variant_name: item.variantName,
+            product_name: item.productName,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.price * item.quantity,
+          }),
       });
       if (itemErr) {
         console.error("Failed to create order item:", itemErr);
@@ -217,7 +218,7 @@ export async function POST(req: Request) {
       await supabaseFetch(`orders?id=eq.${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "confirmed", total }),
+        body: JSON.stringify({ status: "confirmed", total, payment_status: "paid" }),
       });
       await supabaseFetch("order_status_logs", {
         method: "POST",
