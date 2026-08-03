@@ -75,6 +75,14 @@ export function ReviewsSection() {
               No reviews yet. Be the first to share your experience!
             </p>
           </div>
+        ) : apiReviews.length < 4 ? (
+          <div className="flex flex-wrap justify-center gap-5">
+            {apiReviews.map((review, i) => (
+              <div key={review.id} className="w-full max-w-[340px] shrink-0">
+                <ReviewCard review={review} index={i} />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="relative" ref={trackRef}>
             <style jsx>{`
