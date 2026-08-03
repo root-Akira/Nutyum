@@ -8,26 +8,15 @@ import { ReviewCard, Review, StarRating } from "./ReviewCard";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const FALLBACK_REVIEWS: Review[] = [
-  { id: "1", name: "Priya S.", location: "Mumbai, Maharashtra", rating: 5, date: "June 2026", title: "Best snack I've ever had!", comment: "I ordered the Variety Pack and every single flavour is amazing. The Dark Chocolate one is my absolute favourite!", product: "Nutyum Variety Pack" },
-  { id: "2", name: "Arjun M.", location: "Bengaluru, Karnataka", rating: 5, date: "May 2026", title: "Perfect evening munch", comment: "The Himalayan Sea Salt Makhana is perfectly seasoned!", product: "Himalayan Sea Salt Makhana" },
-  { id: "3", name: "Ananya K.", location: "Delhi", rating: 4, date: "May 2026", title: "Great taste, loved the peri peri", comment: "The Peri Peri flavour has a nice kick to it without being overwhelming.", product: "Peri Peri Makhana" },
-  { id: "4", name: "Rahul V.", location: "Pune, Maharashtra", rating: 5, date: "April 2026", title: "Healthy snacking, finally!", comment: "I've been looking for a healthy snack that actually tastes good.", product: "Classic Pudina Makhana" },
-  { id: "5", name: "Sneha R.", location: "Hyderabad, Telangana", rating: 5, date: "April 2026", title: "Gift-worthy presentation", comment: "Ordered the Variety Pack as a gift and she loved it!", product: "Nutyum Variety Pack" },
-  { id: "6", name: "Vikram P.", location: "Chennai, Tamil Nadu", rating: 4, date: "March 2026", title: "Turmeric & Pepper is a must-try", comment: "The earthy turmeric with the pepper kick is brilliant.", product: "Turmeric & Pepper Makhana" },
-  { id: "7", name: "Neha G.", location: "Ahmedabad, Gujarat", rating: 5, date: "March 2026", title: "Better than expected", comment: "I tried Nutyum at a friend's place and immediately ordered 3 packs.", product: "Dark Chocolate Makhana" },
-  { id: "8", name: "Amit T.", location: "Kolkata, West Bengal", rating: 5, date: "February 2026", title: "Finally, a snack for my diet", comment: "Nutyum makhana is low calorie, high protein, and tasty.", product: "Himalayan Sea Salt Makhana" },
-];
-
 export function ReviewsSection() {
-  const [apiReviews, setApiReviews] = useState<Review[]>(FALLBACK_REVIEWS);
+  const [apiReviews, setApiReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     fetch("/api/reviews")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length) {
+        if (Array.isArray(data)) {
           const mapped = data.map((r: any) => ({
             id: r.id,
             name: r.name,
@@ -67,9 +56,11 @@ export function ReviewsSection() {
             Real Reviews
           </h2>
           <div className="flex items-center justify-center gap-3">
-            <StarRating rating={Math.round(overall)} size={16} />
+            {apiReviews.length > 0 && <StarRating rating={Math.round(overall)} size={16} />}
             <span className="text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
-              {overall.toFixed(1)} out of 5 &middot; {apiReviews.length} reviews
+              {apiReviews.length > 0
+                ? `${overall.toFixed(1)} out of 5 &middot; ${apiReviews.length} reviews`
+                : "No reviews yet"}
             </span>
           </div>
         </motion.div>
@@ -77,6 +68,12 @@ export function ReviewsSection() {
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-[rgba(23,61,34,0.15)] border-t-[3px] border-t-[#173D22]" />
+          </div>
+        ) : apiReviews.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+              No reviews yet. Be the first to share your experience!
+            </p>
           </div>
         ) : (
           <div className="relative" ref={trackRef}>

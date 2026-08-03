@@ -224,19 +224,8 @@ function SubmitForm() {
   );
 }
 
-const FALLBACK_REVIEWS: Review[] = [
-  { id: "1", name: "Priya S.", location: "Mumbai, Maharashtra", rating: 5, date: "June 2026", title: "Best snack I've ever had!", comment: "I ordered the Variety Pack and every single flavour is amazing. The Dark Chocolate one is my absolute favourite!", product: "Nutyum Variety Pack" },
-  { id: "2", name: "Arjun M.", location: "Bengaluru, Karnataka", rating: 5, date: "May 2026", title: "Perfect evening munch", comment: "The Himalayan Sea Salt Makhana is perfectly seasoned — not too salty, just right. Light, crunchy, and way healthier than chips.", product: "Himalayan Sea Salt Makhana" },
-  { id: "3", name: "Ananya K.", location: "Delhi", rating: 4, date: "May 2026", title: "Great taste, loved the peri peri", comment: "The Peri Peri flavour has a nice kick to it without being overwhelming. Would love a spicier version though!", product: "Peri Peri Makhana" },
-  { id: "4", name: "Rahul V.", location: "Pune, Maharashtra", rating: 5, date: "April 2026", title: "Healthy snacking, finally!", comment: "I've been looking for a healthy snack that actually tastes good. Nutyum delivers!", product: "Classic Pudina Makhana" },
-  { id: "5", name: "Sneha R.", location: "Hyderabad, Telangana", rating: 5, date: "April 2026", title: "Gift-worthy presentation", comment: "Ordered the Variety Pack as a gift for my sister and she loved it. The packaging is premium and the flavours are delicious.", product: "Nutyum Variety Pack" },
-  { id: "6", name: "Vikram P.", location: "Chennai, Tamil Nadu", rating: 4, date: "March 2026", title: "Turmeric & Pepper is a must-try", comment: "Was sceptical about the Turmeric & Pepper flavour but it's surprisingly delicious.", product: "Turmeric & Pepper Makhana" },
-  { id: "7", name: "Neha G.", location: "Ahmedabad, Gujarat", rating: 5, date: "March 2026", title: "Better than expected", comment: "I tried Nutyum at a friend's place and immediately ordered 3 packs.", product: "Dark Chocolate Makhana" },
-  { id: "8", name: "Amit T.", location: "Kolkata, West Bengal", rating: 5, date: "February 2026", title: "Finally, a snack for my diet", comment: "Nutyum makhana is low calorie, high protein, and actually tasty.", product: "Himalayan Sea Salt Makhana" },
-];
-
 export default function ReviewsPage() {
-  const [apiReviews, setApiReviews] = useState<Review[]>(FALLBACK_REVIEWS);
+  const [apiReviews, setApiReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortKey>("recent");
   const scrollToForm = () => {
@@ -247,7 +236,7 @@ export default function ReviewsPage() {
     fetch("/api/reviews")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length) {
+        if (Array.isArray(data)) {
           const mapped = data.map((r: any) => ({
             id: r.id,
             name: r.name,
@@ -297,9 +286,9 @@ export default function ReviewsPage() {
             Real reviews from real people who love Nutyum.
           </p>
           <div className="inline-flex items-center gap-3 rounded-full border border-[rgba(23,61,34,0.15)] bg-white px-6 py-3">
-            <StarRating rating={Math.round(overall)} size={16} />
+            {allReviews.length > 0 && <StarRating rating={Math.round(overall)} size={16} />}
             <span className="text-sm font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-body)" }}>
-              {overall.toFixed(1)} out of 5  &middot;  {allReviews.length} reviews
+              {allReviews.length > 0 ? `${overall.toFixed(1)} out of 5  &middot;  ${allReviews.length} reviews` : "No reviews yet"}
             </span>
           </div>
         </motion.div>
@@ -338,6 +327,12 @@ export default function ReviewsPage() {
                 Loading reviews...
               </p>
             </div>
+          </div>
+        ) : allReviews.length === 0 ? (
+          <div className="mb-20 py-16 text-center">
+            <p className="text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+              No reviews yet. Be the first to share your experience!
+            </p>
           </div>
         ) : (
           <div className="mb-20 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
