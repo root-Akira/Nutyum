@@ -46,6 +46,23 @@ type OrderDetail = {
   items: OrderItem[]; statusLogs: StatusLog[]; createdAt: string;
 };
 
+function extractTrackingId(value: string): string | null {
+  try {
+    const url = new URL(value);
+    const knownKeys = ["awb", "tracking_id", "tracking_number", "trackingnumber", "tracking", "track", "shipment", "consignment", "waybill", "ref", "reference", "id", "number", "no", "tn"];
+    for (const key of knownKeys) {
+      const v = url.searchParams.get(key);
+      if (v && v.trim()) return v.trim();
+    }
+    const segments = url.pathname.split("/").filter((s) => s && s.trim());
+    const last = segments.pop()?.trim();
+    if (last && /^[A-Za-z0-9_-]{4,}$/.test(last)) return last;
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-IN", {
     day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -124,6 +141,8 @@ export default function OrderDetailPage() {
   }
 
   const listingPrice = order.subtotal + order.discountAmount;
+  const trackingUrl = order.trackingNumber?.startsWith("http") ? order.trackingNumber : null;
+  const trackingId = trackingUrl ? (extractTrackingId(trackingUrl) || trackingUrl) : order.trackingNumber;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }}>
@@ -356,11 +375,11 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="rounded-xl bg-[#FAF7EE] px-4 py-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
                   <span className="text-xs uppercase tracking-wide text-[#8A9A8C]">Tracking Number</span>
-                  <p className="mt-0.5 break-all font-medium text-[#173D22]">{order.trackingNumber}</p>
+                  <p className="mt-0.5 break-all font-medium text-[#173D22]">{trackingId}</p>
                 </div>
-                {order.trackingNumber.startsWith("http") ? (
+                {trackingUrl ? (
                   <a
-                    href={order.trackingNumber}
+                    href={trackingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#173D22] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0e2616]"
