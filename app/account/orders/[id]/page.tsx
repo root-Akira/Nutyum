@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Package, MapPin, User, Download, Star, CheckCircle, X, Loader2,
+  ArrowLeft, Package, MapPin, User, Download, Star, CheckCircle, X, Loader2, Truck, ExternalLink,
 } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
 
@@ -39,6 +39,7 @@ type OrderDetail = {
   id: string; status: string; subtotal: number; shipping: number; discountAmount: number; total: number;
   reviewed: boolean;
   paymentMethod: string; notes: string; cancellationReason: string;
+  courier?: string; trackingNumber?: string;
   email?: string; name?: string; phone?: string;
   recipientName?: string; recipientEmail?: string; recipientPhone?: string;
   shippingAddress?: { line1: string; line2?: string; city: string; state: string; pincode: string; phone: string; recipient_name?: string; recipient_email?: string; recipient_phone?: string };
@@ -338,6 +339,43 @@ export default function OrderDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Tracking Info (courier + tracking no from admin) */}
+          {order.courier && order.trackingNumber && (
+            <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">
+              <h3 className="mb-4 text-lg font-semibold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+                Shipping &amp; Tracking
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                  <Truck className="h-4 w-4 shrink-0 text-[#173D22]" />
+                  <div>
+                    <p className="font-medium text-[#173D22]">{order.courier}</p>
+                    <p className="text-xs text-[#8A9A8C]">Courier partner</p>
+                  </div>
+                </div>
+                <div className="rounded-xl bg-[#FAF7EE] px-4 py-3 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+                  <span className="text-xs uppercase tracking-wide text-[#8A9A8C]">Tracking Number</span>
+                  <p className="mt-0.5 break-all font-medium text-[#173D22]">{order.trackingNumber}</p>
+                </div>
+                {order.trackingNumber.startsWith("http") ? (
+                  <a
+                    href={order.trackingNumber}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#173D22] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0e2616]"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    <ExternalLink className="h-4 w-4" /> Track Order
+                  </a>
+                ) : (
+                  <p className="text-xs text-[#8A9A8C]" style={{ fontFamily: "var(--font-body)" }}>
+                    Track your order on the {order.courier} website using the number above.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Price Breakdown */}
           <div className="rounded-2xl border border-[rgba(23,61,34,0.1)] bg-white p-6 sm:p-8">

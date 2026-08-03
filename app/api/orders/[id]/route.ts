@@ -79,6 +79,8 @@ export async function GET(
     paymentMethod: o.payment_method || "",
     notes: o.notes || "",
     cancellationReason: o.cancellation_reason || "",
+    courier: o.courier || "",
+    trackingNumber: o.tracking_number || "",
     email: session.user.email || "",
     name: session.user.name || "",
     phone: "",
