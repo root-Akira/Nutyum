@@ -13,6 +13,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,13 +40,22 @@ export function SignUpForm() {
         return;
       }
 
-      const result = await signIn("credentials", {
+      const result = await res.json();
+
+      // Account requires email confirmation — don't auto sign-in
+      if (result.requiresConfirmation) {
+        setSubmitted(true);
+        setLoading(false);
+        return;
+      }
+
+      const signInRes = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
 
-      if (result?.error) {
+      if (signInRes?.error) {
         setError("Account created but sign-in failed. Please sign in.");
         setLoading(false);
         return;
@@ -58,6 +68,34 @@ export function SignUpForm() {
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
+  }
+
+  if (submitted) {
+    return (
+      <div className="w-full max-w-md text-center">
+        <h1 className="mb-3 text-2xl font-bold text-[#173D22]" style={{ fontFamily: "var(--font-heading)" }}>
+          Check your email
+        </h1>
+        <p className="mb-6 text-sm text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then sign in to start shopping.
+        </p>
+        <p className="mb-6 text-xs text-[#4C5A48]" style={{ fontFamily: "var(--font-body)" }}>
+          Didn&apos;t get it? Check your spam folder, or{" "}
+          <Link href="/signin" className="font-semibold text-[#173D22] underline">
+            sign in
+          </Link>{" "}
+          to resend.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push("/signin")}
+          className="w-full rounded-full bg-[#173D22] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#0e2616]"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          Go to Sign In
+        </button>
+      </div>
+    );
   }
 
   return (

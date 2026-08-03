@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { sendWelcomeEmail } from "@/lib/email";
 
 const hasSupabase = !!((process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
       const { data, error } = await getSupabaseAdmin().auth.admin.createUser({
         email,
         password,
-        email_confirm: true,
+        email_confirm: false,
         user_metadata: { name },
       });
 
@@ -30,10 +31,16 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
+      // Send welcome email to new sign-up users (confirmation email is sent by Supabase)
+      sendWelcomeEmail(email, data.user.user_metadata?.name || name).catch(
+        (e) => console.error("Failed to send welcome email:", e),
+      );
+
       return NextResponse.json({
         id: data.user.id,
         name: data.user.user_metadata?.name || name,
         email: data.user.email,
+        requiresConfirmation: true,
       });
     }
 
